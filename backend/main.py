@@ -5,10 +5,13 @@ from fastapi import FastAPI
 from api import router as api_router
 from core.config import settings
 from db import db_helper
+from db.base import Base
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    async with db_helper.engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
     yield
     print("dispose engine")
     db_helper.dispose()
