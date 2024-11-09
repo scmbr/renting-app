@@ -7,7 +7,7 @@ from db.base import Base
 
 class User(SQLAlchemyBaseUserTable[int], Base):
     __tablename__ = "users"
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, primary_key=True, unique=True)
     userName = Column(String(50), nullable=False)
     profilePic = Column(String)
     phoneNumber = Column(String(10))
