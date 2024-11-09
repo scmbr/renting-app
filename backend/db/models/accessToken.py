@@ -12,7 +12,9 @@ from db import Base
 
 class AccessToken(SQLAlchemyBaseAccessTokenTable[int], Base):
     __tablename__ = "accesstokens"
-    userId = Column(Integer, ForeignKey("users.id"), nullable=False)
+    userId = Column(
+        Integer, ForeignKey("users.userId", ondelete="CASCADE"), nullable=False
+    )
     user = relationship("User", back_populates="accessTokens")
 
     @classmethod
