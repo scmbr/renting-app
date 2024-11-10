@@ -15,6 +15,8 @@ DB_HOST = os.getenv("DATABASE_HOST", "localhost")
 DB_NAME = os.getenv("DATABASE_NAME", "postgres")
 DB_USER = os.getenv("DATABASE_USER", "postgres")
 DB_PORT = os.getenv("DATABASE_PORT", "5432")
+RESET_PASSWORD_TOKEN_SECRET = os.getenv("RESET_PASSWORD_TOKEN_SECRET")
+VERIFICATION_TOKEN_SECRET = os.getenv("VERIFICATION_TOKEN_SECRET")
 
 
 class RunConfig(BaseModel):
@@ -29,6 +31,8 @@ class ApiV1Prefix(BaseModel):
 
 class AccessToken(BaseModel):
     lifetime_seconds: int = 3600
+    reset_password_token_secret: str = f"{RESET_PASSWORD_TOKEN_SECRET}"
+    verification_token_secret: str = f"{VERIFICATION_TOKEN_SECRET}"
 
 
 class ApiPrefix(BaseModel):
