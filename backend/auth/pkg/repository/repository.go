@@ -7,6 +7,7 @@ import (
 
 type Authorization interface {
 	CreateUser (user auth.User) (int,error)
+	GetUser(email,password string) (auth.User,error)
 }
 type Repository struct {
 	Authorization
