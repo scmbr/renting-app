@@ -7,10 +7,10 @@ import (
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
-	"github.com/vasya/auth"
-	"github.com/vasya/auth/pkg/handler"
-	"github.com/vasya/auth/pkg/repository"
-	"github.com/vasya/auth/pkg/service"
+	renting_app "github.com/vasya/renting-app"
+	"github.com/vasya/renting-app/pkg/handler"
+	"github.com/vasya/renting-app/pkg/repository"
+	"github.com/vasya/renting-app/pkg/service"
 )
 
 func main() {
@@ -36,7 +36,7 @@ func main() {
 	services:=service.NewServices(repos)
 	handlers:= handler.NewHandler(services)
 
-	srv := new(auth.Server)
+	srv := new(renting_app.Server)
 	if err:=srv.Run(viper.GetString("port"), handlers.InitRoutes());err!=nil{
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}

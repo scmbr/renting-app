@@ -1,4 +1,4 @@
-package auth
+package renting_app
 
 import (
 	"context"

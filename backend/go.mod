@@ -1,4 +1,4 @@
-module github.com/vasya/auth
+module github.com/vasya/renting-app
 
 go 1.23.4
 

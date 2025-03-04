@@ -1,4 +1,4 @@
-package auth
+package renting_app
 
 import "time"
 
@@ -12,7 +12,19 @@ type User struct {
 	Role      int       `json:"role" binding:"required"`
 	CreatedAt time.Time `json:"-"`
 	UpdatedAt time.Time `json:"-"`
-	IsActive  time.Time `json:"-"`
+	IsActive  bool `json:"-"`
+}
+
+type GetUser struct{
+	Id        int       `json:"-" db:"id"`
+	Name      string    `json:"name" binding:"required" db:"name"` 
+	Surname   string    `json:"surename" binding:"required" db:"surname"`
+	Email     string    `json:"email" binding:"required" db:"email"`
+	Birthdate time.Time `json:"birthdate" binding:"required" db:"birthdate"`
+	Role      int       `json:"role" binding:"required" db:"role"`
+	CreatedAt time.Time `json:"-" db:"created_at"`
+	UpdatedAt time.Time `json:"-" db:"updated_at"`
+	IsActive  bool `json:"-" db:"is_active"`
 }
 
 // CREATE TABLE users

@@ -2,7 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/vasya/auth/pkg/service"
+	"github.com/vasya/renting-app/pkg/service"
 )
 
 type Handler struct {
@@ -18,6 +18,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		auth.POST("/sign-up", h.signUp)
 		auth.POST("/sign-in", h.signIn)
+		auth.POST("/check", h.userIdentity)
 	}
+	router.GET("/users", h.getAllUsers)
+	router.GET("/users/:id", h.getUserById)
 	return router
 }
