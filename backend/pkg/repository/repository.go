@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/jmoiron/sqlx"
 	renting_app "github.com/vasya/renting-app"
+	"gorm.io/gorm"
 )
 
 type Authorization interface {
@@ -18,7 +18,7 @@ type Repository struct {
 	Users
 }
 
-func NewRepository(db *sqlx.DB) *Repository {
+func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
 		Users: NewUsersPostgres(db),
