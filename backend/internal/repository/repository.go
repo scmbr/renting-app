@@ -7,7 +7,7 @@ import (
 )
 
 type Authorization interface {
-	CreateUser (user models.User) (int,error)
+	CreateUser (user dto.CreateUser) (int,error)
 	GetUser(email,password string) (models.User,error)
 }
 type Users interface{
