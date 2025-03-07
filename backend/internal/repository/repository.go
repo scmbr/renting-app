@@ -1,17 +1,18 @@
 package repository
 
 import (
-	renting_app "github.com/vasya/renting-app"
+	"github.com/vasya/renting-app/internal/dto"
+	"github.com/vasya/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
 type Authorization interface {
-	CreateUser (user renting_app.User) (int,error)
-	GetUser(email,password string) (renting_app.User,error)
+	CreateUser (user models.User) (int,error)
+	GetUser(email,password string) (models.User,error)
 }
 type Users interface{
-	GetAllUsers() ([]renting_app.GetUser,error)
-	GetUserById(id int) (*renting_app.GetUser,error)
+	GetAllUsers() ([]dto.GetUser,error)
+	GetUserById(id int) (*dto.GetUser,error)
 }
 type Repository struct {
 	Authorization
