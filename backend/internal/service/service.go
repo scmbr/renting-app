@@ -1,18 +1,19 @@
 package service
 
 import (
-	renting_app "github.com/vasya/renting-app"
+	"github.com/vasya/renting-app/internal/dto"
+	"github.com/vasya/renting-app/internal/models"
 	"github.com/vasya/renting-app/internal/repository"
 )
 
 type Authorization interface {
-	CreateUser(user renting_app.User) (int,error)
+	CreateUser(user models.User) (int,error)
 	GenerateToken(email string,password string ) (string, error)
 	ParseToken(token string) (int,error)
 }
 type Users interface {
-	GetAllUsers() ([]renting_app.GetUser,error)
-	GetUserById(id int) (*renting_app.GetUser,error)
+	GetAllUsers() ([]dto.GetUser,error)
+	GetUserById(id int) (*dto.GetUser,error)
 }
 type Services struct {
 	Authorization
