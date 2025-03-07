@@ -1,7 +1,7 @@
 package repository
 
 import (
-	renting_app "github.com/vasya/renting-app"
+	"github.com/vasya/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -14,7 +14,7 @@ func NewAuthPostgres(db *gorm.DB) *AuthPostgres {
 }
 
 // CreateUser — создает нового пользователя в базе данных
-func (r *AuthPostgres) CreateUser(user renting_app.User) (int, error) {
+func (r *AuthPostgres) CreateUser(user models.User) (int, error) {
 	result := r.db.Create(&user)
 	if result.Error != nil {
 		return 0, result.Error
@@ -24,8 +24,8 @@ func (r *AuthPostgres) CreateUser(user renting_app.User) (int, error) {
 }
 
 // GetUser — получает пользователя по email и паролю
-func (r *AuthPostgres) GetUser(email, password string) (renting_app.User, error) {
-	var user renting_app.User
+func (r *AuthPostgres) GetUser(email, password string) (models.User, error) {
+	var user models.User
 	result := r.db.Where("email = ? AND password_hash = ?", email, password).First(&user)
 	if result.Error != nil {
 		return user, result.Error
