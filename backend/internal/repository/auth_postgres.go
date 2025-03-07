@@ -1,6 +1,7 @@
 package repository
 
 import (
+	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/models"
 	"gorm.io/gorm"
 )
@@ -14,13 +15,21 @@ func NewAuthPostgres(db *gorm.DB) *AuthPostgres {
 }
 
 // CreateUser — создает нового пользователя в базе данных
-func (r *AuthPostgres) CreateUser(user models.User) (int, error) {
-	result := r.db.Create(&user)
+func (r *AuthPostgres) CreateUser(user dto.CreateUser) (int, error) {
+	userGorm := models.User{
+		Name:      user.Name,
+		Surname:   user.Surname,
+		Email:     user.Email,
+		PasswordHash: user.Password,
+		Birthdate: user.Birthdate,
+		Role:      user.Role,
+	}
+	result := r.db.Create(&userGorm)
 	if result.Error != nil {
 		return 0, result.Error
 	}
 
-	return int(user.Id), nil
+	return int(userGorm.Id), nil
 }
 
 // GetUser — получает пользователя по email и паролю
