@@ -8,9 +8,9 @@ import (
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	renting_app "github.com/vasya/renting-app"
-	"github.com/vasya/renting-app/pkg/handler"
-	"github.com/vasya/renting-app/pkg/repository"
-	"github.com/vasya/renting-app/pkg/service"
+	"github.com/vasya/renting-app/internal/handler"
+	"github.com/vasya/renting-app/internal/repository"
+	"github.com/vasya/renting-app/internal/service"
 )
 
 func main() {

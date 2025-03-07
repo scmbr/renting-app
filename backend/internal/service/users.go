@@ -2,7 +2,7 @@ package service
 
 import (
 	renting_app "github.com/vasya/renting-app"
-	"github.com/vasya/renting-app/pkg/repository"
+	"github.com/vasya/renting-app/internal/repository"
 )
 
 

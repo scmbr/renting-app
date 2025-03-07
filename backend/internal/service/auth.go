@@ -8,7 +8,7 @@ import (
 
 	"github.com/dgrijalva/jwt-go"
 	renting_app "github.com/vasya/renting-app"
-	"github.com/vasya/renting-app/pkg/repository"
+	"github.com/vasya/renting-app/internal/repository"
 )
 const (
 	salt = "sadfasdw234;fgd9"
