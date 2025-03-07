@@ -1,7 +1,7 @@
 package service
 
 import (
-	renting_app "github.com/vasya/renting-app"
+	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
 )
 
@@ -15,11 +15,11 @@ func NewUsersService(repo repository.Users) *UsersService{
 	return &UsersService{repo:repo}
 }
 
-func (s *UsersService) GetAllUsers() ([]renting_app.GetUser,error){
+func (s *UsersService) GetAllUsers() ([]dto.GetUser,error){
 	
 	return s.repo.GetAllUsers()
 }
-func (s *UsersService) GetUserById(id int) (*renting_app.GetUser,error){
+func (s *UsersService) GetUserById(id int) (*dto.GetUser,error){
 	
 	return s.repo.GetUserById(id)
 }
