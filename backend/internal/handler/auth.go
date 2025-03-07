@@ -4,11 +4,11 @@ import (
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vasya/renting-app/internal/models"
+	"github.com/vasya/renting-app/internal/dto"
 )
 
 func (h *Handler) signUp(c *gin.Context) {
-	var input models.User
+	var input dto.CreateUser
 	if err := c.BindJSON(&input); err != nil{
 		newErrorResponse(c,http.StatusBadRequest,err.Error())
 		return
