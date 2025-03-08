@@ -16,16 +16,3 @@ type User struct {
 }
 
 
-// CREATE TABLE users
-// (
-//     id SERIAL NOT NULL UNIQUE,
-//     name VARCHAR(255) NOT NULL,
-//     surname VARCHAR(255) NOT NULL,
-//     email VARCHAR(255) NOT NULL,
-//     password_hash VARCHAR(255) NOT NULL,
-//     birthdate DATE NOT NULL,
-//     created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-//     updated_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP,
-//     role INT NOT NULL,
-//     is_active BOOLEAN DEFAULT TRUE
-// );
