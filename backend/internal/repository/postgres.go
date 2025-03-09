@@ -3,11 +3,10 @@ package repository
 import (
 	"fmt"
 
+	"github.com/vasya/renting-app/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
-
-const usersTable = "users"
 
 // Config — структура для конфигурации подключения к PostgreSQL
 type Config struct {
@@ -25,6 +24,7 @@ func NewPostgresDB(cfg Config) (*gorm.DB, error) {
 		cfg.Host, cfg.Port, cfg.Username, cfg.DBName, cfg.Password, cfg.SSLMode)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db.AutoMigrate(&models.User{})
 	if err != nil {
 		return nil, err
 	}
