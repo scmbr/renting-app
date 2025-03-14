@@ -1,6 +1,9 @@
 package service
 
 import (
+	"mime/multipart"
+
+	"github.com/gin-gonic/gin"
 	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
 )
@@ -13,6 +16,9 @@ type Authorization interface {
 type Users interface {
 	GetAllUsers() ([]dto.GetUser,error)
 	GetUserById(id int) (*dto.GetUser,error)
+	GetCurrentUserId(с *gin.Context) (int,error)
+	UploadAvatarToS3(fileHeader *multipart.FileHeader) (string,error)
+	UpdateAvatar(userId int, avatarURL string)(error)
 }
 type Services struct {
 	Authorization
