@@ -69,3 +69,18 @@ func (r *UsersPostgres) GetUserById(id int) (*dto.GetUser, error) {
 	return &getUserDTO, nil
 }
 
+func (r *UsersPostgres) UpdateAvatar(userId int,avatarURL string) (error) {
+	var user models.User
+	result := r.db.First(&user, "id = ?", userId)
+	if result.Error != nil {
+		return result.Error
+	}
+	user.ProfilePicture = avatarURL
+	result=r.db.Save(&user)
+	if result.Error!=nil{
+		return result.Error
+	}
+	return nil
+	
+}
+
