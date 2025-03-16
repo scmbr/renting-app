@@ -1,10 +1,12 @@
 package handler
 
 import (
+	"fmt"
 	"net/http"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/vasya/renting-app/internal/cloud"
 )
 
 func (h *Handler) getAllUsers(c *gin.Context) {
@@ -37,21 +39,26 @@ func (h *Handler) getUserById(c *gin.Context) {
 func (h *Handler) UploadAvatarHandler(c *gin.Context) {
     fileHeader, err := c.FormFile("avatar")
     if err != nil {
-        c.AbortWithStatusJSON(400, gin.H{"error": "Invalid file"})
+        newErrorResponse(c,http.StatusInternalServerError,err.Error())
         return
     }
+    
 
+    userID, _ := c.Get("userId")
+  
+    fmt.Printf("Current user ID: %d\n", userID)
+    
     // Получение URL аватара через сервис загрузки
-    avatarURL, err := h.services.Users.UploadAvatarToS3(fileHeader)
+    avatarURL, err := cloud.UploadAvatarToS3(fileHeader)
     if err != nil {
-        c.AbortWithStatusJSON(500, gin.H{"error": "Failed to upload avatar"})
+        newErrorResponse(c,http.StatusInternalServerError,err.Error())
         return
     }
 
-    userID,err := h.services.Users.GetCurrentUserId(c) // Реализуйте получение ID пользователя
-    err = h.services.Users.UpdateAvatar(userID, avatarURL)
+   
+    err = h.services.Users.UpdateAvatar(userID.(int), avatarURL)
     if err != nil {
-        c.AbortWithStatusJSON(500, gin.H{"error": "Failed to update avatar"})
+        newErrorResponse(c,http.StatusInternalServerError,err.Error())
         return
     }
 
