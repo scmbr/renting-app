@@ -20,7 +20,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/sign-in", h.signIn)
 		auth.POST("/check", h.userIdentity)
 	}
-	router.GET("/users", h.getAllUsers)
-	router.GET("/users/:id", h.getUserById)
+	api:=router.Group("/api",h.userIdentity)
+	{
+		api.GET("/users", h.getAllUsers)
+		api.GET("/users/:id", h.getUserById)
+		api.POST("/avatar/upload", h.UploadAvatarHandler)
+	}
 	return router
 }
