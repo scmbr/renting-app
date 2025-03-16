@@ -13,6 +13,7 @@ type Authorization interface {
 type Users interface{
 	GetAllUsers() ([]dto.GetUser,error)
 	GetUserById(id int) (*dto.GetUser,error)
+	UpdateAvatar(userId int,avatarURL string) (error)
 }
 type Repository struct {
 	Authorization
