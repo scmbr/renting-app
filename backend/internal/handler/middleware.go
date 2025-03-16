@@ -9,7 +9,6 @@ import (
 
 const (
 	authorizationHeader = "Authorization"
-	userCtx="userId"
 )
 
 func (h *Handler) userIdentity(c *gin.Context) {
@@ -29,9 +28,5 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized,err.Error())
 		return
 	}
-	c.Set(userCtx,userId)
-	c.JSON(http.StatusOK,map[string]interface{}{
-		"active":true,
-		"id": userId,
-	})
+	c.Set("userId",userId)
 }
