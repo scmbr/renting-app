@@ -8,15 +8,16 @@ import (
 )
 
 type Authorization interface {
-	CreateUser(user dto.CreateUser) (int,error)
-	GenerateToken(email string,password string ) (string, error)
-	ParseToken(token string) (int,error)
+	CreateUser(user dto.CreateUser) (int, error)
+	GenerateToken(email string, password string) (string, error)
+	ParseToken(token string) (int, error)
 }
 type Users interface {
-	GetAllUsers() ([]dto.GetUser,error)
-	GetUserById(id int) (*dto.GetUser,error)
-	UploadAvatarToS3(fileHeader *multipart.FileHeader) (string,error)
-	UpdateAvatar(userId int, avatarURL string)(error)
+	GetAllUsers() ([]dto.GetUser, error)
+	GetUserById(id int) (*dto.GetUser, error)
+	DeleteUserById(id int) (*dto.GetUser, error)
+	UploadAvatarToS3(fileHeader *multipart.FileHeader) (string, error)
+	UpdateAvatar(userId int, avatarURL string) error
 }
 type Services struct {
 	Authorization
@@ -26,6 +27,6 @@ type Services struct {
 func NewServices(repos *repository.Repository) *Services {
 	return &Services{
 		Authorization: NewAuthService(repos.Authorization),
-		Users: NewUsersService(repos.Users),
+		Users:         NewUsersService(repos.Users),
 	}
 }
