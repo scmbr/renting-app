@@ -16,6 +16,12 @@ func NewAuthPostgres(db *gorm.DB) *AuthPostgres {
 
 // CreateUser — создает нового пользователя в базе данных
 func (r *AuthPostgres) CreateUser(user dto.CreateUser) (int, error) {
+	tx := r.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 	userGorm := models.User{
 		Name:         user.Name,
 		Surname:      user.Surname,
@@ -23,8 +29,9 @@ func (r *AuthPostgres) CreateUser(user dto.CreateUser) (int, error) {
 		PasswordHash: user.Password,
 		Birthdate:    user.Birthdate,
 	}
-	result := r.db.Create(&userGorm)
+	result := tx.Create(&userGorm)
 	if result.Error != nil {
+		tx.Rollback()
 		return 0, result.Error
 	}
 
