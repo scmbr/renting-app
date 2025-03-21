@@ -20,5 +20,4 @@ type CreateUser struct {
 	Email     string    `json:"email" binding:"required"`
 	Password  string    `json:"password" binding:"required"`
 	Birthdate time.Time `json:"birthdate" binding:"required"`
-	Role      string    `json:"role" binding:"required"`
 }

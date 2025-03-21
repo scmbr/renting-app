@@ -22,7 +22,6 @@ func (r *AuthPostgres) CreateUser(user dto.CreateUser) (int, error) {
 		Email:        user.Email,
 		PasswordHash: user.Password,
 		Birthdate:    user.Birthdate,
-		Role:         user.Role,
 	}
 	result := r.db.Create(&userGorm)
 	if result.Error != nil {
