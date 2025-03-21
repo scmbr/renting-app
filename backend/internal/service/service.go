@@ -16,6 +16,7 @@ type Users interface {
 	GetAllUsers() ([]dto.GetUser, error)
 	GetUserById(id int) (*dto.GetUser, error)
 	DeleteUserById(id int) (*dto.GetUser, error)
+	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
 	UploadAvatarToS3(fileHeader *multipart.FileHeader) (string, error)
 	UpdateAvatar(userId int, avatarURL string) error
 }

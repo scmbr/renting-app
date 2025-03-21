@@ -28,7 +28,9 @@ func (s *UsersService) DeleteUserById(id int) (*dto.GetUser, error) {
 
 	return s.repo.DeleteUserById(id)
 }
-
+func (s *UsersService) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
+	return s.repo.UpdateUserById(input)
+}
 func (s *UsersService) UploadAvatarToS3(fileHeader *multipart.FileHeader) (string, error) {
 
 	return cloud.UploadAvatarToS3(fileHeader)
