@@ -48,6 +48,10 @@ func (h *Handler) adminMiddleware(c *gin.Context) {
 		return
 	}
 	user, err := h.services.Users.GetUserById(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusForbidden, err.Error())
+		return
+	}
 	if user.Role != "admin" {
 		newErrorResponse(c, http.StatusForbidden, err.Error())
 		return
