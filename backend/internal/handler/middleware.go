@@ -53,7 +53,7 @@ func (h *Handler) adminMiddleware(c *gin.Context) {
 		return
 	}
 	if user.Role != "admin" {
-		newErrorResponse(c, http.StatusForbidden, err.Error())
+		newErrorResponse(c, http.StatusForbidden, "Access denied: admin rights required")
 		return
 	}
 
