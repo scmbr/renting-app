@@ -18,7 +18,7 @@ type User struct {
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
 	Verified       bool
-	Rating         bool
-	Gender         bool
+	Rating         float32
+	Gender         int `gorm:"default:0;not null"`
 	IsActive       bool
 }
