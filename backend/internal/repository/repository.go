@@ -7,13 +7,14 @@ import (
 )
 
 type Authorization interface {
-	CreateUser (user dto.CreateUser) (int,error)
-	GetUser(email,password string) (models.User,error)
+	CreateUser(user dto.CreateUser) (int, error)
+	GetUser(email, password string) (models.User, error)
 }
-type Users interface{
-	GetAllUsers() ([]dto.GetUser,error)
-	GetUserById(id int) (*dto.GetUser,error)
-	UpdateAvatar(userId int,avatarURL string) (error)
+type Users interface {
+	GetAllUsers() ([]dto.GetUser, error)
+	GetUserById(id int) (*dto.GetUser, error)
+	DeleteUserById(id int) (*dto.GetUser, error)
+	UpdateAvatar(userId int, avatarURL string) error
 }
 type Repository struct {
 	Authorization
@@ -23,6 +24,6 @@ type Repository struct {
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
 		Authorization: NewAuthPostgres(db),
-		Users: NewUsersPostgres(db),
+		Users:         NewUsersPostgres(db),
 	}
 }
