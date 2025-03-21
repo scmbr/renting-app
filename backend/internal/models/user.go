@@ -2,23 +2,23 @@ package models
 
 import (
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type User struct {
-	Id        int       
-	Name      string    
-	Surname   string    
-	Email     string    
-	PasswordHash  string   
-	Birthdate time.Time 
-	Role      int       
+	gorm.Model
+	Name           string
+	Surname        string
+	Email          string `gorm:"unique;not null"`
+	PasswordHash   string `gorm:"not null"`
+	Birthdate      time.Time
+	Role           int
 	ProfilePicture string
-	CreatedAt time.Time 
-	UpdatedAt time.Time 
-	Verified bool
-	Rating bool
-	Gender bool
-	IsActive  bool 
+	CreatedAt      time.Time
+	UpdatedAt      time.Time
+	Verified       bool
+	Rating         bool
+	Gender         bool
+	IsActive       bool
 }
-
-
