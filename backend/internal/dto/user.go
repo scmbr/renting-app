@@ -8,7 +8,7 @@ type GetUser struct {
 	Surname   string    `json:"surname" binding:"required"`
 	Email     string    `json:"email" binding:"required"`
 	Birthdate time.Time `json:"birthdate" binding:"required"`
-	Role      int       `json:"role" binding:"required"`
+	Role      string    `json:"role" binding:"required"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 	IsActive  bool      `json:"is_active"`
@@ -20,5 +20,5 @@ type CreateUser struct {
 	Email     string    `json:"email" binding:"required"`
 	Password  string    `json:"password" binding:"required"`
 	Birthdate time.Time `json:"birthdate" binding:"required"`
-	Role      int       `json:"role" binding:"required"`
+	Role      string    `json:"role" binding:"required"`
 }

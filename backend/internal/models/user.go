@@ -13,7 +13,7 @@ type User struct {
 	Email          string `gorm:"unique;not null"`
 	PasswordHash   string `gorm:"not null"`
 	Birthdate      time.Time
-	Role           int
+	Role           string
 	ProfilePicture string
 	CreatedAt      time.Time
 	UpdatedAt      time.Time
