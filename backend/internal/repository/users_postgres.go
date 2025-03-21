@@ -47,14 +47,23 @@ func (r *UsersPostgres) GetAllUsers() ([]dto.GetUser, error) {
 
 // GetUserById — получение пользователя по ID
 func (r *UsersPostgres) GetUserById(id int) (*dto.GetUser, error) {
+	tx := r.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
 	var user models.User
-	result := r.db.First(&user, "id = ?", id)
+	result := tx.First(&user, "id = ?", id)
 	if result.Error != nil {
+		tx.Rollback()
 		return nil, result.Error
 	}
 	if result.RowsAffected == 0 {
+		tx.Rollback()
 		return nil, errors.New("user not found")
 	}
+	tx.Commit()
 	getUserDTO := dto.GetUser{
 		Id:        int(user.ID),
 		Name:      user.Name,
