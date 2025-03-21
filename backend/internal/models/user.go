@@ -15,6 +15,9 @@ type User struct {
 	ProfilePicture string
 	CreatedAt time.Time 
 	UpdatedAt time.Time 
+	Verified bool
+	Rating bool
+	Gender bool
 	IsActive  bool 
 }
 
