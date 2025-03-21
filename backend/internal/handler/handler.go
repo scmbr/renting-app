@@ -24,10 +24,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	api := router.Group("/api", h.userIdentity)
 	{
 		api.POST("/users/upload-avatar", h.UploadAvatarHandler)
-	}
-	// admin:=router.Group("/admin",h.adminMiddleware)
-	// {
 
-	// }
+	}
+	admin := router.Group("/admin", h.adminMiddleware)
+	{
+		admin.GET("/users/:id", h.deleteUserById)
+		admin.GET("/users", h.getAllUsers)
+		admin.GET("/users/:id", h.getUserById)
+
+	}
 	return router
 }
