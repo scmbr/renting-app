@@ -21,3 +21,11 @@ type CreateUser struct {
 	Password  string    `json:"password" binding:"required"`
 	Birthdate time.Time `json:"birthdate" binding:"required"`
 }
+type UpdateUserAdmin struct {
+	Name      *string    `json:"name"`
+	Surname   *string    `json:"surname"`
+	Email     *string    `json:"email"`
+	Birthdate *time.Time `json:"birthdate"`
+	Role      *string    `json:"role"`
+	IsActive  *bool      `json:"is_active"`
+}
