@@ -28,7 +28,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
-		admin.GET("/users/:id", h.deleteUserById)
+		admin.DELETE("/users/:id", h.deleteUserById)
 		admin.GET("/users", h.getAllUsers)
 		admin.GET("/users/:id", h.getUserById)
 
