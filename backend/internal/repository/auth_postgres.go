@@ -34,7 +34,7 @@ func (r *AuthPostgres) CreateUser(user dto.CreateUser) (int, error) {
 		tx.Rollback()
 		return 0, result.Error
 	}
-
+	tx.Commit()
 	return int(userGorm.ID), nil
 }
 
