@@ -29,7 +29,7 @@ func (r *UsersPostgres) GetAllUsers() ([]dto.GetUser, error) {
 	var getUserDTOs []dto.GetUser
 	for _, user := range users {
 		getUserDTO := dto.GetUser{
-			Id:        user.Id,
+			Id:        int(user.ID),
 			Name:      user.Name,
 			Surname:   user.Surname,
 			Email:     user.Email,
@@ -37,7 +37,7 @@ func (r *UsersPostgres) GetAllUsers() ([]dto.GetUser, error) {
 			Role:      user.Role,
 			CreatedAt: user.CreatedAt,
 			UpdatedAt: user.UpdatedAt,
-			IsActive: user.IsActive,
+			IsActive:  user.IsActive,
 		}
 		getUserDTOs = append(getUserDTOs, getUserDTO)
 	}
@@ -56,7 +56,7 @@ func (r *UsersPostgres) GetUserById(id int) (*dto.GetUser, error) {
 		return nil, errors.New("user not found")
 	}
 	getUserDTO := dto.GetUser{
-		Id:        user.Id,
+		Id:        int(user.ID),
 		Name:      user.Name,
 		Surname:   user.Surname,
 		Email:     user.Email,
@@ -64,23 +64,22 @@ func (r *UsersPostgres) GetUserById(id int) (*dto.GetUser, error) {
 		Role:      user.Role,
 		CreatedAt: user.CreatedAt,
 		UpdatedAt: user.UpdatedAt,
-		IsActive: user.IsActive,
+		IsActive:  user.IsActive,
 	}
 	return &getUserDTO, nil
 }
 
-func (r *UsersPostgres) UpdateAvatar(userId int,avatarURL string) (error) {
+func (r *UsersPostgres) UpdateAvatar(userId int, avatarURL string) error {
 	var user models.User
 	result := r.db.First(&user, "id = ?", userId)
 	if result.Error != nil {
 		return result.Error
 	}
 	user.ProfilePicture = avatarURL
-	result=r.db.Save(&user)
-	if result.Error!=nil{
+	result = r.db.Save(&user)
+	if result.Error != nil {
 		return result.Error
 	}
 	return nil
-	
-}
 
+}
