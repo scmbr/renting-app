@@ -1,8 +1,18 @@
-port: "8000"
-
-db:
+http:
+  port: 8000
+  maxHeaderBytes: 1
+  readTimeout: 10s
+  writeTimeout: 10s
+postgres:
   username: "postgres"
   host: "localhost"
   port: "5436"
   dbname: "postgres"
   sslmode: "disable"
+fileStorage:
+  url: ams3.digitaloceanspaces.com
+  bucket: courses
+auth:
+  accessTokenTTL: 2h
+  refreshTokenTTL: 720h #30 days
+  verificationCodeLength: 8
