@@ -1,48 +1,88 @@
 package app
 
 import (
-	"os"
+	"context"
+	"fmt"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/credentials"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
 	"github.com/sirupsen/logrus"
-	"github.com/spf13/viper"
-	renting_app "github.com/vasya/renting-app"
+	app_cfg "github.com/vasya/renting-app/internal/config"
 	"github.com/vasya/renting-app/internal/handler"
 	"github.com/vasya/renting-app/internal/repository"
+	"github.com/vasya/renting-app/internal/server"
 	"github.com/vasya/renting-app/internal/service"
+	"github.com/vasya/renting-app/pkg/hash"
+	"github.com/vasya/renting-app/pkg/storage"
 )
-func Run(){
-	logrus.SetFormatter(new(logrus.JSONFormatter))
-	if err:= initConfig(); err!=nil{
-		logrus.Fatalf("error initializing configs: %s",err.Error())
-	}
-	if err:=godotenv.Load();err!=nil{
-		logrus.Fatalf("error loading env variables: %s",err.Error())
-	}
-	db,err:=repository.NewPostgresDB(repository.Config{
-		Host: viper.GetString("db.host"),
-		Port:viper.GetString("db.port"),
-		Username:viper.GetString("db.username"),
-		Password: os.Getenv("DB_PASSWORD"),
-		DBName:viper.GetString("db.dbname"),
-		SSLMode: viper.GetString("db.sslmode"),
-	})
-	if err!=nil{
-		logrus.Fatalf("failed to initialize db:%s",err.Error())
-	}
-	repos:=repository.NewRepository(db)
-	services:=service.NewServices(repos)
-	handlers:= handler.NewHandler(services)
 
-	srv := new(renting_app.Server)
-	if err:=srv.Run(viper.GetString("port"), handlers.InitRoutes());err!=nil{
+func Run(configPath string) {
+	if err := godotenv.Load(); err != nil {
+		logrus.Fatalf("error loading env variables: %s", err.Error())
+	}
+	logrus.SetFormatter(new(logrus.JSONFormatter))
+	cfg, err := app_cfg.Init(configPath)
+	if err != nil {
+		logrus.Fatalf("error initializing configs: %s", err.Error())
+
+		return
+	}
+	fmt.Print(cfg.Postgres.Password)
+	fmt.Print(cfg.Postgres.Port)
+	db, err := repository.NewPostgresDB(repository.Config{
+		Host:     cfg.Postgres.Host,
+		Port:     cfg.Postgres.Port,
+		Username: cfg.Postgres.Username,
+		Password: cfg.Postgres.Password,
+		DBName:   cfg.Postgres.Name,
+		SSLMode:  cfg.Postgres.SSLMode,
+	})
+
+	if err != nil {
+		logrus.Fatalf("failed to initialize db:%s", err.Error())
+	}
+	storageProvider, err := newStorageProvider(cfg)
+	if err != nil {
+		logrus.Fatalf("error initializing storage: %s", err.Error())
+	}
+	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+	repos := repository.NewRepository(db)
+	services := service.NewServices(service.Deps{
+		Repos:           repos,
+		Hasher:          hasher,
+		StorageProvider: storageProvider,
+	})
+	handlers := handler.NewHandler(services)
+
+	srv := new(server.Server)
+	if err := srv.Run(cfg.HTTP.Port, handlers.InitRoutes()); err != nil {
 		logrus.Fatalf("error occured while running http server: %s", err.Error())
 	}
-
 }
-func initConfig() error{
-	viper.AddConfigPath("configs")
-	viper.SetConfigName("config")
-	return viper.ReadInConfig()
+
+func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
+
+	s3_cfg, err := config.LoadDefaultConfig(context.Background(),
+		config.WithRegion("ru-central1"),
+		config.WithCredentialsProvider(credentials.NewStaticCredentialsProvider(
+			cfg.FileStorage.AccessKey,
+			cfg.FileStorage.SecretKey,
+			"",
+		)),
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	client := s3.NewFromConfig(s3_cfg, func(o *s3.Options) {
+		o.BaseEndpoint = aws.String(cfg.FileStorage.Endpoint)
+		o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
+		o.EndpointResolverV2 = s3.NewDefaultEndpointResolverV2()
+	})
+	provider := storage.NewFileStorage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint)
+	return provider, nil
 }
