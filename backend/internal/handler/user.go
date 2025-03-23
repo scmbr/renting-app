@@ -1,11 +1,9 @@
 package handler
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/gin-gonic/gin"
-	"github.com/vasya/renting-app/internal/cloud"
 )
 
 func (h *Handler) UploadAvatarHandler(c *gin.Context) {
@@ -17,10 +15,8 @@ func (h *Handler) UploadAvatarHandler(c *gin.Context) {
 
 	userID, _ := c.Get("userId")
 
-	fmt.Printf("Current user ID: %d\n", userID)
-
 	// Получение URL аватара через сервис загрузки
-	avatarURL, err := cloud.UploadAvatarToS3(fileHeader)
+	avatarURL, err := h.services.Users.UploadAvatarToS3(fileHeader)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -33,4 +29,14 @@ func (h *Handler) UploadAvatarHandler(c *gin.Context) {
 	}
 
 	c.JSON(200, gin.H{"avatar_url": avatarURL})
+}
+func (h *Handler) getCurrentUser(c *gin.Context) {
+	userID, _ := c.Get("userId")
+
+	user, err := h.services.Users.GetUserById(userID.(int))
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, user)
 }
