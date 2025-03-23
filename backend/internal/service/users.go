@@ -3,7 +3,6 @@ package service
 import (
 	"mime/multipart"
 
-	"github.com/vasya/renting-app/internal/cloud"
 	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
 )
@@ -33,7 +32,7 @@ func (s *UsersService) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) 
 }
 func (s *UsersService) UploadAvatarToS3(fileHeader *multipart.FileHeader) (string, error) {
 
-	return cloud.UploadAvatarToS3(fileHeader)
+	return "", nil
 }
 func (s *UsersService) UpdateAvatar(userId int, avatarURL string) error {
 
