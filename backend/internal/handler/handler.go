@@ -21,9 +21,10 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/sign-in", h.signIn)
 		auth.POST("/check", h.userIdentity)
 	}
-	api := router.Group("/client", h.userIdentity)
+	client := router.Group("/client", h.userIdentity)
 	{
-		api.POST("/users/upload-avatar", h.UploadAvatarHandler)
+		client.GET("/me", h.getCurrentUser)
+		//client.POST("/users/upload-avatar", h.UploadAvatarHandler)
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
