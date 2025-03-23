@@ -5,6 +5,8 @@ import (
 
 	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
+	"github.com/vasya/renting-app/pkg/hash"
+	"github.com/vasya/renting-app/pkg/storage"
 )
 
 type Authorization interface {
@@ -25,9 +27,15 @@ type Services struct {
 	Users
 }
 
-func NewServices(repos *repository.Repository) *Services {
+type Deps struct {
+	Repos           *repository.Repository
+	Hasher          hash.PasswordHasher
+	StorageProvider storage.Provider
+}
+
+func NewServices(deps Deps) *Services {
 	return &Services{
-		Authorization: NewAuthService(repos.Authorization),
-		Users:         NewUsersService(repos.Users),
+		Authorization: NewAuthService(deps.Repos.Authorization),
+		Users:         NewUsersService(deps.Repos.Users),
 	}
 }
