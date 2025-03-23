@@ -5,6 +5,8 @@ import (
 	"github.com/vasya/renting-app/internal/app"
 )
 
+const configsDir = "configs"
+
 func main() {
-	app.Run()
+	app.Run(configsDir)
 }
