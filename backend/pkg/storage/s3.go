@@ -14,13 +14,15 @@ type FileStorage struct {
 	client   *s3.Client
 	bucket   string
 	endpoint string
+	website  string
 }
 
-func NewFileStorage(client *s3.Client, bucket, endpoint string) *FileStorage {
+func NewFileStorage(client *s3.Client, bucket, endpoint string, website string) *FileStorage {
 	return &FileStorage{
 		client:   client,
 		bucket:   bucket,
 		endpoint: endpoint,
+		website:  website,
 	}
 }
 
@@ -30,18 +32,18 @@ func (fs *FileStorage) Upload(ctx context.Context, input UploadInput) (string, e
 		Bucket:        aws.String(fs.bucket),
 		Key:           aws.String(filename),
 		Body:          input.File,
-		ContentType:   aws.String("image/png"), // Укажите MIME-тип
+		ContentType:   aws.String(input.ContentType),
 		ContentLength: nil,
 	})
 	if err != nil {
 		return "", err
 	}
 
-	return fs.generateFileURL(input.Name), nil
+	return fs.generateFileURL(filename), nil
 }
 
 func (fs *FileStorage) generateFileURL(filename string) string {
-	return fmt.Sprintf("https://%s.%s/%s", fs.bucket, fs.endpoint, filename)
+	return fmt.Sprintf("https://%s.%s/%s", fs.bucket, fs.website, filename)
 }
 func generateFilename(original string) string {
 	ext := filepath.Ext(original)

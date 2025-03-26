@@ -27,6 +27,7 @@ type (
 		Bucket    string `mapstructure:"bucket"`
 		AccessKey string
 		SecretKey string
+		Website   string
 	}
 	AuthConfig struct {
 		JWT          JWTConfig
@@ -92,7 +93,9 @@ func setFromEnv(cfg *Config) {
 	cfg.FileStorage.AccessKey = os.Getenv("STORAGE_ACCESS_KEY")
 	cfg.FileStorage.SecretKey = os.Getenv("STORAGE_SECRET_KEY")
 	cfg.FileStorage.Bucket = os.Getenv("STORAGE_BUCKET")
+	cfg.FileStorage.Website = os.Getenv("BUCKET_WEBSITE_URL")
 }
+
 func parseConfigFile(folder string) error {
 	viper.AddConfigPath(folder)
 	viper.SetConfigName("config")

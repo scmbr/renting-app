@@ -85,6 +85,6 @@ func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
 		o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
 		o.EndpointResolverV2 = s3.NewDefaultEndpointResolverV2()
 	})
-	provider := storage.NewFileStorage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint)
+	provider := storage.NewFileStorage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint, cfg.FileStorage.Website)
 	return provider, nil
 }
