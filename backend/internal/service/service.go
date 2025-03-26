@@ -31,6 +31,8 @@ type Deps struct {
 	Repos           *repository.Repository
 	Hasher          hash.PasswordHasher
 	StorageProvider storage.Provider
+	AccessTokenTTL  time.Duration
+	RefreshTokenTTL time.Duration
 }
 
 func NewServices(deps Deps) *Services {

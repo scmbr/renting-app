@@ -55,6 +55,8 @@ func Run(configPath string) {
 		Repos:           repos,
 		Hasher:          hasher,
 		StorageProvider: storageProvider,
+		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
+		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
 	})
 	handlers := handler.NewHandler(services)
 
