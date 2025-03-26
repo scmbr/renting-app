@@ -1,7 +1,9 @@
 package service
 
 import (
+	"context"
 	"mime/multipart"
+	"time"
 
 	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
@@ -19,7 +21,7 @@ type Users interface {
 	GetUserById(id int) (*dto.GetUser, error)
 	DeleteUserById(id int) (*dto.GetUser, error)
 	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
-	UploadAvatarToS3(fileHeader *multipart.FileHeader) (string, error)
+	UploadAvatarToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
 	UpdateAvatar(userId int, avatarURL string) error
 }
 type Services struct {
@@ -37,7 +39,7 @@ type Deps struct {
 
 func NewServices(deps Deps) *Services {
 	return &Services{
-		Authorization: NewAuthService(deps.Repos.Authorization),
-		Users:         NewUsersService(deps.Repos.Users),
+		Authorization: NewAuthService(deps.Repos.Authorization, deps.Hasher),
+		Users:         NewUsersService(deps.Repos.Users, deps.StorageProvider),
 	}
 }

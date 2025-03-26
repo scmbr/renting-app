@@ -16,7 +16,7 @@ func (h *Handler) UploadAvatarHandler(c *gin.Context) {
 	userID, _ := c.Get("userId")
 
 	// Получение URL аватара через сервис загрузки
-	avatarURL, err := h.services.Users.UploadAvatarToS3(fileHeader)
+	avatarURL, err := h.services.Users.UploadAvatarToS3(c.Request.Context(), fileHeader)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
