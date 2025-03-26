@@ -24,7 +24,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	client := router.Group("/client", h.userIdentity)
 	{
 		client.GET("/me", h.getCurrentUser)
-		//client.POST("/users/upload-avatar", h.UploadAvatarHandler)
+		client.POST("/upload-avatar", h.UploadAvatarHandler)
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
