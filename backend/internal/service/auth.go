@@ -1,14 +1,13 @@
 package service
 
 import (
-	"crypto/sha1"
 	"errors"
-	"fmt"
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
 	"github.com/vasya/renting-app/internal/dto"
 	"github.com/vasya/renting-app/internal/repository"
+	"github.com/vasya/renting-app/pkg/hash"
 )
 
 const (
@@ -22,19 +21,31 @@ type tokenClaims struct {
 	UserId int `json:"user_id"`
 }
 type AuthService struct {
-	repo repository.Authorization
+	repo   repository.Authorization
+	hasher hash.PasswordHasher
 }
 
-func NewAuthService(repo repository.Authorization) *AuthService {
-	return &AuthService{repo: repo}
+func NewAuthService(repo repository.Authorization, hasher hash.PasswordHasher) *AuthService {
+	return &AuthService{
+		repo:   repo,
+		hasher: hasher,
+	}
 }
 
 func (s *AuthService) CreateUser(user dto.CreateUser) (int, error) {
-	user.Password = generatePasswordHash(user.Password)
+	passwordHash, err := s.hasher.Hash(user.Password)
+	if err != nil {
+		return 0, err
+	}
+	user.Password = passwordHash
 	return s.repo.CreateUser(user)
 }
 func (s *AuthService) GenerateToken(email string, password string) (string, error) {
-	user, err := s.repo.GetUser(email, generatePasswordHash(password))
+	passwordHash, err := s.hasher.Hash(password)
+	if err != nil {
+		return "", err
+	}
+	user, err := s.repo.GetUser(email, passwordHash)
 	if err != nil {
 		return "", err
 	}
@@ -47,11 +58,7 @@ func (s *AuthService) GenerateToken(email string, password string) (string, erro
 	})
 	return token.SignedString([]byte(signingKey))
 }
-func generatePasswordHash(password string) string {
-	hash := sha1.New()
-	hash.Write([]byte(password))
-	return fmt.Sprintf("%x", hash.Sum([]byte(salt)))
-}
+
 func (s *AuthService) ParseToken(accessToken string) (int, error) {
 	token, err := jwt.ParseWithClaims(accessToken, &tokenClaims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
