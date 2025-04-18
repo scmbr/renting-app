@@ -10,14 +10,14 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/joho/godotenv"
 	_ "github.com/lib/pq"
+	app_cfg "github.com/scmbr/renting-app/internal/config"
+	"github.com/scmbr/renting-app/internal/handler"
+	"github.com/scmbr/renting-app/internal/repository"
+	"github.com/scmbr/renting-app/internal/server"
+	"github.com/scmbr/renting-app/internal/service"
+	"github.com/scmbr/renting-app/pkg/hash"
+	"github.com/scmbr/renting-app/pkg/storage"
 	"github.com/sirupsen/logrus"
-	app_cfg "github.com/vasya/renting-app/internal/config"
-	"github.com/vasya/renting-app/internal/handler"
-	"github.com/vasya/renting-app/internal/repository"
-	"github.com/vasya/renting-app/internal/server"
-	"github.com/vasya/renting-app/internal/service"
-	"github.com/vasya/renting-app/pkg/hash"
-	"github.com/vasya/renting-app/pkg/storage"
 )
 
 func Run(configPath string) {

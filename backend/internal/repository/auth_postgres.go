@@ -1,8 +1,8 @@
 package repository
 
 import (
-	"github.com/vasya/renting-app/internal/dto"
-	"github.com/vasya/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 

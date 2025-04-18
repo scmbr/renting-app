@@ -3,7 +3,7 @@ package repository
 import (
 	"fmt"
 
-	"github.com/vasya/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )

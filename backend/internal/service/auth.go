@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/dgrijalva/jwt-go"
-	"github.com/vasya/renting-app/internal/dto"
-	"github.com/vasya/renting-app/internal/repository"
-	"github.com/vasya/renting-app/pkg/hash"
+	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/repository"
+	"github.com/scmbr/renting-app/pkg/hash"
 )
 
 const (

@@ -2,7 +2,7 @@ package main
 
 import (
 	_ "github.com/lib/pq"
-	"github.com/vasya/renting-app/internal/app"
+	"github.com/scmbr/renting-app/internal/app"
 )
 
 const configsDir = "configs"

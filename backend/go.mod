@@ -1,4 +1,4 @@
-module github.com/vasya/renting-app
+module github.com/scmbr/renting-app
 
 go 1.23.4
 

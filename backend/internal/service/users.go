@@ -4,9 +4,9 @@ import (
 	"context"
 	"mime/multipart"
 
-	"github.com/vasya/renting-app/internal/dto"
-	"github.com/vasya/renting-app/internal/repository"
-	"github.com/vasya/renting-app/pkg/storage"
+	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/repository"
+	"github.com/scmbr/renting-app/pkg/storage"
 )
 
 type UsersService struct {

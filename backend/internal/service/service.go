@@ -5,10 +5,10 @@ import (
 	"mime/multipart"
 	"time"
 
-	"github.com/vasya/renting-app/internal/dto"
-	"github.com/vasya/renting-app/internal/repository"
-	"github.com/vasya/renting-app/pkg/hash"
-	"github.com/vasya/renting-app/pkg/storage"
+	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/repository"
+	"github.com/scmbr/renting-app/pkg/hash"
+	"github.com/scmbr/renting-app/pkg/storage"
 )
 
 type Authorization interface {
