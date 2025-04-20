@@ -3,14 +3,19 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/scmbr/renting-app/internal/service"
+	"github.com/scmbr/renting-app/pkg/auth"
 )
 
 type Handler struct {
-	services *service.Services
+	services     *service.Services
+	tokenManager auth.TokenManager
 }
 
-func NewHandler(services *service.Services) *Handler {
-	return &Handler{services: services}
+func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
+	return &Handler{
+		services:     services,
+		tokenManager: tokenManager,
+	}
 }
 
 func (h *Handler) InitRoutes() *gin.Engine {
