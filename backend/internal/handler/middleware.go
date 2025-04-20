@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/gin-gonic/gin"
@@ -23,12 +24,13 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
 		return
 	}
-	userId, err := h.services.Authorization.ParseToken(headerParts[1])
+	userId, err := h.tokenManager.Parse(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 	c.Set("userId", userId)
+	c.Next()
 }
 func (h *Handler) adminMiddleware(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
@@ -42,12 +44,17 @@ func (h *Handler) adminMiddleware(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
 		return
 	}
-	userId, err := h.services.Authorization.ParseToken(headerParts[1])
+	userId, err := h.tokenManager.Parse(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	user, err := h.services.Users.GetUserById(userId)
+	id, err := strconv.Atoi(userId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	user, err := h.services.User.GetUserById(id)
 	if err != nil {
 		newErrorResponse(c, http.StatusForbidden, err.Error())
 		return
