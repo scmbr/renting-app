@@ -3,6 +3,12 @@ package models
 import "time"
 
 type Session struct {
-	RefreshToken string    `json:"refreshToken" bson:"refreshToken"`
-	ExpiresAt    time.Time `json:"expiresAt" bson:"expiresAt"`
+	ID           int `gorm:"primaryKey"`
+	UserID       int
+	RefreshToken string
+	ExpiresAt    time.Time
+	CreatedAt    time.Time
+	Browser      string
+	OS           string
+	IP           string
 }
