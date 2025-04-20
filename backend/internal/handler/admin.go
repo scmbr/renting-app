@@ -10,7 +10,7 @@ import (
 
 func (h *Handler) getAllUsers(c *gin.Context) {
 
-	users, err := h.services.Users.GetAllUsers()
+	users, err := h.services.User.GetAllUsers()
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -27,7 +27,7 @@ func (h *Handler) getUserById(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	user, err := h.services.Users.GetUserById(userID)
+	user, err := h.services.User.GetUserById(userID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -42,7 +42,7 @@ func (h *Handler) deleteUserById(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, err.Error())
 		return
 	}
-	user, err := h.services.Users.DeleteUserById(userID)
+	user, err := h.services.User.DeleteUserById(userID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -63,7 +63,7 @@ func (h *Handler) updateUserById(c *gin.Context) {
 		return
 	}
 
-	user, err := h.services.Users.GetUserById(userID)
+	user, err := h.services.User.GetUserById(userID)
 	if input.Name != nil {
 		user.Name = *input.Name
 	}
@@ -82,7 +82,7 @@ func (h *Handler) updateUserById(c *gin.Context) {
 	if input.IsActive != nil {
 		user.IsActive = *input.IsActive
 	}
-	user, err = h.services.Users.UpdateUserById(user)
+	user, err = h.services.User.UpdateUserById(user)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
