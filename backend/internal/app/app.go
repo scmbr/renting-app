@@ -15,6 +15,7 @@ import (
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/internal/server"
 	"github.com/scmbr/renting-app/internal/service"
+	"github.com/scmbr/renting-app/pkg/auth"
 	"github.com/scmbr/renting-app/pkg/hash"
 	"github.com/scmbr/renting-app/pkg/storage"
 	"github.com/sirupsen/logrus"
@@ -49,6 +50,12 @@ func Run(configPath string) {
 	if err != nil {
 		logrus.Fatalf("error initializing storage: %s", err.Error())
 	}
+	tokenManager, err := auth.NewManager(cfg.Auth.JWT.SigningKey)
+	if err != nil {
+		logrus.Fatalf("error initializing token manager: %s", err.Error())
+
+		return
+	}
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Deps{
@@ -58,7 +65,7 @@ func Run(configPath string) {
 		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
 	})
-	handlers := handler.NewHandler(services)
+	handlers := handler.NewHandler(services, tokenManager)
 
 	srv := new(server.Server)
 	if err := srv.Run(cfg.HTTP.Port, handlers.InitRoutes()); err != nil {
