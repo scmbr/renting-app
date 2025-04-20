@@ -19,6 +19,7 @@ type User struct {
 	UpdatedAt      time.Time
 	Verified       bool
 	Rating         float32
-	Gender         int `gorm:"default:0;not null"`
+	Session        []Session `gorm:"foreignKey:UserID"`
+	Gender         int       `gorm:"default:0;not null"`
 	IsActive       bool
 }
