@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"time"
 
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/models"
@@ -24,6 +25,10 @@ type Users interface {
 }
 type Session interface {
 	CreateSession(ctx context.Context, session models.Session) error
+	GetByRefreshToken(ctx context.Context, refreshToken string) (models.Session, error)
+	UpdateSession(ctx context.Context, session models.Session) error
+	GetByDevice(ctx context.Context, userID int, ip, os, browser string) (*models.Session, error)
+	UpdateTokens(ctx context.Context, sessionID int, refreshToken string, expiresAt time.Time) error
 }
 type Repository struct {
 	Users
