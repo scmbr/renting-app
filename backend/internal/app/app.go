@@ -56,6 +56,7 @@ func Run(configPath string) {
 
 		return
 	}
+
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Deps{
@@ -64,6 +65,7 @@ func Run(configPath string) {
 		StorageProvider: storageProvider,
 		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
+		TokenManager:    tokenManager,
 	})
 	handlers := handler.NewHandler(services, tokenManager)
 
