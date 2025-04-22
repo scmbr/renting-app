@@ -24,11 +24,12 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
 		return
 	}
-	userId, err := h.tokenManager.Parse(headerParts[1])
+	userIdStr, err := h.tokenManager.Parse(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
+	userId, err := strconv.Atoi(userIdStr)
 	c.Set("userId", userId)
 	c.Next()
 }
