@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -40,6 +41,11 @@ func (s *SessionService) CreateSession(ctx context.Context, userID int, ip strin
 	if err != nil {
 		return res, err
 	}
+	existingSession, err := s.repo.GetByDevice(ctx, userID, ip, os, browser)
+	if err == nil && existingSession != nil {
+		err = s.repo.UpdateTokens(ctx, existingSession.ID, res.RefreshToken, time.Now().Add(s.refreshTokenTTL))
+		return res, err
+	}
 	session := models.Session{
 		UserID:       userID,
 		RefreshToken: res.RefreshToken,
@@ -47,7 +53,38 @@ func (s *SessionService) CreateSession(ctx context.Context, userID int, ip strin
 		CreatedAt:    time.Now(),
 		OS:           os,
 		IP:           ip,
+		Browser:      browser,
 	}
 	err = s.repo.CreateSession(ctx, session)
 	return res, err
+}
+func (s *SessionService) RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error) {
+	session, err := s.repo.GetByRefreshToken(ctx, refreshToken)
+	if err != nil {
+		return Tokens{}, err
+	}
+	// Генерация новых токенов
+	var res Tokens
+	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(session.UserID), s.accessTokenTTL)
+	if err != nil {
+		return res, err
+	}
+	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
+	if err != nil {
+		return res, err
+	}
+
+	// Обновление сессии
+	session.RefreshToken = res.RefreshToken
+	session.ExpiresAt = time.Now().Add(s.refreshTokenTTL)
+	session.IP = ip
+	session.OS = os
+	session.Browser = browser
+
+	err = s.repo.UpdateSession(ctx, session)
+	if err != nil {
+		return Tokens{}, fmt.Errorf("failed to update session: %w", err)
+	}
+
+	return res, nil
 }
