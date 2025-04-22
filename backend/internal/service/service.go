@@ -28,6 +28,7 @@ type User interface {
 }
 type Session interface {
 	CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error)
+	RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error)
 }
 type Services struct {
 	User
