@@ -73,7 +73,11 @@ func (h *Handler) signIn(c *gin.Context) {
 		return
 	}
 	userAgent := c.Request.Header.Get("User-Agent")
-	ip := c.Request.RemoteAddr
+	ip := c.GetHeader("X-Forwarded-For")
+	if ip == "" {
+		ip = c.Request.RemoteAddr
+	}
+
 	ua := user_agent.New(userAgent)
 	os := ua.OS()
 	browser, _ := ua.Browser()
