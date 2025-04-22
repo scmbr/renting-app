@@ -92,3 +92,35 @@ func (h *Handler) signIn(c *gin.Context) {
 		RefreshToken: res.RefreshToken,
 	})
 }
+
+type refreshInput struct {
+	Token string `json:"token" binding:"required"`
+}
+
+func (h *Handler) refreshTokens(c *gin.Context) {
+	var input refreshInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+
+	ip := c.GetHeader("X-Forwarded-For")
+	if ip == "" {
+		ip = c.Request.RemoteAddr
+	}
+	userAgent := c.Request.Header.Get("User-Agent")
+	ua := user_agent.New(userAgent)
+	os := ua.OS()
+	browser, _ := ua.Browser()
+
+	tokens, err := h.services.Session.RefreshSession(c.Request.Context(), input.Token, ip, os, browser)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, tokenResponse{
+		AccessToken:  tokens.AccessToken,
+		RefreshToken: tokens.RefreshToken,
+	})
+}
