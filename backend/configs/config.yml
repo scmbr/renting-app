@@ -13,6 +13,6 @@ fileStorage:
   url: ams3.digitaloceanspaces.com
   bucket: courses
 auth:
-  accessTokenTTL: 2h
-  refreshTokenTTL: 720h #30 days
+  accessTokenTTL: 5m
+  refreshTokenTTL: 720h 
   verificationCodeLength: 8
