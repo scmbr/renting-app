@@ -12,7 +12,14 @@ postgres:
 fileStorage:
   url: ams3.digitaloceanspaces.com
   bucket: courses
+smtp:
+  host: "smtp.mail.ru"
+  port: 465
+  from: "renting-app@mail.ru"
 auth:
   accessTokenTTL: 5m
   refreshTokenTTL: 720h 
   verificationCodeLength: 8
+email:
+  templates:
+    verification_email: "./templates/verification_code.html"
