@@ -5,9 +5,11 @@ import (
 	"mime/multipart"
 	"time"
 
+	"github.com/scmbr/renting-app/internal/config"
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/pkg/auth"
+	"github.com/scmbr/renting-app/pkg/email"
 	"github.com/scmbr/renting-app/pkg/hash"
 	"github.com/scmbr/renting-app/pkg/storage"
 )
@@ -25,10 +27,14 @@ type User interface {
 	UpdateAvatar(userId int, avatarURL string) error
 	SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error)
 	SignUp(ctx context.Context, user dto.CreateUser) error
+	VerifyEmail(ctx context.Context, code string) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error)
 	RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error)
+}
+type Emails interface {
+	SendUserVerificationEmail(VerificationEmailInput) error
 }
 type Services struct {
 	User
@@ -42,10 +48,18 @@ type Deps struct {
 	AccessTokenTTL  time.Duration
 	RefreshTokenTTL time.Duration
 	TokenManager    auth.TokenManager
+	EmailSender     email.Sender
+	EmailConfig     config.EmailConfig
+}
+type VerificationEmailInput struct {
+	Email            string
+	Name             string
+	VerificationCode string
 }
 
 func NewServices(deps Deps) *Services {
 	sessionService := NewSessionService(deps.Repos.Session, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.TokenManager)
+	emailService := NewEmailService(deps.EmailSender, deps.EmailConfig)
 	userService := NewUserService(
 		deps.Repos.Users,
 		deps.StorageProvider,
@@ -53,7 +67,10 @@ func NewServices(deps Deps) *Services {
 		deps.AccessTokenTTL,
 		deps.RefreshTokenTTL,
 		deps.TokenManager,
-		sessionService)
+		sessionService,
+		deps.EmailSender,
+		emailService,
+	)
 
 	return &Services{
 		User:    userService,

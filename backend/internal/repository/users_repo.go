@@ -66,15 +66,17 @@ func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 	}
 	tx.Commit()
 	getUserDTO := dto.GetUser{
-		Id:        int(user.ID),
-		Name:      user.Name,
-		Surname:   user.Surname,
-		Email:     user.Email,
-		Birthdate: user.Birthdate,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		IsActive:  user.IsActive,
+		Id:               int(user.ID),
+		Name:             user.Name,
+		Surname:          user.Surname,
+		Email:            user.Email,
+		Birthdate:        user.Birthdate,
+		Role:             user.Role,
+		CreatedAt:        user.CreatedAt,
+		UpdatedAt:        user.UpdatedAt,
+		VerificationCode: user.VerificationCode,
+		Verified:         user.Verified,
+		IsActive:         user.IsActive,
 	}
 	return &getUserDTO, nil
 }
@@ -170,7 +172,7 @@ func (r *UsersRepo) UpdateAvatar(userId int, avatarURL string) error {
 
 }
 
-func (r *UsersRepo) CreateUser(user dto.CreateUser) error {
+func (r *UsersRepo) CreateUser(user dto.CreateUser, code string) error {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -178,11 +180,12 @@ func (r *UsersRepo) CreateUser(user dto.CreateUser) error {
 		}
 	}()
 	userGorm := models.User{
-		Name:         user.Name,
-		Surname:      user.Surname,
-		Email:        user.Email,
-		PasswordHash: user.Password,
-		Birthdate:    user.Birthdate,
+		Name:             user.Name,
+		Surname:          user.Surname,
+		Email:            user.Email,
+		PasswordHash:     user.Password,
+		Birthdate:        user.Birthdate,
+		VerificationCode: code,
 	}
 	result := tx.Create(&userGorm)
 	if result.Error != nil {
@@ -226,4 +229,39 @@ func (r *UsersRepo) GetUser(email, password string) (models.User, error) {
 	}
 
 	return user, nil
+}
+func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error) {
+	var user models.User
+
+	err := r.db.WithContext(ctx).
+		Where("verification_code = ?", code).
+		First(&user).Error
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return dto.GetUser{}, errors.New("user with the given verification code not found")
+		}
+		return dto.GetUser{}, err
+	}
+
+	user.Verified = true
+	user.VerificationCode = ""
+
+	err = r.db.WithContext(ctx).Save(&user).Error
+	if err != nil {
+		return dto.GetUser{}, err
+	}
+
+	return dto.GetUser{
+		Id:               int(user.ID),
+		Name:             user.Name,
+		Surname:          user.Surname,
+		Email:            user.Email,
+		Birthdate:        user.Birthdate,
+		Role:             user.Role,
+		CreatedAt:        user.CreatedAt,
+		UpdatedAt:        user.UpdatedAt,
+		VerificationCode: user.VerificationCode,
+		Verified:         user.Verified,
+		IsActive:         user.IsActive,
+	}, nil
 }

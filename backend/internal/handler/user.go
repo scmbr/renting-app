@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/mssola/user_agent"
 	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/sirupsen/logrus"
 )
 
 func (h *Handler) UploadAvatarHandler(c *gin.Context) {
@@ -123,4 +124,32 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 		AccessToken:  tokens.AccessToken,
 		RefreshToken: tokens.RefreshToken,
 	})
+}
+
+type response struct {
+	Message string `json:"message"`
+}
+type VerifyRequest struct {
+	Code string `json:"code"`
+}
+
+func (h *Handler) userVerify(c *gin.Context) {
+	var input VerifyRequest
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+	if input.Code == "" {
+		logrus.Error("code is empty")
+		c.AbortWithStatusJSON(http.StatusBadRequest, response{"code is empty"})
+		return
+	}
+
+	if err := h.services.User.VerifyEmail(c.Request.Context(), input.Code); err != nil {
+		logrus.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response{err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, response{"success"})
 }

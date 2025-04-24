@@ -19,9 +19,10 @@ type Users interface {
 	DeleteUserById(id int) (*dto.GetUser, error)
 	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
 	UpdateAvatar(userId int, avatarURL string) error
-	CreateUser(user dto.CreateUser) error
+	CreateUser(user dto.CreateUser, code string) error
 	GetUser(email, password string) (models.User, error)
 	GetByCredentials(ctx context.Context, email, password string) (*dto.GetUser, error)
+	Verify(ctx context.Context, code string) (dto.GetUser, error)
 }
 type Session interface {
 	CreateSession(ctx context.Context, session models.Session) error

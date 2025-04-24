@@ -64,6 +64,10 @@ func (h *Handler) updateUserById(c *gin.Context) {
 	}
 
 	user, err := h.services.User.GetUserById(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	if input.Name != nil {
 		user.Name = *input.Name
 	}

@@ -30,6 +30,10 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		return
 	}
 	userId, err := strconv.Atoi(userIdStr)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
 	c.Set("userId", userId)
 	c.Next()
 }

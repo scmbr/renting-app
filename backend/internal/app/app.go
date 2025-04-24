@@ -16,6 +16,7 @@ import (
 	"github.com/scmbr/renting-app/internal/server"
 	"github.com/scmbr/renting-app/internal/service"
 	"github.com/scmbr/renting-app/pkg/auth"
+	"github.com/scmbr/renting-app/pkg/email/smtp"
 	"github.com/scmbr/renting-app/pkg/hash"
 	"github.com/scmbr/renting-app/pkg/storage"
 	"github.com/sirupsen/logrus"
@@ -58,6 +59,12 @@ func Run(configPath string) {
 	}
 
 	hasher := hash.NewSHA1Hasher(cfg.Auth.PasswordSalt)
+	emailSender, err := smtp.NewSMTPSender(cfg.SMTP.From, cfg.SMTP.Pass, cfg.SMTP.Host, cfg.SMTP.Port)
+	if err != nil {
+		logrus.Error(err)
+
+		return
+	}
 	repos := repository.NewRepository(db)
 	services := service.NewServices(service.Deps{
 		Repos:           repos,
@@ -66,6 +73,8 @@ func Run(configPath string) {
 		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
 		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
 		TokenManager:    tokenManager,
+		EmailSender:     emailSender,
+		EmailConfig:     cfg.Email,
 	})
 	handlers := handler.NewHandler(services, tokenManager)
 

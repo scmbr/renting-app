@@ -13,6 +13,8 @@ type (
 		FileStorage FileStorageConfig
 		Auth        AuthConfig
 		HTTP        HTTPConfig
+		SMTP        SMTPConfig
+		Email       EmailConfig
 	}
 	PostgresConfig struct {
 		Username string `mapstructure:"username"`
@@ -29,6 +31,12 @@ type (
 		SecretKey string
 		Website   string
 	}
+	EmailConfig struct {
+		Templates EmailTemplates
+	}
+	EmailTemplates struct {
+		Verification string `mapstructure:"verification_email"`
+	}
 	AuthConfig struct {
 		JWT          JWTConfig
 		PasswordSalt string
@@ -44,6 +52,12 @@ type (
 		ReadTimeout        time.Duration `mapstructure:"readTimeout"`
 		WriteTimeout       time.Duration `mapstructure:"writeTimeout"`
 		MaxHeaderMegabytes int           `mapstructure:"maxHeaderBytes"`
+	}
+	SMTPConfig struct {
+		Host string `mapstructure:"host"`
+		Port int    `mapstructure:"port"`
+		From string `mapstructure:"from"`
+		Pass string
 	}
 )
 
@@ -79,6 +93,12 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("fileStorage", &cfg.FileStorage); err != nil {
 		return err
 	}
+	if err := viper.UnmarshalKey("smtp", &cfg.SMTP); err != nil {
+		return err
+	}
+	if err := viper.UnmarshalKey("email.templates", &cfg.Email.Templates); err != nil {
+		return err
+	}
 	return nil
 }
 func setFromEnv(cfg *Config) {
@@ -94,6 +114,7 @@ func setFromEnv(cfg *Config) {
 	cfg.FileStorage.SecretKey = os.Getenv("STORAGE_SECRET_KEY")
 	cfg.FileStorage.Bucket = os.Getenv("STORAGE_BUCKET")
 	cfg.FileStorage.Website = os.Getenv("BUCKET_WEBSITE_URL")
+	cfg.SMTP.Pass = os.Getenv("SMTP_PASSWORD")
 }
 
 func parseConfigFile(folder string) error {
