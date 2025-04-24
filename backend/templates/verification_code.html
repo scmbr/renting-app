@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Verification Code</title>
+  <style>
+    .container {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    .code {
+      font-size: 24px;
+      font-weight: bold;
+      background: #e0f7fa;
+      padding: 10px;
+      text-align: center;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Привет!</h2>
+    <p>Ваш код подтверждения:</p>
+    <div class="code">{{.Code}}</div>
+    <p>Если вы не запрашивали этот код — просто проигнорируйте это письмо.</p>
+  </div>
+</body>
+</html>
