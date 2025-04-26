@@ -44,6 +44,16 @@ func (h *Handler) getCurrentUser(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
+// @Summary      Регистрация пользователя
+// @Description  Создаёт нового пользователя
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      dto.CreateUser  true  "Данные пользователя"
+// @Success      201    {string}  string          "Created"
+// @Failure      400    {object}  ErrorResponse
+// @Failure      500    {object}  ErrorResponse
+// @Router       /auth/sign-up [post]
 func (h *Handler) signUp(c *gin.Context) {
 	var input dto.CreateUser
 	if err := c.BindJSON(&input); err != nil {
@@ -67,6 +77,16 @@ type tokenResponse struct {
 	RefreshToken string `json:"refreshToken"`
 }
 
+// @Summary      Авторизация пользователя
+// @Description  Вход пользователя в систему с возвратом access и refresh токенов
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      signInInput   true  "Данные для входа"
+// @Success      200    {object}  tokenResponse
+// @Failure      400    {object}  ErrorResponse
+// @Failure      500    {object}  ErrorResponse
+// @Router       /auth/sign-in [post]
 func (h *Handler) signIn(c *gin.Context) {
 	var input signInInput
 	if err := c.BindJSON(&input); err != nil {
@@ -98,6 +118,16 @@ type refreshInput struct {
 	Token string `json:"token" binding:"required"`
 }
 
+// @Summary      Обновление токенов
+// @Description  Обновляет access и refresh токены по действующему refresh токену
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      refreshInput   true  "Refresh токен"
+// @Success      200    {object}  tokenResponse
+// @Failure      400    {object}  ErrorResponse
+// @Failure      401    {object}  ErrorResponse
+// @Router       /auth/refresh [post]
 func (h *Handler) refreshTokens(c *gin.Context) {
 	var input refreshInput
 	if err := c.BindJSON(&input); err != nil {
@@ -126,6 +156,9 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 	})
 }
 
+type ErrorResponse struct {
+	Message string `json:"message" example:"Invalid input data"`
+}
 type response struct {
 	Message string `json:"message"`
 }
@@ -133,6 +166,16 @@ type VerifyRequest struct {
 	Code string `json:"code"`
 }
 
+// @Summary      Подтверждение электронной почты
+// @Description  Проверяет код для верификации электронной почты пользователя
+// @Tags         auth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      VerifyRequest   true  "Код для подтверждения"
+// @Success      200    {object}  response
+// @Failure      400    {object}  ErrorResponse
+// @Failure      500    {object}  ErrorResponse
+// @Router       /auth/verify [post]
 func (h *Handler) userVerify(c *gin.Context) {
 	var input VerifyRequest
 	if err := c.BindJSON(&input); err != nil {
