@@ -2,8 +2,11 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	_ "github.com/scmbr/renting-app/docs"
 	"github.com/scmbr/renting-app/internal/service"
 	"github.com/scmbr/renting-app/pkg/auth"
+	swaggerFiles "github.com/swaggo/files"     // swagger embed files
+	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
 )
 
 type Handler struct {
@@ -20,6 +23,12 @@ func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Han
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.Use(
+		gin.Recovery(),
+		gin.Logger(),
+		corsMiddleware,
+	)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	auth := router.Group("/auth")
 	{
 		auth.POST("/sign-up", h.signUp)
