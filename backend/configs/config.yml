@@ -3,6 +3,7 @@ http:
   maxHeaderBytes: 1
   readTimeout: 10s
   writeTimeout: 10s
+  baseUrl: "http://localhost:8000"
 postgres:
   username: "postgres"
   host: "localhost"
@@ -23,3 +24,4 @@ auth:
 email:
   templates:
     verification_email: "./templates/verification_code.html"
+    reset_email: "./templates/reset_password.html"

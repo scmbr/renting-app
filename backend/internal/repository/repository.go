@@ -19,10 +19,15 @@ type Users interface {
 	DeleteUserById(id int) (*dto.GetUser, error)
 	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
 	UpdateAvatar(userId int, avatarURL string) error
-	CreateUser(user dto.CreateUser, code string) error
+	CreateUser(ctx context.Context, user dto.CreateUser, code string) error
 	GetUser(email, password string) (models.User, error)
 	GetByCredentials(ctx context.Context, email, password string) (*dto.GetUser, error)
 	Verify(ctx context.Context, code string) (dto.GetUser, error)
+	GetByEmail(ctx context.Context, email string) (*dto.GetUser, error)
+	UpdateVerificationCode(ctx context.Context, id int, verificationCode string) error
+	SavePasswordResetToken(ctx context.Context, id int, resetToken string) error
+	GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error)
+	UpdatePasswordAndClearResetToken(ctx context.Context, userID int, newPassword string) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, session models.Session) error

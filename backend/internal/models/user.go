@@ -22,5 +22,6 @@ type User struct {
 	Rating           float32
 	Session          []Session `gorm:"foreignKey:UserID"`
 	Gender           int       `gorm:"default:0;not null"`
+	ResetToken       string
 	IsActive         bool
 }

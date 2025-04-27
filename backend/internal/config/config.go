@@ -36,6 +36,7 @@ type (
 	}
 	EmailTemplates struct {
 		Verification string `mapstructure:"verification_email"`
+		Reset        string `mapstructure:"reset_email"`
 	}
 	AuthConfig struct {
 		JWT          JWTConfig
@@ -52,6 +53,7 @@ type (
 		ReadTimeout        time.Duration `mapstructure:"readTimeout"`
 		WriteTimeout       time.Duration `mapstructure:"writeTimeout"`
 		MaxHeaderMegabytes int           `mapstructure:"maxHeaderBytes"`
+		BaseUrl            string        `mapstructure:"baseUrl"`
 	}
 	SMTPConfig struct {
 		Host string `mapstructure:"host"`

@@ -28,6 +28,9 @@ type User interface {
 	SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error)
 	SignUp(ctx context.Context, user dto.CreateUser) error
 	VerifyEmail(ctx context.Context, code string) error
+	ResendVerificationCode(ctx context.Context, email string) error
+	ForgotPassword(ctx context.Context, email string) error
+	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error)
@@ -35,6 +38,7 @@ type Session interface {
 }
 type Emails interface {
 	SendUserVerificationEmail(VerificationEmailInput) error
+	SendUserResetTokenEmail(ResetPasswordEmailInput) error
 }
 type Services struct {
 	User
@@ -50,16 +54,22 @@ type Deps struct {
 	TokenManager    auth.TokenManager
 	EmailSender     email.Sender
 	EmailConfig     config.EmailConfig
+	HTTPConfig      config.HTTPConfig
 }
 type VerificationEmailInput struct {
 	Email            string
 	Name             string
 	VerificationCode string
 }
+type ResetPasswordEmailInput struct {
+	Email      string
+	Name       string
+	ResetToken string
+}
 
 func NewServices(deps Deps) *Services {
 	sessionService := NewSessionService(deps.Repos.Session, deps.AccessTokenTTL, deps.RefreshTokenTTL, deps.TokenManager)
-	emailService := NewEmailService(deps.EmailSender, deps.EmailConfig)
+	emailService := NewEmailService(deps.EmailSender, deps.EmailConfig, deps.HTTPConfig.BaseUrl)
 	userService := NewUserService(
 		deps.Repos.Users,
 		deps.StorageProvider,

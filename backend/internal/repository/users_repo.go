@@ -172,13 +172,22 @@ func (r *UsersRepo) UpdateAvatar(userId int, avatarURL string) error {
 
 }
 
-func (r *UsersRepo) CreateUser(user dto.CreateUser, code string) error {
+func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code string) error {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
+	existingUser, err := r.GetByEmail(ctx, user.Email)
+	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
+		tx.Rollback()
+		return errors.New("ошибка получения пользователя")
+	}
+	if existingUser != nil && !existingUser.Verified {
+		tx.Rollback()
+		return nil
+	}
 	userGorm := models.User{
 		Name:             user.Name,
 		Surname:          user.Surname,
@@ -189,10 +198,15 @@ func (r *UsersRepo) CreateUser(user dto.CreateUser, code string) error {
 	}
 	result := tx.Create(&userGorm)
 	if result.Error != nil {
+
+		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+			return errors.New("пользователь с таким email уже зарегистрирован")
+		}
 		tx.Rollback()
 		return result.Error
 	}
 	tx.Commit()
+
 	return nil
 }
 func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
@@ -230,6 +244,61 @@ func (r *UsersRepo) GetUser(email, password string) (models.User, error) {
 
 	return user, nil
 }
+func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser, error) {
+	var user models.User
+	result := r.db.Where("email = ?", email).First(&user)
+	if result.Error != nil {
+		return &dto.GetUser{
+			Id:               int(user.ID),
+			Name:             user.Name,
+			Surname:          user.Surname,
+			Email:            user.Email,
+			Birthdate:        user.Birthdate,
+			Role:             user.Role,
+			CreatedAt:        user.CreatedAt,
+			UpdatedAt:        user.UpdatedAt,
+			VerificationCode: user.VerificationCode,
+			Verified:         user.Verified,
+			IsActive:         user.IsActive,
+		}, result.Error
+	}
+
+	return &dto.GetUser{
+		Id:               int(user.ID),
+		Name:             user.Name,
+		Surname:          user.Surname,
+		Email:            user.Email,
+		Birthdate:        user.Birthdate,
+		Role:             user.Role,
+		CreatedAt:        user.CreatedAt,
+		UpdatedAt:        user.UpdatedAt,
+		VerificationCode: user.VerificationCode,
+		Verified:         user.Verified,
+		IsActive:         user.IsActive,
+	}, nil
+}
+func (r *UsersRepo) UpdateVerificationCode(ctx context.Context, id int, verificationCode string) error {
+	var user models.User
+	tx := r.db.WithContext(ctx).Begin()
+
+	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	user.VerificationCode = verificationCode
+
+	if err := tx.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
 func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error) {
 	var user models.User
 
@@ -264,4 +333,81 @@ func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error
 		Verified:         user.Verified,
 		IsActive:         user.IsActive,
 	}, nil
+}
+func (r *UsersRepo) SavePasswordResetToken(ctx context.Context, id int, resetToken string) error {
+	var user models.User
+	tx := r.db.WithContext(ctx).Begin()
+
+	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	user.ResetToken = resetToken
+
+	if err := tx.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
+}
+func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error) {
+	var user models.User
+	result := r.db.Where("reset_token = ?", token).First(&user)
+	if result.Error != nil {
+		return dto.GetUser{
+			Id:               int(user.ID),
+			Name:             user.Name,
+			Surname:          user.Surname,
+			Email:            user.Email,
+			Birthdate:        user.Birthdate,
+			Role:             user.Role,
+			CreatedAt:        user.CreatedAt,
+			UpdatedAt:        user.UpdatedAt,
+			VerificationCode: user.VerificationCode,
+			Verified:         user.Verified,
+			IsActive:         user.IsActive,
+		}, result.Error
+	}
+
+	return dto.GetUser{
+		Id:               int(user.ID),
+		Name:             user.Name,
+		Surname:          user.Surname,
+		Email:            user.Email,
+		Birthdate:        user.Birthdate,
+		Role:             user.Role,
+		CreatedAt:        user.CreatedAt,
+		UpdatedAt:        user.UpdatedAt,
+		VerificationCode: user.VerificationCode,
+		Verified:         user.Verified,
+		IsActive:         user.IsActive,
+	}, nil
+}
+func (r *UsersRepo) UpdatePasswordAndClearResetToken(ctx context.Context, id int, newPassword string) error {
+	var user models.User
+	tx := r.db.WithContext(ctx).Begin()
+
+	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	user.PasswordHash = newPassword
+	user.ResetToken = ""
+	if err := tx.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	if err := tx.Commit().Error; err != nil {
+		return err
+	}
+
+	return nil
 }

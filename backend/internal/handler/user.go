@@ -196,3 +196,75 @@ func (h *Handler) userVerify(c *gin.Context) {
 
 	c.JSON(http.StatusOK, response{"success"})
 }
+func (h *Handler) userVerifyResend(c *gin.Context) {
+	var input struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+
+	err := h.services.User.ResendVerificationCode(c.Request.Context(), input.Email)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, response{"verification code resent successfully"})
+}
+func (h *Handler) forgotPass(c *gin.Context) {
+	var input struct {
+		Email string `json:"email" binding:"required,email"`
+	}
+
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+
+	err := h.services.User.ForgotPassword(c.Request.Context(), input.Email)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, response{"check your email for reset link"})
+}
+
+type ResetPasswordInput struct {
+	Token       string `json:"token" binding:"required"`
+	NewPassword string `json:"new_password" binding:"required"`
+}
+
+// resetPass обрабатывает запрос на сброс пароля через токен
+// @Summary Reset Password
+// @Tags auth
+// @Description Сброс пароля пользователя через токен
+// @Accept json
+// @Produce json
+// @Param input body ResetPasswordInput true "Данные для сброса пароля"
+// @Success 200 {object} response
+// @Failure 400,401,500 {object} response
+// @Router /auth/reset-password [post]
+func (h *Handler) resetPass(c *gin.Context) {
+	var input ResetPasswordInput
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+
+	if input.Token == "" || input.NewPassword == "" {
+		newErrorResponse(c, http.StatusBadRequest, "token and new password must be provided")
+		return
+	}
+
+	err := h.services.User.ResetPassword(c.Request.Context(), input.Token, input.NewPassword)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, response{"password reset successfully"})
+}

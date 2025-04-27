@@ -1,6 +1,8 @@
 package dto
 
-import "time"
+import (
+	"time"
+)
 
 type GetUser struct {
 	Id               int       `json:"id"`
@@ -19,9 +21,9 @@ type GetUser struct {
 type CreateUser struct {
 	Name      string    `json:"name" binding:"required"`
 	Surname   string    `json:"surname" binding:"required"`
-	Email     string    `json:"email" binding:"required"`
-	Password  string    `json:"password" binding:"required"`
-	Birthdate time.Time `json:"birthdate" binding:"required"`
+	Email     string    `json:"email" binding:"required,email"`
+	Password  string    `json:"password" binding:"required,min=8"`
+	Birthdate time.Time `json:"birthdate"`
 }
 type UpdateUserAdmin struct {
 	Name      *string    `json:"name"`
