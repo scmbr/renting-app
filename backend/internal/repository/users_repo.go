@@ -184,7 +184,11 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 		tx.Rollback()
 		return errors.New("ошибка получения пользователя")
 	}
-	if existingUser != nil && !existingUser.Verified {
+	if err == nil && !existingUser.Verified {
+		err = r.UpdateVerificationCode(ctx, existingUser.Id, code)
+		if err != nil {
+			return nil
+		}
 		tx.Rollback()
 		return nil
 	}
