@@ -42,6 +42,7 @@ func (s *EmailService) SendUserResetTokenEmail(input ResetPasswordEmailInput) er
 
 	sendInput := email.SendEmailInput{Subject: subject, To: input.Email}
 	resetPasswordLink := fmt.Sprintf("%s/reset-password?token=%s", s.baseURL, input.ResetToken)
+	fmt.Printf("%s/reset-password?token=%s", s.baseURL, input.ResetToken)
 	templateInput := resetPasswrodInput{Link: resetPasswordLink}
 	if err := sendInput.GenerateBodyFromHTML(s.config.Templates.Reset, templateInput); err != nil {
 		return err

@@ -75,6 +75,7 @@ func Run(configPath string) {
 		TokenManager:    tokenManager,
 		EmailSender:     emailSender,
 		EmailConfig:     cfg.Email,
+		HTTPConfig:      cfg.HTTP,
 	})
 	handlers := handler.NewHandler(services, tokenManager)
 
