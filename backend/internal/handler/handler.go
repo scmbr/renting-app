@@ -44,10 +44,26 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authAuthorized.POST("/logout", h.logOut)
 		//authAuthorized.POST("/change-password", h.changePassword)
 	}
-	client := router.Group("/client", h.userIdentity)
+	authenticated := router.Group("/", h.userIdentity)
 	{
-		client.GET("/me", h.getCurrentUser)
-		client.POST("/upload-avatar", h.UploadAvatarHandler)
+		authenticated.GET("/me", h.getCurrentUser)
+		authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
+		apartment := authenticated.Group("/apartment")
+		{
+			apartment.GET("/", h.getAllApartments)
+			apartment.GET("/:id", h.getApartmentById)
+			apartment.POST("/", h.addApartment)
+			apartment.DELETE("/:id", h.deleteApartment)
+			apartment.PATCH("/:id", h.updateApartment)
+		}
+		advert := authenticated.Group("/advert")
+		{
+			advert.GET("/:id", h.getAdvertById)
+			advert.GET("/", h.getAllAdverts)
+			advert.POST("/", h.addAdvert)
+			advert.DELETE("/:id", h.deleteAdvert)
+			advert.PATCH("/:id", h.updateAdvert)
+		}
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
