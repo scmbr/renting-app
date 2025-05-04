@@ -26,6 +26,8 @@ func NewPostgresDB(cfg Config) (*gorm.DB, error) {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{TranslateError: true})
 	db.AutoMigrate(&models.User{})
 	db.AutoMigrate(&models.Session{})
+	db.AutoMigrate(&models.Apartment{})
+	db.AutoMigrate(&models.Advert{})
 	if err != nil {
 		return nil, err
 	}
