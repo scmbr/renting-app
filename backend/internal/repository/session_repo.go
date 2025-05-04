@@ -2,6 +2,7 @@ package repository
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/scmbr/renting-app/internal/models"
@@ -49,4 +50,20 @@ func (r *SessionsRepo) GetByDevice(ctx context.Context, userID int, ip, os, brow
 		return nil, err
 	}
 	return &session, nil
+}
+func (r *SessionsRepo) DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error {
+	result := r.db.WithContext(ctx).
+		Where("user_id = ? AND ip = ? AND os = ? AND browser = ?", id, ip, os, browser).
+		Delete(&models.Session{})
+
+	if result.Error != nil {
+		return result.Error
+	}
+
+	
+	if result.RowsAffected == 0 {
+		return fmt.Errorf("сессия не найдена для удаления")
+	}
+
+	return nil
 }

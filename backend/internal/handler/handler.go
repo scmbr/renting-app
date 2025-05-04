@@ -39,11 +39,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		auth.POST("/forgot-password", h.forgotPass)
 		auth.POST("/reset-password", h.resetPass)
 	}
-	// authAuthorized := router.Group("/auth", h.userIdentity)
-	// {
-	// 	authAuthorized.POST("/logout", h.logout)
-	// 	authAuthorized.POST("/change-password", h.changePassword)
-	// }
+	authAuthorized := router.Group("/auth", h.userIdentity)
+	{
+		authAuthorized.POST("/logout", h.logOut)
+		//authAuthorized.POST("/change-password", h.changePassword)
+	}
 	client := router.Group("/client", h.userIdentity)
 	{
 		client.GET("/me", h.getCurrentUser)

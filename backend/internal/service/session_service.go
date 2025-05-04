@@ -88,3 +88,10 @@ func (s *SessionService) RefreshSession(ctx context.Context, refreshToken, ip, o
 
 	return res, nil
 }
+func (s *SessionService) DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error {
+	err := s.repo.DeleteByDevice(ctx, id, ip, os, browser)
+	if err != nil {
+		return err
+	}
+	return nil
+}

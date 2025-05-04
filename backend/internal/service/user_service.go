@@ -195,3 +195,11 @@ func (s *UserService) ResetPassword(ctx context.Context, resetToken string, newP
 
 	return nil
 }
+func (s *UserService) LogOut(ctx context.Context, id int, ip, os, browser string) error {
+	err := s.sessionService.DeleteByDevice(ctx, id, ip, os, browser)
+	if err != nil {
+		return fmt.Errorf("failed to log out: %w", err)
+	}
+
+	return nil
+}

@@ -35,6 +35,7 @@ type Session interface {
 	UpdateSession(ctx context.Context, session models.Session) error
 	GetByDevice(ctx context.Context, userID int, ip, os, browser string) (*models.Session, error)
 	UpdateTokens(ctx context.Context, sessionID int, refreshToken string, expiresAt time.Time) error
+	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
 type Repository struct {
 	Users

@@ -31,10 +31,12 @@ type User interface {
 	ResendVerificationCode(ctx context.Context, email string) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
+	LogOut(ctx context.Context, id int, ip, os, browser string) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error)
 	RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error)
+	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
 type Emails interface {
 	SendUserVerificationEmail(VerificationEmailInput) error
