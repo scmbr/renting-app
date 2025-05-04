@@ -4,6 +4,7 @@ import "time"
 
 type Apartment struct {
 	ID               uint      `gorm:"primaryKey"`
+	UserID           uint      `gorm:"not null;index"` // внешний ключ
 	User             User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	City             string    `gorm:"size:100;not null"`
 	Street           string    `gorm:"size:100;not null"`
