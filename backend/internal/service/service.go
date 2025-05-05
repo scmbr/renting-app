@@ -49,10 +49,18 @@ type Apartment interface {
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 }
+type Advert interface {
+	GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
+	GetAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
+	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
+	DeleteAdvert(ctx context.Context, userId int, id int) error
+	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
+}
 type Services struct {
 	User
 	Session
 	Apartment
+	Advert
 }
 
 type Deps struct {
@@ -92,9 +100,11 @@ func NewServices(deps Deps) *Services {
 		emailService,
 	)
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
+	advertService := NewAdvertService(deps.Repos.Advert)
 	return &Services{
 		User:      userService,
 		Session:   sessionService,
 		Apartment: apartmentService,
+		Advert:    advertService,
 	}
 }

@@ -44,10 +44,18 @@ type Apartment interface {
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 }
+type Advert interface {
+	GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
+	GetAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
+	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
+	DeleteAdvert(ctx context.Context, userId int, id int) error
+	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
+}
 type Repository struct {
 	Users
 	Session
 	Apartment
+	Advert
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -55,5 +63,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Users:     NewUsersRepo(db),
 		Session:   NewSessionsRepo(db),
 		Apartment: NewApartmentRepo(db),
+		Advert:    NewAdvertRepo(db),
 	}
 }

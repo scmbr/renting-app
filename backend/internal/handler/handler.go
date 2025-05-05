@@ -60,7 +60,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			advert.GET("/:id", h.getAdvertById)
 			advert.GET("/", h.getAllAdverts)
-			advert.POST("/", h.addAdvert)
+			advert.POST("/", h.createAdvert)
 			advert.DELETE("/:id", h.deleteAdvert)
 			advert.PATCH("/:id", h.updateAdvert)
 		}
