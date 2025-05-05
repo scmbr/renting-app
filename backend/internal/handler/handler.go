@@ -52,7 +52,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			apartment.GET("/", h.getAllApartments)
 			apartment.GET("/:id", h.getApartmentById)
-			apartment.POST("/", h.addApartment)
+			apartment.POST("/", h.createApartment)
 			apartment.DELETE("/:id", h.deleteApartment)
 			apartment.PATCH("/:id", h.updateApartment)
 		}

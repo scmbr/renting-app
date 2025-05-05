@@ -37,14 +37,23 @@ type Session interface {
 	UpdateTokens(ctx context.Context, sessionID int, refreshToken string, expiresAt time.Time) error
 	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
+type Apartment interface {
+	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
+	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error
+	DeleteApartment(ctx context.Context, userId int, id int) error
+	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
+}
 type Repository struct {
 	Users
 	Session
+	Apartment
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Users:   NewUsersRepo(db),
-		Session: NewSessionsRepo(db),
+		Users:     NewUsersRepo(db),
+		Session:   NewSessionsRepo(db),
+		Apartment: NewApartmentRepo(db),
 	}
 }

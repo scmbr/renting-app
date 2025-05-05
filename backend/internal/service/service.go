@@ -42,9 +42,17 @@ type Emails interface {
 	SendUserVerificationEmail(VerificationEmailInput) error
 	SendUserResetTokenEmail(ResetPasswordEmailInput) error
 }
+type Apartment interface {
+	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
+	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error
+	DeleteApartment(ctx context.Context, userId int, id int) error
+	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
+}
 type Services struct {
 	User
 	Session
+	Apartment
 }
 
 type Deps struct {
@@ -83,9 +91,10 @@ func NewServices(deps Deps) *Services {
 		deps.EmailSender,
 		emailService,
 	)
-
+	apartmentService := NewApartmentService(deps.Repos.Apartment)
 	return &Services{
-		User:    userService,
-		Session: sessionService,
+		User:      userService,
+		Session:   sessionService,
+		Apartment: apartmentService,
 	}
 }
