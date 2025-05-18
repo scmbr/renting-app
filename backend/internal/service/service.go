@@ -56,11 +56,21 @@ type Advert interface {
 	DeleteAdvert(ctx context.Context, userId int, id int) error
 	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
 }
+
+type ApartmentPhoto interface {
+	GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error)
+	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error)
+	AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
+	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
+	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
+	UploadPhotoToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
+}
 type Services struct {
 	User
 	Session
 	Apartment
 	Advert
+	ApartmentPhoto
 }
 
 type Deps struct {
@@ -100,11 +110,13 @@ func NewServices(deps Deps) *Services {
 		emailService,
 	)
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
+	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
 	advertService := NewAdvertService(deps.Repos.Advert)
 	return &Services{
-		User:      userService,
-		Session:   sessionService,
-		Apartment: apartmentService,
-		Advert:    advertService,
+		User:           userService,
+		Session:        sessionService,
+		Apartment:      apartmentService,
+		Advert:         advertService,
+		ApartmentPhoto: apartmentPhotoService,
 	}
 }
