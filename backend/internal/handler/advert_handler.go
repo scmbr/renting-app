@@ -8,7 +8,13 @@ import (
 	"github.com/scmbr/renting-app/internal/dto"
 )
 
-// GET /advert/
+// @Summary      Получить все объявления пользователя
+// @Tags         adverts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Success      200 {array} dto.GetAdvertResponse
+// @Failure      500 {object} ErrorResponse
+// @Router       /advert [get]
 func (h *Handler) getAllAdverts(c *gin.Context) {
 	userId := c.MustGet("userId").(int)
 
@@ -20,7 +26,15 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	c.JSON(http.StatusOK, adverts)
 }
 
-// GET /advert/:id
+// @Summary      Получить объявление по ID
+// @Tags         adverts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id   path      int  true  "Advert ID"
+// @Success      200  {object}  dto.GetAdvertResponse
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /advert/{id} [get]
 func (h *Handler) getAdvertById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -39,7 +53,16 @@ func (h *Handler) getAdvertById(c *gin.Context) {
 	c.JSON(http.StatusOK, advert)
 }
 
-// POST /advert/
+// @Summary      Создать объявление
+// @Tags         adverts
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        input  body      dto.CreateAdvertInput  true  "Advert input"
+// @Success      201
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /advert [post]
 func (h *Handler) createAdvert(c *gin.Context) {
 	userId := c.MustGet("userId").(int)
 
@@ -57,7 +80,15 @@ func (h *Handler) createAdvert(c *gin.Context) {
 	c.Status(http.StatusCreated)
 }
 
-// DELETE /advert/:id
+// @Summary      Удалить объявление
+// @Tags         adverts
+// @Security     ApiKeyAuth
+// @Produce      json
+// @Param        id   path      int  true  "Advert ID"
+// @Success      200
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /advert/{id} [delete]
 func (h *Handler) deleteAdvert(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
@@ -76,7 +107,17 @@ func (h *Handler) deleteAdvert(c *gin.Context) {
 	c.Status(http.StatusOK)
 }
 
-// PATCH /advert/:id
+// @Summary      Обновить объявление
+// @Tags         adverts
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param        id     path      int                   true  "Advert ID"
+// @Param        input  body      dto.UpdateAdvertInput true  "Update input"
+// @Success      200
+// @Failure      400  {object}  ErrorResponse
+// @Failure      500  {object}  ErrorResponse
+// @Router       /advert/{id} [patch]
 func (h *Handler) updateAdvert(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
