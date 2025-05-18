@@ -18,7 +18,7 @@ smtp:
   port: 465
   from: "renting-app@mail.ru"
 auth:
-  accessTokenTTL: 5m
+  accessTokenTTL: 3h
   refreshTokenTTL: 720h 
   verificationCodeLength: 8
 email:

@@ -1,5 +1,87 @@
 basePath: /
 definitions:
+  dto.CreateAdvertInput:
+    properties:
+      apartment_id:
+        type: integer
+      babies:
+        type: boolean
+      concierge:
+        type: boolean
+      conditioner:
+        type: boolean
+      deposit:
+        type: number
+      dishwasher:
+        type: boolean
+      internet:
+        type: boolean
+      pets:
+        type: boolean
+      rent:
+        type: number
+      rental_type:
+        type: string
+      smoking:
+        type: boolean
+      title:
+        type: string
+      tv:
+        type: boolean
+      washing_machine:
+        type: boolean
+    required:
+    - apartment_id
+    - deposit
+    - rent
+    - rental_type
+    - title
+    type: object
+  dto.CreateApartmentInput:
+    properties:
+      apartment_number:
+        type: string
+      bathroom_type:
+        type: string
+      building:
+        type: string
+      city:
+        type: string
+      concierge:
+        type: boolean
+      construction_type:
+        type: string
+      construction_year:
+        type: integer
+      district:
+        type: string
+      elevator:
+        type: boolean
+      floor:
+        type: integer
+      garbage_chute:
+        type: boolean
+      house:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      remont:
+        type: string
+      rooms:
+        type: integer
+      street:
+        type: string
+    required:
+    - city
+    - construction_year
+    - floor
+    - latitude
+    - longitude
+    - rooms
+    - street
+    type: object
   dto.CreateUser:
     properties:
       birthdate:
@@ -9,15 +91,175 @@ definitions:
       name:
         type: string
       password:
+        minLength: 8
         type: string
       surname:
         type: string
     required:
-    - birthdate
     - email
     - name
     - password
     - surname
+    type: object
+  dto.GetAdvertResponse:
+    properties:
+      apartment_id:
+        type: integer
+      babies:
+        type: boolean
+      concierge:
+        type: boolean
+      conditioner:
+        type: boolean
+      created_at:
+        type: string
+      deposit:
+        type: number
+      dishwasher:
+        type: boolean
+      id:
+        type: integer
+      internet:
+        type: boolean
+      pets:
+        type: boolean
+      rent:
+        type: number
+      rental_type:
+        type: string
+      smoking:
+        type: boolean
+      status:
+        type: string
+      title:
+        type: string
+      tv:
+        type: boolean
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+      washing_machine:
+        type: boolean
+    type: object
+  dto.GetApartmentResponse:
+    properties:
+      apartment_number:
+        type: string
+      bathroom_type:
+        type: string
+      building:
+        type: string
+      city:
+        type: string
+      concierge:
+        type: boolean
+      construction_type:
+        type: string
+      construction_year:
+        type: integer
+      created_at:
+        type: string
+      district:
+        type: string
+      elevator:
+        type: boolean
+      floor:
+        type: integer
+      garbage_chute:
+        type: boolean
+      house:
+        type: string
+      id:
+        type: integer
+      latitude:
+        type: number
+      longitude:
+        type: number
+      rating:
+        type: number
+      remont:
+        type: string
+      rooms:
+        type: integer
+      status:
+        type: string
+      street:
+        type: string
+      updated_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  dto.UpdateAdvertInput:
+    properties:
+      babies:
+        type: boolean
+      concierge:
+        type: boolean
+      conditioner:
+        type: boolean
+      deposit:
+        type: number
+      dishwasher:
+        type: boolean
+      internet:
+        type: boolean
+      pets:
+        type: boolean
+      rent:
+        type: number
+      rental_type:
+        type: string
+      smoking:
+        type: boolean
+      status:
+        type: string
+      title:
+        type: string
+      tv:
+        type: boolean
+      washing_machine:
+        type: boolean
+    type: object
+  dto.UpdateApartmentInput:
+    properties:
+      apartment_number:
+        type: string
+      bathroom_type:
+        type: string
+      building:
+        type: string
+      city:
+        type: string
+      concierge:
+        type: boolean
+      construction_type:
+        type: string
+      construction_year:
+        type: integer
+      district:
+        type: string
+      elevator:
+        type: boolean
+      floor:
+        type: integer
+      garbage_chute:
+        type: boolean
+      house:
+        type: string
+      latitude:
+        type: number
+      longitude:
+        type: number
+      remont:
+        type: string
+      rooms:
+        type: integer
+      status:
+        type: string
+      street:
+        type: string
     type: object
   handler.ErrorResponse:
     properties:
@@ -25,9 +267,25 @@ definitions:
         example: Invalid input data
         type: string
     type: object
+  handler.ResetPasswordInput:
+    properties:
+      new_password:
+        type: string
+      token:
+        type: string
+    required:
+    - new_password
+    - token
+    type: object
   handler.VerifyRequest:
     properties:
       code:
+        type: string
+    type: object
+  handler.VerifyResendRequest:
+    properties:
+      email:
+        example: user@example.com
         type: string
     type: object
   handler.refreshInput:
@@ -66,6 +324,278 @@ info:
   title: Renting App API
   version: "1.0"
 paths:
+  /advert:
+    get:
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.GetAdvertResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить все объявления пользователя
+      tags:
+      - adverts
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Advert input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateAdvertInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Создать объявление
+      tags:
+      - adverts
+  /advert/{id}:
+    delete:
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить объявление
+      tags:
+      - adverts
+    get:
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetAdvertResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить объявление по ID
+      tags:
+      - adverts
+    patch:
+      consumes:
+      - application/json
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Update input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateAdvertInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить объявление
+      tags:
+      - adverts
+  /apartment/:
+    get:
+      description: Получить список всех квартир пользователя
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties: true
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить все квартиры
+      tags:
+      - apartments
+    post:
+      consumes:
+      - application/json
+      description: Создать новую квартиру
+      parameters:
+      - description: Apartment input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateApartmentInput'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Создать квартиру
+      tags:
+      - apartments
+  /apartment/{id}:
+    delete:
+      description: Удалить квартиру по ID
+      parameters:
+      - description: Apartment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Удалить квартиру
+      tags:
+      - apartments
+    get:
+      description: Получить квартиру по ID
+      parameters:
+      - description: Apartment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetApartmentResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить квартиру по ID
+      tags:
+      - apartments
+    patch:
+      consumes:
+      - application/json
+      description: Обновить данные по квартире
+      parameters:
+      - description: Apartment ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Apartment update input
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateApartmentInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      security:
+      - ApiKeyAuth: []
+      summary: Обновить квартиру
+      tags:
+      - apartments
   /auth/refresh:
     post:
       consumes:
@@ -94,6 +624,40 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: Обновление токенов
+      tags:
+      - auth
+  /auth/reset-password:
+    post:
+      consumes:
+      - application/json
+      description: Сброс пароля пользователя через токен
+      parameters:
+      - description: Данные для сброса пароля
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.ResetPasswordInput'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.response'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/handler.response'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.response'
+      summary: Reset Password
       tags:
       - auth
   /auth/sign-in:
@@ -184,6 +748,36 @@ paths:
           schema:
             $ref: '#/definitions/handler.ErrorResponse'
       summary: Подтверждение электронной почты
+      tags:
+      - auth
+  /auth/verify/resend:
+    post:
+      consumes:
+      - application/json
+      description: Переотправялет код верификации
+      parameters:
+      - description: Email для переотправки кода
+        in: body
+        name: input
+        required: true
+        schema:
+          $ref: '#/definitions/handler.VerifyResendRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.response'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/handler.ErrorResponse'
+      summary: Переотправка кода верификации
       tags:
       - auth
 swagger: "2.0"

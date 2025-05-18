@@ -15,6 +15,439 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/advert": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получить все объявления пользователя",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/dto.GetAdvertResponse"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Создать объявление",
+                "parameters": [
+                    {
+                        "description": "Advert input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateAdvertInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/advert/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получить объявление по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAdvertResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Удалить объявление",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Обновить объявление",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Update input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateAdvertInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/apartment/": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить список всех квартир пользователя",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apartments"
+                ],
+                "summary": "Получить все квартиры",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": true
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Создать новую квартиру",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apartments"
+                ],
+                "summary": "Создать квартиру",
+                "parameters": [
+                    {
+                        "description": "Apartment input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.CreateApartmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/apartment/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Получить квартиру по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apartments"
+                ],
+                "summary": "Получить квартиру по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Apartment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetApartmentResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Удалить квартиру по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apartments"
+                ],
+                "summary": "Удалить квартиру",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Apartment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            },
+            "patch": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Обновить данные по квартире",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "apartments"
+                ],
+                "summary": "Обновить квартиру",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Apartment ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Apartment update input",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/dto.UpdateApartmentInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/refresh": {
             "post": {
                 "description": "Обновляет access и refresh токены по действующему refresh токену",
@@ -56,6 +489,58 @@ const docTemplate = `{
                         "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/reset-password": {
+            "post": {
+                "description": "Сброс пароля пользователя через токен",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Reset Password",
+                "parameters": [
+                    {
+                        "description": "Данные для сброса пароля",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.ResetPasswordInput"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.response"
+                        }
+                    },
+                    "401": {
+                        "description": "Unauthorized",
+                        "schema": {
+                            "$ref": "#/definitions/handler.response"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.response"
                         }
                     }
                 }
@@ -198,13 +683,177 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/auth/verify/resend": {
+            "post": {
+                "description": "Переотправялет код верификации",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Переотправка кода верификации",
+                "parameters": [
+                    {
+                        "description": "Email для переотправки кода",
+                        "name": "input",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.VerifyResendRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.response"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "dto.CreateAdvertInput": {
+            "type": "object",
+            "required": [
+                "apartment_id",
+                "deposit",
+                "rent",
+                "rental_type",
+                "title"
+            ],
+            "properties": {
+                "apartment_id": {
+                    "type": "integer"
+                },
+                "babies": {
+                    "type": "boolean"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "conditioner": {
+                    "type": "boolean"
+                },
+                "deposit": {
+                    "type": "number"
+                },
+                "dishwasher": {
+                    "type": "boolean"
+                },
+                "internet": {
+                    "type": "boolean"
+                },
+                "pets": {
+                    "type": "boolean"
+                },
+                "rent": {
+                    "type": "number"
+                },
+                "rental_type": {
+                    "type": "string"
+                },
+                "smoking": {
+                    "type": "boolean"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tv": {
+                    "type": "boolean"
+                },
+                "washing_machine": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.CreateApartmentInput": {
+            "type": "object",
+            "required": [
+                "city",
+                "construction_year",
+                "floor",
+                "latitude",
+                "longitude",
+                "rooms",
+                "street"
+            ],
+            "properties": {
+                "apartment_number": {
+                    "type": "string"
+                },
+                "bathroom_type": {
+                    "type": "string"
+                },
+                "building": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "construction_type": {
+                    "type": "string"
+                },
+                "construction_year": {
+                    "type": "integer"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "elevator": {
+                    "type": "boolean"
+                },
+                "floor": {
+                    "type": "integer"
+                },
+                "garbage_chute": {
+                    "type": "boolean"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "remont": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "integer"
+                },
+                "street": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.CreateUser": {
             "type": "object",
             "required": [
-                "birthdate",
                 "email",
                 "name",
                 "password",
@@ -221,9 +870,252 @@ const docTemplate = `{
                     "type": "string"
                 },
                 "password": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 8
                 },
                 "surname": {
+                    "type": "string"
+                }
+            }
+        },
+        "dto.GetAdvertResponse": {
+            "type": "object",
+            "properties": {
+                "apartment_id": {
+                    "type": "integer"
+                },
+                "babies": {
+                    "type": "boolean"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "conditioner": {
+                    "type": "boolean"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "deposit": {
+                    "type": "number"
+                },
+                "dishwasher": {
+                    "type": "boolean"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "internet": {
+                    "type": "boolean"
+                },
+                "pets": {
+                    "type": "boolean"
+                },
+                "rent": {
+                    "type": "number"
+                },
+                "rental_type": {
+                    "type": "string"
+                },
+                "smoking": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tv": {
+                    "type": "boolean"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "washing_machine": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.GetApartmentResponse": {
+            "type": "object",
+            "properties": {
+                "apartment_number": {
+                    "type": "string"
+                },
+                "bathroom_type": {
+                    "type": "string"
+                },
+                "building": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "construction_type": {
+                    "type": "string"
+                },
+                "construction_year": {
+                    "type": "integer"
+                },
+                "created_at": {
+                    "type": "string"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "elevator": {
+                    "type": "boolean"
+                },
+                "floor": {
+                    "type": "integer"
+                },
+                "garbage_chute": {
+                    "type": "boolean"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "remont": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "street": {
+                    "type": "string"
+                },
+                "updated_at": {
+                    "type": "string"
+                },
+                "user_id": {
+                    "type": "integer"
+                }
+            }
+        },
+        "dto.UpdateAdvertInput": {
+            "type": "object",
+            "properties": {
+                "babies": {
+                    "type": "boolean"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "conditioner": {
+                    "type": "boolean"
+                },
+                "deposit": {
+                    "type": "number"
+                },
+                "dishwasher": {
+                    "type": "boolean"
+                },
+                "internet": {
+                    "type": "boolean"
+                },
+                "pets": {
+                    "type": "boolean"
+                },
+                "rent": {
+                    "type": "number"
+                },
+                "rental_type": {
+                    "type": "string"
+                },
+                "smoking": {
+                    "type": "boolean"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "title": {
+                    "type": "string"
+                },
+                "tv": {
+                    "type": "boolean"
+                },
+                "washing_machine": {
+                    "type": "boolean"
+                }
+            }
+        },
+        "dto.UpdateApartmentInput": {
+            "type": "object",
+            "properties": {
+                "apartment_number": {
+                    "type": "string"
+                },
+                "bathroom_type": {
+                    "type": "string"
+                },
+                "building": {
+                    "type": "string"
+                },
+                "city": {
+                    "type": "string"
+                },
+                "concierge": {
+                    "type": "boolean"
+                },
+                "construction_type": {
+                    "type": "string"
+                },
+                "construction_year": {
+                    "type": "integer"
+                },
+                "district": {
+                    "type": "string"
+                },
+                "elevator": {
+                    "type": "boolean"
+                },
+                "floor": {
+                    "type": "integer"
+                },
+                "garbage_chute": {
+                    "type": "boolean"
+                },
+                "house": {
+                    "type": "string"
+                },
+                "latitude": {
+                    "type": "number"
+                },
+                "longitude": {
+                    "type": "number"
+                },
+                "remont": {
+                    "type": "string"
+                },
+                "rooms": {
+                    "type": "integer"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "street": {
                     "type": "string"
                 }
             }
@@ -237,11 +1129,35 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.ResetPasswordInput": {
+            "type": "object",
+            "required": [
+                "new_password",
+                "token"
+            ],
+            "properties": {
+                "new_password": {
+                    "type": "string"
+                },
+                "token": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.VerifyRequest": {
             "type": "object",
             "properties": {
                 "code": {
                     "type": "string"
+                }
+            }
+        },
+        "handler.VerifyResendRequest": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "user@example.com"
                 }
             }
         },
