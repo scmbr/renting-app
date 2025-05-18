@@ -51,18 +51,27 @@ type Advert interface {
 	DeleteAdvert(ctx context.Context, userId int, id int) error
 	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
 }
+type ApartmentPhoto interface {
+	GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error)
+	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error)
+	AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
+	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
+	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
+}
 type Repository struct {
 	Users
 	Session
 	Apartment
 	Advert
+	ApartmentPhoto
 }
 
 func NewRepository(db *gorm.DB) *Repository {
 	return &Repository{
-		Users:     NewUsersRepo(db),
-		Session:   NewSessionsRepo(db),
-		Apartment: NewApartmentRepo(db),
-		Advert:    NewAdvertRepo(db),
+		Users:          NewUsersRepo(db),
+		Session:        NewSessionsRepo(db),
+		Apartment:      NewApartmentRepo(db),
+		Advert:         NewAdvertRepo(db),
+		ApartmentPhoto: NewApartmentPhotoRepo(db),
 	}
 }
