@@ -34,3 +34,18 @@ func (s *ApartmentService) DeleteApartment(ctx context.Context, userId int, id i
 func (s *ApartmentService) UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error {
 	return s.repo.UpdateApartment(ctx, userId, id, input)
 }
+func (s *ApartmentService) GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error) {
+	return s.repo.GetAllApartmentsAdmin(ctx)
+}
+
+func (s *ApartmentService) GetApartmentByIdAdmin(ctx context.Context, id int) (*dto.GetApartmentResponse, error) {
+	return s.repo.GetApartmentByIdAdmin(ctx, id)
+}
+
+func (s *ApartmentService) UpdateApartmentAdmin(ctx context.Context, id int, input *dto.UpdateApartmentInput) error {
+	return s.repo.UpdateApartmentAdmin(ctx, id, input)
+}
+
+func (s *ApartmentService) DeleteApartmentAdmin(ctx context.Context, id int) error {
+	return s.repo.DeleteApartmentAdmin(ctx, id)
+}

@@ -8,7 +8,7 @@ import (
 	"github.com/scmbr/renting-app/internal/dto"
 )
 
-func (h *Handler) getAllUsers(c *gin.Context) {
+func (h *Handler) adminGetAllUsers(c *gin.Context) {
 
 	users, err := h.services.User.GetAllUsers()
 	if err != nil {
@@ -20,7 +20,7 @@ func (h *Handler) getAllUsers(c *gin.Context) {
 	})
 }
 
-func (h *Handler) getUserById(c *gin.Context) {
+func (h *Handler) adminGetUserById(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
@@ -35,7 +35,7 @@ func (h *Handler) getUserById(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) deleteUserById(c *gin.Context) {
+func (h *Handler) adminDeleteUserById(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {
@@ -50,7 +50,7 @@ func (h *Handler) deleteUserById(c *gin.Context) {
 	c.JSON(http.StatusOK, user)
 }
 
-func (h *Handler) updateUserById(c *gin.Context) {
+func (h *Handler) adminUpdateUserById(c *gin.Context) {
 	id := c.Param("id")
 	userID, err := strconv.Atoi(id)
 	if err != nil {

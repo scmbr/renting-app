@@ -34,8 +34,8 @@ type User interface {
 	LogOut(ctx context.Context, id int, ip, os, browser string) error
 }
 type Session interface {
-	CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error)
-	RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error)
+	CreateSession(ctx context.Context, role string, userID int, ip string, os string, browser string) (Tokens, error)
+	RefreshSession(ctx context.Context, role string, refreshToken, ip, os, browser string) (Tokens, error)
 	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
 type Emails interface {
@@ -48,6 +48,10 @@ type Apartment interface {
 	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
+	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)
+	GetApartmentByIdAdmin(ctx context.Context, id int) (*dto.GetApartmentResponse, error)
+	UpdateApartmentAdmin(ctx context.Context, id int, input *dto.UpdateApartmentInput) error
+	DeleteApartmentAdmin(ctx context.Context, id int) error
 }
 type Advert interface {
 	GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
@@ -55,6 +59,10 @@ type Advert interface {
 	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
 	DeleteAdvert(ctx context.Context, userId int, id int) error
 	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
+	GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertResponse, error)
+	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
+	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
+	DeleteAdvertAdmin(ctx context.Context, id int) error
 }
 
 type ApartmentPhoto interface {

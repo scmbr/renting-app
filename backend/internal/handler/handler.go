@@ -76,11 +76,30 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
-		admin.DELETE("/users/:id", h.deleteUserById)
-		admin.PUT("/users/:id", h.updateUserById)
-		admin.GET("/users", h.getAllUsers)
-		admin.GET("/users/:id", h.getUserById)
 
+		users := admin.Group("/users")
+		{
+			users.GET("/", h.adminGetAllUsers)
+			users.GET("/:id", h.adminGetUserById)
+			users.PUT("/:id", h.adminUpdateUserById)
+			users.DELETE("/:id", h.adminDeleteUserById)
+		}
+
+		apartment := admin.Group("/apartments")
+		{
+			apartment.GET("/", h.adminGetAllApartments)
+			apartment.GET("/:id", h.adminGetApartmentById)
+			apartment.PUT("/:id", h.adminUpdateApartment)
+			apartment.DELETE("/:id", h.adminDeleteApartment)
+		}
+
+		advert := admin.Group("/adverts")
+		{
+			advert.GET("/", h.adminGetAllAdverts)
+			advert.GET("/:id", h.adminGetAdvertById)
+			advert.PUT("/:id", h.adminUpdateAdvert)
+			advert.DELETE("/:id", h.adminDeleteAdvert)
+		}
 	}
 	return router
 }
