@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -94,10 +93,6 @@ func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
 			"",
 		)),
 	)
-	fmt.Println(cfg.FileStorage.AccessKey)
-	fmt.Println(cfg.FileStorage.SecretKey)
-	fmt.Println(cfg.FileStorage.Endpoint)
-	fmt.Println(cfg.FileStorage.Website)
 	if err != nil {
 		return nil, err
 	}

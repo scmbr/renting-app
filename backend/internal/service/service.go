@@ -72,6 +72,7 @@ type ApartmentPhoto interface {
 	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
 	UploadPhotoToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
+	HasCoverPhoto(apartmentId int) (bool, error)
 }
 type Services struct {
 	User

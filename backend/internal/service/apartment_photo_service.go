@@ -57,3 +57,6 @@ func (s *ApartmentPhotoService) DeletePhoto(ctx context.Context, userId, apartme
 func (s *ApartmentPhotoService) SetCover(ctx context.Context, userId, apartmentId, photoId int) error {
 	return s.repo.SetCover(ctx, userId, apartmentId, photoId)
 }
+func (s *ApartmentPhotoService) HasCoverPhoto(apartmentId int) (bool, error) {
+	return s.repo.HasCoverPhoto(apartmentId)
+}

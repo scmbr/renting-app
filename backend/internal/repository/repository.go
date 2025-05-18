@@ -65,6 +65,7 @@ type ApartmentPhoto interface {
 	AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
 	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
+	HasCoverPhoto(apartmentId int) (bool, error)
 }
 type Repository struct {
 	Users

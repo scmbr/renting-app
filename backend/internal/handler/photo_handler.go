@@ -68,7 +68,11 @@ func (h *Handler) addPhotos(c *gin.Context) {
 	}
 
 	var inputs []dto.CreatePhotoInput
-
+	hasCover, err := h.services.ApartmentPhoto.HasCoverPhoto(apartmentId)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "failed to check for cover photo")
+		return
+	}
 	for i, fileHeader := range files {
 
 		url, err := h.services.ApartmentPhoto.UploadPhotoToS3(c.Request.Context(), fileHeader)
@@ -78,9 +82,10 @@ func (h *Handler) addPhotos(c *gin.Context) {
 		}
 
 		input := dto.CreatePhotoInput{
-			URL:      url,
-			FileName: fileHeader.Filename,
-			IsCover:  i == 0,
+			ApartmentID: uint(apartmentId),
+			URL:         url,
+			FileName:    fileHeader.Filename,
+			IsCover:     i == 0 && !hasCover,
 		}
 		inputs = append(inputs, input)
 	}

@@ -127,3 +127,13 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 
 	return tx.Commit().Error
 }
+func (r *ApartmentPhotoRepo) HasCoverPhoto(apartmentId int) (bool, error) {
+	var count int64
+	err := r.db.Model(&models.ApartmentPhoto{}).
+		Where("apartment_id = ? AND is_cover = true", apartmentId).
+		Count(&count).Error
+	if err != nil {
+		return false, err
+	}
+	return count > 0, nil
+}
