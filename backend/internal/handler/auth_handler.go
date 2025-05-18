@@ -95,8 +95,8 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 	ua := user_agent.New(userAgent)
 	os := ua.OS()
 	browser, _ := ua.Browser()
-
-	tokens, err := h.services.Session.RefreshSession(c.Request.Context(), input.Token, ip, os, browser)
+	role, _ := c.Get("Role")
+	tokens, err := h.services.Session.RefreshSession(c.Request.Context(), role.(string), input.Token, ip, os, browser)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return

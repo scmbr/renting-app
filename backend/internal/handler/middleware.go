@@ -24,52 +24,50 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
 		return
 	}
-	userIdStr, err := h.tokenManager.Parse(headerParts[1])
+	claims, err := h.tokenManager.Parse(headerParts[1])
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	userId, err := strconv.Atoi(userIdStr)
+	userId, err := strconv.Atoi(claims.Id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 	c.Set("userId", userId)
+	c.Set("Role", claims.Role)
 	c.Next()
 }
 func (h *Handler) adminMiddleware(c *gin.Context) {
 	header := c.GetHeader(authorizationHeader)
 	if header == "" {
 		newErrorResponse(c, http.StatusUnauthorized, "empty auth header")
+		c.Abort()
 		return
 	}
 
 	headerParts := strings.Split(header, " ")
-	if len(headerParts) != 2 {
+	if len(headerParts) != 2 || headerParts[0] != "Bearer" {
 		newErrorResponse(c, http.StatusUnauthorized, "invalid auth header")
-		return
-	}
-	userId, err := h.tokenManager.Parse(headerParts[1])
-	if err != nil {
-		newErrorResponse(c, http.StatusUnauthorized, err.Error())
-		return
-	}
-	id, err := strconv.Atoi(userId)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
-		return
-	}
-	user, err := h.services.User.GetUserById(id)
-	if err != nil {
-		newErrorResponse(c, http.StatusForbidden, err.Error())
-		return
-	}
-	if user.Role != "admin" {
-		newErrorResponse(c, http.StatusForbidden, "Access denied: admin rights required")
+		c.Abort()
 		return
 	}
 
-	c.Set("userId", userId)
+	claims, err := h.tokenManager.Parse(headerParts[1])
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
+		c.Abort()
+		return
+	}
+
+	if claims.Role != "admin" {
+		newErrorResponse(c, http.StatusForbidden, "Access denied: admin rights required")
+		c.Abort()
+		return
+	}
+
+	c.Set("userId", claims.UserID)
+	c.Next()
 }
 func corsMiddleware(c *gin.Context) {
 	c.Header("Access-Control-Allow-Origin", "*")

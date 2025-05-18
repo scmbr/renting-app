@@ -41,7 +41,7 @@ func (s *UserService) SignIn(ctx context.Context, email string, password string,
 		return Tokens{}, err
 	}
 
-	return s.sessionService.CreateSession(ctx, user.Id, ip, os, browser)
+	return s.sessionService.CreateSession(ctx, user.Role, user.Id, ip, os, browser)
 }
 
 func (s *UserService) VerifyEmail(ctx context.Context, code string) error {

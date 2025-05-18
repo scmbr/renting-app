@@ -10,11 +10,15 @@ import (
 )
 
 type TokenManager interface {
-	NewJWT(userId string, ttl time.Duration) (string, error)
-	Parse(accessToken string) (string, error)
+	NewJWT(role, userId string, ttl time.Duration) (string, error)
+	Parse(accessToken string) (*Claims, error)
 	NewRefreshToken() (string, error)
 }
-
+type Claims struct {
+	UserID string `json:"sub"`
+	Role   string `json:"role"`
+	jwt.StandardClaims
+}
 type Manager struct {
 	signingKey string
 }
@@ -27,33 +31,37 @@ func NewManager(signingKey string) (*Manager, error) {
 	return &Manager{signingKey: signingKey}, nil
 }
 
-func (m *Manager) NewJWT(userId string, ttl time.Duration) (string, error) {
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(ttl).Unix(),
-		Subject:   userId,
-	})
+func (m *Manager) NewJWT(role, userId string, ttl time.Duration) (string, error) {
+	claims := Claims{
+		UserID: userId,
+		Role:   role,
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(ttl).Unix(),
+			Subject:   userId, // можно оставить, но теперь есть и отдельное поле
+		},
+	}
 
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	return token.SignedString([]byte(m.signingKey))
 }
 
-func (m *Manager) Parse(accessToken string) (string, error) {
-	token, err := jwt.Parse(accessToken, func(token *jwt.Token) (i interface{}, err error) {
+func (m *Manager) Parse(accessToken string) (*Claims, error) {
+	token, err := jwt.ParseWithClaims(accessToken, &Claims{}, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, fmt.Errorf("unexpected signing method: %v", token.Header["alg"])
 		}
-
 		return []byte(m.signingKey), nil
 	})
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return "", fmt.Errorf("error get user claims from token")
+	claims, ok := token.Claims.(*Claims)
+	if !ok || !token.Valid {
+		return nil, errors.New("invalid token claims")
 	}
 
-	return claims["sub"].(string), nil
+	return claims, nil
 }
 
 func (m *Manager) NewRefreshToken() (string, error) {

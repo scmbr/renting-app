@@ -27,12 +27,12 @@ func NewSessionService(repo repository.Session, accessTTL, refreshTTL time.Durat
 	}
 }
 
-func (s *SessionService) CreateSession(ctx context.Context, userID int, ip string, os string, browser string) (Tokens, error) {
+func (s *SessionService) CreateSession(ctx context.Context, role string, userID int, ip string, os string, browser string) (Tokens, error) {
 	var (
 		res Tokens
 		err error
 	)
-	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(userID), s.accessTokenTTL)
+	res.AccessToken, err = s.tokenManager.NewJWT(role, strconv.Itoa(userID), s.accessTokenTTL)
 	if err != nil {
 		return res, err
 	}
@@ -58,14 +58,14 @@ func (s *SessionService) CreateSession(ctx context.Context, userID int, ip strin
 	err = s.repo.CreateSession(ctx, session)
 	return res, err
 }
-func (s *SessionService) RefreshSession(ctx context.Context, refreshToken, ip, os, browser string) (Tokens, error) {
+func (s *SessionService) RefreshSession(ctx context.Context, role string, refreshToken, ip, os, browser string) (Tokens, error) {
 	session, err := s.repo.GetByRefreshToken(ctx, refreshToken)
 	if err != nil {
 		return Tokens{}, err
 	}
 	// Генерация новых токенов
 	var res Tokens
-	res.AccessToken, err = s.tokenManager.NewJWT(strconv.Itoa(session.UserID), s.accessTokenTTL)
+	res.AccessToken, err = s.tokenManager.NewJWT(role, strconv.Itoa(session.UserID), s.accessTokenTTL)
 	if err != nil {
 		return res, err
 	}
