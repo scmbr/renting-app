@@ -216,7 +216,7 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
 
 	var user models.User
-	result := r.db.WithContext(ctx).Where("email = ? AND password_hash = ?", email, passwordHash).First(&user)
+	result := r.db.WithContext(ctx).Where("email = ? AND password_hash = ? AND verified=true", email, passwordHash).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return nil, errors.New("user not found")
