@@ -55,6 +55,14 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			apartment.POST("/", h.createApartment)
 			apartment.DELETE("/:id", h.deleteApartment)
 			apartment.PATCH("/:id", h.updateApartment)
+			photo := authenticated.Group("/:id/photos")
+			{
+				photo.GET("/", h.getAllPhotos)
+				photo.GET("/:photoId", h.getPhotoById)
+				photo.POST("/batch", h.addPhotos)
+				photo.DELETE("/:photoId", h.deletePhoto)
+				photo.PATCH("/:photoId/set-cover", h.setCover)
+			}
 		}
 		advert := authenticated.Group("/advert")
 		{
@@ -64,6 +72,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			advert.DELETE("/:id", h.deleteAdvert)
 			advert.PATCH("/:id", h.updateAdvert)
 		}
+
 	}
 	admin := router.Group("/admin", h.adminMiddleware)
 	{
