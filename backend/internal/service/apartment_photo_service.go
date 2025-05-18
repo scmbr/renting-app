@@ -26,7 +26,6 @@ func (s *ApartmentPhotoService) UploadPhotoToS3(ctx context.Context, fileHeader 
 		return "", err
 	}
 	defer file.Close()
-
 	url, err := s.storage.Upload(ctx, storage.UploadInput{
 		File:        file,
 		Name:        fileHeader.Filename,

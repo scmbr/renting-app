@@ -55,7 +55,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			apartment.POST("/", h.createApartment)
 			apartment.DELETE("/:id", h.deleteApartment)
 			apartment.PATCH("/:id", h.updateApartment)
-			photo := authenticated.Group("/:id/photos")
+			photo := apartment.Group("/:id/photos")
 			{
 				photo.GET("/", h.getAllPhotos)
 				photo.GET("/:photoId", h.getPhotoById)

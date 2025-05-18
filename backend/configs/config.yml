@@ -11,8 +11,8 @@ postgres:
   dbname: "postgres"
   sslmode: "disable"
 fileStorage:
-  url: ams3.digitaloceanspaces.com
-  bucket: courses
+  url: website.yandexcloud.net
+  bucket: profile-pictures
 smtp:
   host: "smtp.mail.ru"
   port: 465

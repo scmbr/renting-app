@@ -2,6 +2,7 @@ package app
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -93,6 +94,10 @@ func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
 			"",
 		)),
 	)
+	fmt.Println(cfg.FileStorage.AccessKey)
+	fmt.Println(cfg.FileStorage.SecretKey)
+	fmt.Println(cfg.FileStorage.Endpoint)
+	fmt.Println(cfg.FileStorage.Website)
 	if err != nil {
 		return nil, err
 	}
@@ -101,6 +106,7 @@ func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
 		o.BaseEndpoint = aws.String(cfg.FileStorage.Endpoint)
 		o.RequestChecksumCalculation = aws.RequestChecksumCalculationWhenRequired
 		o.EndpointResolverV2 = s3.NewDefaultEndpointResolverV2()
+		o.UsePathStyle = true
 	})
 	provider := storage.NewFileStorage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint, cfg.FileStorage.Website)
 	return provider, nil

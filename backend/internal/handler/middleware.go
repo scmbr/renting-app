@@ -29,7 +29,7 @@ func (h *Handler) userIdentity(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-	userId, err := strconv.Atoi(claims.Id)
+	userId, err := strconv.Atoi(claims.UserID)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

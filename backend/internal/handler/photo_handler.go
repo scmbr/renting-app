@@ -73,7 +73,7 @@ func (h *Handler) addPhotos(c *gin.Context) {
 
 		url, err := h.services.ApartmentPhoto.UploadPhotoToS3(c.Request.Context(), fileHeader)
 		if err != nil {
-			newErrorResponse(c, http.StatusInternalServerError, "failed to upload photo to S3")
+			newErrorResponse(c, http.StatusInternalServerError, err.Error())
 			return
 		}
 
