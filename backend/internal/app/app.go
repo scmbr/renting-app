@@ -2,7 +2,6 @@ package app
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
@@ -33,8 +32,7 @@ func Run(configPath string) {
 
 		return
 	}
-	fmt.Print(cfg.Postgres.Password)
-	fmt.Print(cfg.Postgres.Port)
+
 	db, err := repository.NewPostgresDB(repository.Config{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
