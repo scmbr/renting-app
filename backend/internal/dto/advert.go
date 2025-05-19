@@ -56,3 +56,65 @@ type UpdateAdvertInput struct {
 	RentalType     *string  `json:"rental_type"`
 	Status         *string  `json:"status"`
 }
+type AdvertFilter struct {
+	City     string
+	District string
+	Rooms    int
+
+	PriceMin int
+	PriceMax int
+
+	FloorMin int
+	FloorMax int
+
+	YearMin int
+	YearMax int
+
+	ApartmentRatingMin float32
+	LandlordRatingMin  float32
+	BathroomType       string
+	Remont             string
+
+	Elevator  *bool
+	Concierge *bool
+
+	Pets           *bool
+	Babies         *bool
+	Smoking        *bool
+	Internet       *bool
+	WashingMachine *bool
+	TV             *bool
+	Conditioner    *bool
+	Dishwasher     *bool
+
+	RentalType string
+
+	Limit  int
+	Offset int
+	SortBy string
+	Order  string
+}
+
+func FromAdvert(advert models.Advert) *GetAdvertResponse {
+	return &GetAdvertResponse{
+		ID:             advert.ID,
+		UserID:         advert.UserID,
+		ApartmentID:    advert.ApartmentID,
+		Apartment:      FromApartment(&advert.Apartment),
+		CreatedAt:      advert.CreatedAt,
+		UpdatedAt:      advert.UpdatedAt,
+		Status:         advert.Status,
+		Title:          advert.Title,
+		Pets:           advert.Pets,
+		Babies:         advert.Babies,
+		Smoking:        advert.Smoking,
+		Internet:       advert.Internet,
+		WashingMachine: advert.WashingMachine,
+		TV:             advert.TV,
+		Conditioner:    advert.Conditioner,
+		Concierge:      advert.Concierge,
+		Rent:           advert.Rent,
+		Deposit:        advert.Deposit,
+		RentalType:     advert.RentalType,
+	}
+}
