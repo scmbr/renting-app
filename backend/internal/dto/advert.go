@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/scmbr/renting-app/internal/models"
+)
 
 type CreateAdvertInput struct {
 	ApartmentID    uint    `json:"apartment_id" binding:"required"`
@@ -19,25 +23,26 @@ type CreateAdvertInput struct {
 	RentalType     string  `json:"rental_type" binding:"required"`
 }
 type GetAdvertResponse struct {
-	ID             uint      `json:"id"`
-	UserID         uint      `json:"user_id"`
-	ApartmentID    uint      `json:"apartment_id"`
-	Title          string    `json:"title"`
-	Pets           bool      `json:"pets"`
-	Babies         bool      `json:"babies"`
-	Smoking        bool      `json:"smoking"`
-	Internet       bool      `json:"internet"`
-	WashingMachine bool      `json:"washing_machine"`
-	TV             bool      `json:"tv"`
-	Conditioner    bool      `json:"conditioner"`
-	Dishwasher     bool      `json:"dishwasher"`
-	Concierge      bool      `json:"concierge"`
-	Rent           float64   `json:"rent"`
-	Deposit        float64   `json:"deposit"`
-	RentalType     string    `json:"rental_type"`
-	Status         string    `json:"status"`
-	CreatedAt      time.Time `json:"created_at"`
-	UpdatedAt      time.Time `json:"updated_at"`
+	ID             uint                  `json:"id"`
+	UserID         uint                  `json:"user_id"`
+	ApartmentID    uint                  `json:"apartment_id"`
+	Apartment      *GetApartmentResponse `json:"apartment"`
+	Title          string                `json:"title"`
+	Pets           bool                  `json:"pets"`
+	Babies         bool                  `json:"babies"`
+	Smoking        bool                  `json:"smoking"`
+	Internet       bool                  `json:"internet"`
+	WashingMachine bool                  `json:"washing_machine"`
+	TV             bool                  `json:"tv"`
+	Conditioner    bool                  `json:"conditioner"`
+	Dishwasher     bool                  `json:"dishwasher"`
+	Concierge      bool                  `json:"concierge"`
+	Rent           float64               `json:"rent"`
+	Deposit        float64               `json:"deposit"`
+	RentalType     string                `json:"rental_type"`
+	Status         string                `json:"status"`
+	CreatedAt      time.Time             `json:"created_at"`
+	UpdatedAt      time.Time             `json:"updated_at"`
 }
 
 type UpdateAdvertInput struct {

@@ -44,18 +44,23 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authAuthorized.POST("/logout", h.logOut)
 		//authAuthorized.POST("/change-password", h.changePassword)
 	}
+	publicAdverts := router.Group("/adverts")
+	{
+		publicAdverts.GET("/", h.getAllAdverts)
+		publicAdverts.GET("/:id", h.getAdvertById)
+	}
 	authenticated := router.Group("/", h.userIdentity)
 	{
 		authenticated.GET("/me", h.getCurrentUser)
 		authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
-		apartment := authenticated.Group("/apartment")
+		userApartment := authenticated.Group("/my/apartment")
 		{
-			apartment.GET("/", h.getAllApartments)
-			apartment.GET("/:id", h.getApartmentById)
-			apartment.POST("/", h.createApartment)
-			apartment.DELETE("/:id", h.deleteApartment)
-			apartment.PATCH("/:id", h.updateApartment)
-			photo := apartment.Group("/:id/photos")
+			userApartment.GET("/", h.getAllUserApartments)
+			userApartment.GET("/:id", h.getUserApartmentById)
+			userApartment.POST("/", h.createApartment)
+			userApartment.DELETE("/:id", h.deleteApartment)
+			userApartment.PATCH("/:id", h.updateApartment)
+			photo := userApartment.Group("/:id/photos")
 			{
 				photo.GET("/", h.getAllPhotos)
 				photo.GET("/:photoId", h.getPhotoById)
@@ -64,13 +69,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 				photo.PATCH("/:photoId/set-cover", h.setCover)
 			}
 		}
-		advert := authenticated.Group("/advert")
+		userAdvert := authenticated.Group("/my/advert")
 		{
-			advert.GET("/:id", h.getAdvertById)
-			advert.GET("/", h.getAllAdverts)
-			advert.POST("/", h.createAdvert)
-			advert.DELETE("/:id", h.deleteAdvert)
-			advert.PATCH("/:id", h.updateAdvert)
+			userAdvert.GET("/:id", h.getUserAdvertById)
+			userAdvert.GET("/", h.getAllUserAdverts)
+			userAdvert.POST("/", h.createAdvert)
+			userAdvert.DELETE("/:id", h.deleteAdvert)
+			userAdvert.PATCH("/:id", h.updateAdvert)
 		}
 
 	}

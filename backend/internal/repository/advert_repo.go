@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"strings"
 
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/models"
@@ -16,7 +17,107 @@ type AdvertRepo struct {
 func NewAdvertRepo(db *gorm.DB) *AdvertRepo {
 	return &AdvertRepo{db: db}
 }
-func (r *AdvertRepo) GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
+func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error) {
+	var adverts []models.Advert
+	var total int64
+	tx := r.db.WithContext(ctx).
+		Model(&models.Advert{}).
+		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
+		Joins("JOIN users ON users.id = apartments.user_id").
+		Preload("Apartment")
+
+	if filter.City != "" {
+		tx = tx.Where("apartments.city = ?", filter.City)
+	}
+	if filter.District != "" {
+		tx = tx.Where("apartments.district = ?", filter.District)
+	}
+	if filter.Rooms > 0 {
+		tx = tx.Where("apartments.rooms = ?", filter.Rooms)
+	}
+	if filter.PriceMin > 0 {
+		tx = tx.Where("adverts.rent >= ?", filter.PriceMin)
+	}
+	if filter.PriceMax > 0 {
+		tx = tx.Where("adverts.rent <= ?", filter.PriceMax)
+	}
+	if filter.FloorMin > 0 {
+		tx = tx.Where("apartments.floor >= ?", filter.FloorMin)
+	}
+	if filter.FloorMax > 0 {
+		tx = tx.Where("apartments.floor <= ?", filter.FloorMax)
+	}
+	if filter.YearMin > 0 {
+		tx = tx.Where("apartments.construction_year >= ?", filter.YearMin)
+	}
+	if filter.YearMax > 0 {
+		tx = tx.Where("apartments.construction_year <= ?", filter.YearMax)
+	}
+	if filter.ApartmentRatingMin > 0 {
+		tx = tx.Where("apartments.rating >= ?", filter.ApartmentRatingMin)
+	}
+	if filter.LandlordRatingMin > 0 {
+		tx = tx.Where("users.rating >= ?", filter.LandlordRatingMin)
+	}
+	if filter.BathroomType != "" {
+		tx = tx.Where("apartments.bathroom_type = ?", filter.BathroomType)
+	}
+	if filter.Remont != "" {
+		tx = tx.Where("apartments.remont = ?", filter.Remont)
+	}
+	if filter.RentalType != "" {
+		tx = tx.Where("adverts.rental_type = ?", filter.RentalType)
+	}
+
+	boolMap := map[string]*bool{
+		"apartments.elevator":     filter.Elevator,
+		"apartments.concierge":    filter.Concierge,
+		"adverts.pets":            filter.Pets,
+		"adverts.babies":          filter.Babies,
+		"adverts.smoking":         filter.Smoking,
+		"adverts.internet":        filter.Internet,
+		"adverts.washing_machine": filter.WashingMachine,
+		"adverts.tv":              filter.TV,
+		"adverts.conditioner":     filter.Conditioner,
+		"adverts.dishwasher":      filter.Dishwasher,
+	}
+	for column, val := range boolMap {
+		if val != nil {
+			tx = tx.Where(column+" = ?", *val)
+		}
+	}
+	if err := tx.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	sortField := "adverts.created_at"
+	if filter.SortBy != "" {
+		sortField = filter.SortBy
+	}
+
+	order := strings.ToUpper(filter.Order)
+	if order != "ASC" && order != "DESC" {
+		order = "DESC"
+	}
+
+	tx = tx.Order(sortField + " " + order).Order("adverts.id DESC")
+
+	tx = tx.Limit(filter.Limit).Offset(filter.Offset)
+
+	if err := tx.Find(&adverts).Error; err != nil {
+		return nil, 0, err
+	}
+
+	var result []*dto.GetAdvertResponse
+	for _, adv := range adverts {
+		resp := dto.FromAdvert(adv)
+		result = append(result, resp)
+	}
+	return result, total, nil
+}
+func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
+	return nil, nil
+}
+func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
 	var adverts []models.Advert
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -60,7 +161,7 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetA
 
 	return getAdvertDTOs, nil
 }
-func (r *AdvertRepo) GetAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error) {
+func (r *AdvertRepo) GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error) {
 	var advert models.Advert
 
 	err := r.db.WithContext(ctx).
@@ -70,9 +171,10 @@ func (r *AdvertRepo) GetAdvertById(ctx context.Context, userId int, id int) (*dt
 		return nil, err
 	}
 	getAdvertDTO := dto.GetAdvertResponse{
-		ID:             advert.ID,
-		UserID:         advert.UserID,
-		ApartmentID:    advert.ApartmentID,
+		ID:          advert.ID,
+		UserID:      advert.UserID,
+		ApartmentID: advert.ApartmentID,
+
 		CreatedAt:      advert.CreatedAt,
 		UpdatedAt:      advert.UpdatedAt,
 		Status:         advert.Status,

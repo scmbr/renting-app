@@ -10,7 +10,7 @@ type Advert struct {
 	User   User `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 
 	ApartmentID uint      `gorm:"not null;index"`
-	Apartment   Apartment `gorm:"foreignKey:ApartmentID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Apartment   Apartment `gorm:"foreignKey:ApartmentID;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;" json:"apartment"`
 
 	CreatedAt time.Time `gorm:"autoCreateTime"`
 	UpdatedAt time.Time `gorm:"autoUpdateTime"`

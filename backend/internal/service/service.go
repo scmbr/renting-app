@@ -54,8 +54,8 @@ type Apartment interface {
 	DeleteApartmentAdmin(ctx context.Context, id int) error
 }
 type Advert interface {
-	GetAllAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
-	GetAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
+	GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
+	GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
 	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
 	DeleteAdvert(ctx context.Context, userId int, id int) error
 	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
@@ -63,6 +63,8 @@ type Advert interface {
 	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
 	DeleteAdvertAdmin(ctx context.Context, id int) error
+	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
+	GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 }
 
 type ApartmentPhoto interface {

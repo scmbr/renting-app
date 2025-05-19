@@ -8,6 +8,11 @@ import (
 	"github.com/scmbr/renting-app/internal/dto"
 )
 
+type AdvertListResponse struct {
+	Total   int64                    `json:"total"`
+	Adverts []*dto.GetAdvertResponse `json:"adverts"`
+}
+
 // @Summary      Получить все объявления пользователя
 // @Tags         adverts
 // @Security     ApiKeyAuth
@@ -15,10 +20,10 @@ import (
 // @Success      200 {array} dto.GetAdvertResponse
 // @Failure      500 {object} ErrorResponse
 // @Router       /advert [get]
-func (h *Handler) getAllAdverts(c *gin.Context) {
+func (h *Handler) getAllUserAdverts(c *gin.Context) {
 	userId := c.MustGet("userId").(int)
 
-	adverts, err := h.services.Advert.GetAllAdverts(c.Request.Context(), userId)
+	adverts, err := h.services.Advert.GetAllUserAdverts(c.Request.Context(), userId)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -35,7 +40,7 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 // @Failure      400  {object}  ErrorResponse
 // @Failure      500  {object}  ErrorResponse
 // @Router       /advert/{id} [get]
-func (h *Handler) getAdvertById(c *gin.Context) {
+func (h *Handler) getUserAdvertById(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -45,7 +50,7 @@ func (h *Handler) getAdvertById(c *gin.Context) {
 
 	userId := c.MustGet("userId").(int)
 
-	advert, err := h.services.Advert.GetAdvertById(c.Request.Context(), userId, id)
+	advert, err := h.services.Advert.GetUserAdvertById(c.Request.Context(), userId, id)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
@@ -141,4 +146,101 @@ func (h *Handler) updateAdvert(c *gin.Context) {
 	}
 
 	c.Status(http.StatusOK)
+}
+func (h *Handler) getAllAdverts(c *gin.Context) {
+	filter := dto.AdvertFilter{
+		City:               c.Query("city"),
+		District:           c.Query("district"),
+		BathroomType:       c.Query("bathroom_type"),
+		Remont:             c.Query("remont"),
+		RentalType:         c.Query("rental_type"),
+		Rooms:              parseIntOrZero(c.Query("rooms")),
+		PriceMin:           parseIntOrZero(c.Query("price_from")),
+		PriceMax:           parseIntOrZero(c.Query("price_to")),
+		FloorMin:           parseIntOrZero(c.Query("floor_min")),
+		FloorMax:           parseIntOrZero(c.Query("floor_max")),
+		YearMin:            parseIntOrZero(c.Query("year_min")),
+		YearMax:            parseIntOrZero(c.Query("year_max")),
+		ApartmentRatingMin: parseFloat32OrZero(c.Query("rating_min")),
+		LandlordRatingMin:  parseFloat32OrZero(c.Query("rating_min")),
+		Limit:              parseIntOrDefault(c.Query("limit"), 20),
+		Offset:             parseIntOrDefault(c.Query("offset"), 0),
+		SortBy:             c.DefaultQuery("sort_by", "created_at"),
+		Order:              c.DefaultQuery("order", "desc"),
+	}
+
+	filter.Elevator = parseBoolPointer(c.Query("elevator"))
+	filter.Concierge = parseBoolPointer(c.Query("concierge"))
+	filter.Pets = parseBoolPointer(c.Query("pets"))
+	filter.Babies = parseBoolPointer(c.Query("babies"))
+	filter.Smoking = parseBoolPointer(c.Query("smoking"))
+	filter.Internet = parseBoolPointer(c.Query("internet"))
+	filter.WashingMachine = parseBoolPointer(c.Query("washing_machine"))
+	filter.TV = parseBoolPointer(c.Query("tv"))
+	filter.Conditioner = parseBoolPointer(c.Query("conditioner"))
+	filter.Dishwasher = parseBoolPointer(c.Query("dishwasher"))
+	if filter.Limit <= 0 || filter.Limit > 100 {
+		filter.Limit = 20
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
+
+	adverts, total, err := h.services.Advert.GetAllAdverts(c, &filter)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, AdvertListResponse{
+		Total:   total,
+		Adverts: adverts,
+	})
+}
+func (h *Handler) getAdvertById(c *gin.Context) {
+	idStr := c.Param("id")
+	id, err := strconv.Atoi(idStr)
+	if err != nil || id <= 0 {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "invalid advert id"})
+		return
+	}
+
+	advert, err := h.services.Advert.GetAdvertById(c.Request.Context(), id)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, advert)
+}
+
+func parseIntOrZero(s string) int {
+	if s == "" {
+		return 0
+	}
+	i, err := strconv.Atoi(s)
+	if err != nil {
+		return 0
+	}
+	return i
+}
+
+func parseFloat32OrZero(s string) float32 {
+	f, _ := strconv.ParseFloat(s, 32)
+	return float32(f)
+}
+
+func parseIntOrDefault(s string, def int) int {
+	n, err := strconv.Atoi(s)
+	if err != nil {
+		return def
+	}
+	return n
+}
+
+func parseBoolPointer(s string) *bool {
+	if s == "" {
+		return nil
+	}
+	b, _ := strconv.ParseBool(s)
+	return &b
 }

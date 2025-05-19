@@ -1,6 +1,10 @@
 package dto
 
-import "time"
+import (
+	"time"
+
+	"github.com/scmbr/renting-app/internal/models"
+)
 
 type CreateApartmentInput struct {
 	City             string  `json:"city" binding:"required"`
@@ -66,4 +70,36 @@ type UpdateApartmentInput struct {
 	ConstructionType *string  `json:"construction_type,omitempty"`
 	Remont           *string  `json:"remont,omitempty"`
 	Status           *string  `json:"status,omitempty"`
+}
+
+func FromApartment(apartment *models.Apartment) *GetApartmentResponse {
+	if apartment == nil {
+		return nil
+	}
+
+	return &GetApartmentResponse{
+		ID:               apartment.ID,
+		UserID:           apartment.UserID,
+		City:             apartment.City,
+		Street:           apartment.Street,
+		District:         apartment.District,
+		House:            apartment.House,
+		Building:         apartment.Building,
+		Floor:            apartment.Floor,
+		ApartmentNumber:  apartment.ApartmentNumber,
+		Longitude:        apartment.Longitude,
+		Latitude:         apartment.Latitude,
+		Rooms:            apartment.Rooms,
+		Elevator:         apartment.Elevator,
+		GarbageChute:     apartment.GarbageChute,
+		BathroomType:     apartment.BathroomType,
+		Concierge:        apartment.Concierge,
+		ConstructionYear: apartment.ConstructionYear,
+		ConstructionType: apartment.ConstructionType,
+		Remont:           apartment.Remont,
+		CreatedAt:        apartment.CreatedAt,
+		UpdatedAt:        apartment.UpdatedAt,
+		Rating:           apartment.Rating,
+		Status:           apartment.Status,
+	}
 }

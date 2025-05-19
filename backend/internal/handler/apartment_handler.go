@@ -16,7 +16,7 @@ import (
 // @Success 200 {object} map[string]interface{}
 // @Failure 500 {object} ErrorResponse
 // @Router /apartment/ [get]
-func (h *Handler) getAllApartments(c *gin.Context) {
+func (h *Handler) getAllUserApartments(c *gin.Context) {
 	userId, _ := c.Get("userId")
 	apartments, err := h.services.Apartment.GetAllApartments(c, userId.(int))
 	if err != nil {
@@ -39,7 +39,7 @@ func (h *Handler) getAllApartments(c *gin.Context) {
 // @Failure 400 {object} ErrorResponse
 // @Failure 500 {object} ErrorResponse
 // @Router /apartment/{id} [get]
-func (h *Handler) getApartmentById(c *gin.Context) {
+func (h *Handler) getUserApartmentById(c *gin.Context) {
 	id := c.Param("id")
 	apartmentId, err := strconv.Atoi(id)
 	if err != nil {
