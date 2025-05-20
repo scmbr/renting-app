@@ -23,11 +23,28 @@ func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Han
 
 func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
+	router.Use(func(c *gin.Context) {
+		println("Middleware triggered for path:", c.Request.URL.Path, "Method:", c.Request.Method)
+		c.Next()
+	})
 	router.Use(
+		corsMiddleware,
 		gin.Recovery(),
 		gin.Logger(),
-		corsMiddleware,
 	)
+
+	router.GET("/test-cors", func(c *gin.Context) {
+		c.Header("Access-Control-Allow-Origin", "http://localhost:5173")
+		c.JSON(200, gin.H{"msg": "CORS works"})
+	})
+
+	publicAdverts := router.Group("/adverts")
+	{
+		publicAdverts.GET("", h.getAllAdverts)
+		publicAdverts.GET("/", h.getAllAdverts)
+		publicAdverts.GET("/:id", h.getAdvertById)
+	}
+
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	auth := router.Group("/auth")
 	{
@@ -44,11 +61,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authAuthorized.POST("/logout", h.logOut)
 		//authAuthorized.POST("/change-password", h.changePassword)
 	}
-	publicAdverts := router.Group("/adverts")
-	{
-		publicAdverts.GET("/", h.getAllAdverts)
-		publicAdverts.GET("/:id", h.getAdvertById)
-	}
+
 	authenticated := router.Group("/", h.userIdentity)
 	{
 		authenticated.GET("/me", h.getCurrentUser)
