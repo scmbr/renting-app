@@ -115,7 +115,20 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 	return result, total, nil
 }
 func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
-	return nil, nil
+	var advert models.Advert
+
+	err := r.db.WithContext(ctx).
+		Model(&models.Advert{}).
+		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
+		Joins("JOIN users ON users.id = apartments.user_id").
+		Preload("Apartment").
+		First(&advert, "adverts.id = ?", id).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	return dto.FromAdvert(advert), nil
 }
 func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
 	var adverts []models.Advert
