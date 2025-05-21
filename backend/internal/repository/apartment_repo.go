@@ -117,6 +117,7 @@ func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input d
 	apartmentGorm := models.Apartment{
 		UserID:           uint(userId),
 		City:             input.City,
+		CitySlug:         input.CitySlug,
 		Street:           input.Street,
 		District:         input.District,
 		House:            input.House,

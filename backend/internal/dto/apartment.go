@@ -8,6 +8,7 @@ import (
 
 type CreateApartmentInput struct {
 	City             string  `json:"city" binding:"required"`
+	CitySlug         string  `json:"city_slug" binding:"required"`
 	Street           string  `json:"street" binding:"required"`
 	District         string  `json:"district"`
 	House            string  `json:"house"`

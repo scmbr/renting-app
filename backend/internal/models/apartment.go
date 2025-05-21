@@ -7,6 +7,7 @@ type Apartment struct {
 	UserID           uint      `gorm:"not null;index"` // внешний ключ
 	User             User      `gorm:"foreignKey:UserID;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 	City             string    `gorm:"size:100;not null"`
+	CitySlug         string    `gorm:"size:50;default:'kazan'"`
 	Street           string    `gorm:"size:100;not null"`
 	District         string    `gorm:"size:100"`
 	House            string    `gorm:"size:20"`
