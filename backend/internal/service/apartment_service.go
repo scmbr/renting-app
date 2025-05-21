@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/repository"
@@ -25,7 +24,6 @@ func (s *ApartmentService) GetApartmentById(ctx context.Context, userId int, id 
 	return s.repo.GetApartmentById(ctx, userId, id)
 }
 func (s *ApartmentService) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error {
-	fmt.Println(input.City)
 	return s.repo.CreateApartment(ctx, userId, input)
 }
 func (s *ApartmentService) DeleteApartment(ctx context.Context, userId int, id int) error {
