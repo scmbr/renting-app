@@ -2,6 +2,8 @@ package dto
 
 import (
 	"time"
+
+	"github.com/scmbr/renting-app/internal/models"
 )
 
 type GetUser struct {
@@ -32,4 +34,20 @@ type UpdateUserAdmin struct {
 	Birthdate *time.Time `json:"birthdate"`
 	Role      *string    `json:"role"`
 	IsActive  *bool      `json:"is_active"`
+}
+
+func FromUser(u *models.User) *GetUser {
+	return &GetUser{
+		Id:               int(u.ID),
+		Name:             u.Name,
+		Surname:          u.Surname,
+		Email:            u.Email,
+		Birthdate:        u.Birthdate,
+		Role:             u.Role,
+		CreatedAt:        u.CreatedAt,
+		UpdatedAt:        u.UpdatedAt,
+		VerificationCode: u.VerificationCode,
+		Verified:         u.Verified,
+		IsActive:         u.IsActive,
+	}
 }
