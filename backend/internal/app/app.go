@@ -75,7 +75,7 @@ func Run(configPath string) {
 		EmailConfig:     cfg.Email,
 		HTTPConfig:      cfg.HTTP,
 	})
-	handlers := handler.NewHandler(services, tokenManager)
+	handlers := handler.NewHandler(services, tokenManager, cfg.Auth.JWT.AccessTokenTTL, cfg.Auth.JWT.RefreshTokenTTL)
 
 	srv := new(server.Server)
 	if err := srv.Run(cfg.HTTP.Port, handlers.InitRoutes()); err != nil {

@@ -37,7 +37,7 @@ func (s *SessionService) CreateSession(ctx context.Context, role string, userID 
 		return res, err
 	}
 
-	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
+	res.RefreshToken, err = s.tokenManager.NewJWT(role, strconv.Itoa(userID), s.refreshTokenTTL)
 	if err != nil {
 		return res, err
 	}
@@ -69,7 +69,7 @@ func (s *SessionService) RefreshSession(ctx context.Context, role string, refres
 	if err != nil {
 		return res, err
 	}
-	res.RefreshToken, err = s.tokenManager.NewRefreshToken()
+	res.RefreshToken, err = s.tokenManager.NewJWT(role, strconv.Itoa(session.UserID), s.refreshTokenTTL)
 	if err != nil {
 		return res, err
 	}

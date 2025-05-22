@@ -37,7 +37,7 @@ func (m *Manager) NewJWT(role, userId string, ttl time.Duration) (string, error)
 		Role:   role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(ttl).Unix(),
-			Subject:   userId, // можно оставить, но теперь есть и отдельное поле
+			Subject:   userId,
 		},
 	}
 

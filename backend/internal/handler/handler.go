@@ -1,6 +1,8 @@
 package handler
 
 import (
+	"time"
+
 	"github.com/gin-gonic/gin"
 	_ "github.com/scmbr/renting-app/docs"
 	"github.com/scmbr/renting-app/internal/service"
@@ -10,14 +12,18 @@ import (
 )
 
 type Handler struct {
-	services     *service.Services
-	tokenManager auth.TokenManager
+	services        *service.Services
+	tokenManager    auth.TokenManager
+	accessTokenTTL  time.Duration
+	refreshTokenTTL time.Duration
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager) *Handler {
+func NewHandler(services *service.Services, tokenManager auth.TokenManager, accessTTL, refreshTTL time.Duration) *Handler {
 	return &Handler{
-		services:     services,
-		tokenManager: tokenManager,
+		services:        services,
+		tokenManager:    tokenManager,
+		refreshTokenTTL: refreshTTL,
+		accessTokenTTL:  accessTTL,
 	}
 }
 

@@ -60,13 +60,12 @@ func (h *Handler) signIn(c *gin.Context) {
 	browser, _ := ua.Browser()
 	res, err := h.services.User.SignIn(c, input.Email, input.Password, ip, os, browser)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-
+	c.SetCookie("refreshToken", res.RefreshToken, int(h.refreshTokenTTL.Seconds()), "/", "", false, true)
 	c.JSON(http.StatusOK, tokenResponse{
-		AccessToken:  res.AccessToken,
-		RefreshToken: res.RefreshToken,
+		AccessToken: res.AccessToken,
 	})
 }
 
@@ -81,9 +80,9 @@ func (h *Handler) signIn(c *gin.Context) {
 // @Failure      401    {object}  ErrorResponse
 // @Router       /auth/refresh [post]
 func (h *Handler) refreshTokens(c *gin.Context) {
-	var input refreshInput
-	if err := c.BindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+	refreshToken, err := c.Cookie("refreshToken")
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "no refresh token")
 		return
 	}
 
@@ -95,16 +94,21 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 	ua := user_agent.New(userAgent)
 	os := ua.OS()
 	browser, _ := ua.Browser()
-	role, _ := c.Get("Role")
-	tokens, err := h.services.Session.RefreshSession(c.Request.Context(), role.(string), input.Token, ip, os, browser)
+	claims, err := h.tokenManager.Parse(refreshToken)
+	if err != nil {
+		newErrorResponse(c, http.StatusUnauthorized, "no refresh token")
+		return
+	}
+	role := claims.Role
+	tokens, err := h.services.Session.RefreshSession(c.Request.Context(), role, refreshToken, ip, os, browser)
 	if err != nil {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
 
+	c.SetCookie("refreshToken", tokens.RefreshToken, int(h.refreshTokenTTL.Seconds()), "/", "", false, true)
 	c.JSON(http.StatusOK, tokenResponse{
-		AccessToken:  tokens.AccessToken,
-		RefreshToken: tokens.RefreshToken,
+		AccessToken: tokens.AccessToken,
 	})
 }
 
@@ -240,6 +244,6 @@ func (h *Handler) logOut(c *gin.Context) {
 		newErrorResponse(c, http.StatusUnauthorized, err.Error())
 		return
 	}
-
+	c.SetCookie("refreshToken", "", -1, "/", "", false, true)
 	c.JSON(http.StatusOK, response{"user log out successfully"})
 }

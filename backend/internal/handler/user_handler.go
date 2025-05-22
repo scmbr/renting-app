@@ -47,12 +47,8 @@ type signInInput struct {
 }
 type tokenResponse struct {
 	AccessToken  string `json:"accessToken"`
-	RefreshToken string `json:"refreshToken"`
 }
 
-type refreshInput struct {
-	Token string `json:"token" binding:"required"`
-}
 
 type ErrorResponse struct {
 	Message string `json:"message" example:"Invalid input data"`
