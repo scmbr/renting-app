@@ -1,0 +1,12 @@
+@font-face {
+  font-family: "ZhuanFutura";
+  src: url("/fonts/zhuan_FuturaNowScript-XBd.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
+@font-face {
+  font-family: "TikTok";
+  src: url("/fonts/TikTokSans-VF-v3.3.ttf") format("truetype");
+  font-weight: normal;
+  font-style: normal;
+}
