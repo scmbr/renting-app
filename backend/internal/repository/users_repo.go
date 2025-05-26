@@ -30,15 +30,14 @@ func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
 	var getUserDTOs []dto.GetUser
 	for _, user := range users {
 		getUserDTO := dto.GetUser{
-			Id:        int(user.ID),
-			Name:      user.Name,
-			Surname:   user.Surname,
-			Email:     user.Email,
-			Birthdate: user.Birthdate,
-			Role:      user.Role,
-			CreatedAt: user.CreatedAt,
-			UpdatedAt: user.UpdatedAt,
-			IsActive:  user.IsActive,
+			Id:             int(user.ID),
+			Name:           user.Name,
+			Surname:        user.Surname,
+			Email:          user.Email,
+			ProfilePicture: user.ProfilePicture,
+			Birthdate:      user.Birthdate,
+			Role:           user.Role,
+			IsActive:       user.IsActive,
 		}
 		getUserDTOs = append(getUserDTOs, getUserDTO)
 	}
@@ -66,17 +65,15 @@ func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 	}
 	tx.Commit()
 	getUserDTO := dto.GetUser{
-		Id:               int(user.ID),
-		Name:             user.Name,
-		Surname:          user.Surname,
-		Email:            user.Email,
-		Birthdate:        user.Birthdate,
-		Role:             user.Role,
-		CreatedAt:        user.CreatedAt,
-		UpdatedAt:        user.UpdatedAt,
-		VerificationCode: user.VerificationCode,
-		Verified:         user.Verified,
-		IsActive:         user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		ProfilePicture: user.ProfilePicture,
+		Birthdate:      user.Birthdate,
+		Role:           user.Role,
+		Verified:       user.Verified,
+		IsActive:       user.IsActive,
 	}
 	return &getUserDTO, nil
 }
@@ -102,15 +99,14 @@ func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUser, error) {
 		return nil, err
 	}
 	getUserDTO := dto.GetUser{
-		Id:        int(user.ID),
-		Name:      user.Name,
-		Surname:   user.Surname,
-		Email:     user.Email,
-		Birthdate: user.Birthdate,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		IsActive:  user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		ProfilePicture: user.ProfilePicture,
+		Birthdate:      user.Birthdate,
+		Role:           user.Role,
+		IsActive:       user.IsActive,
 	}
 	tx.Commit()
 	return &getUserDTO, nil
@@ -150,8 +146,6 @@ func (r *UsersRepo) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
 		Email:     user.Email,
 		Birthdate: user.Birthdate,
 		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
 		IsActive:  user.IsActive,
 	}
 	tx.Commit()
@@ -225,15 +219,14 @@ func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash st
 	}
 
 	getUserDTO := dto.GetUser{
-		Id:        int(user.ID),
-		Name:      user.Name,
-		Surname:   user.Surname,
-		Email:     user.Email,
-		Birthdate: user.Birthdate,
-		Role:      user.Role,
-		CreatedAt: user.CreatedAt,
-		UpdatedAt: user.UpdatedAt,
-		IsActive:  user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		Birthdate:      user.Birthdate,
+		ProfilePicture: user.ProfilePicture,
+		Role:           user.Role,
+		IsActive:       user.IsActive,
 	}
 	return &getUserDTO, nil
 }
@@ -253,32 +246,28 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser,
 	result := r.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return &dto.GetUser{
-			Id:               int(user.ID),
-			Name:             user.Name,
-			Surname:          user.Surname,
-			Email:            user.Email,
-			Birthdate:        user.Birthdate,
-			Role:             user.Role,
-			CreatedAt:        user.CreatedAt,
-			UpdatedAt:        user.UpdatedAt,
-			VerificationCode: user.VerificationCode,
-			Verified:         user.Verified,
-			IsActive:         user.IsActive,
+			Id:             int(user.ID),
+			Name:           user.Name,
+			Surname:        user.Surname,
+			Email:          user.Email,
+			ProfilePicture: user.ProfilePicture,
+			Birthdate:      user.Birthdate,
+			Role:           user.Role,
+			Verified:       user.Verified,
+			IsActive:       user.IsActive,
 		}, result.Error
 	}
 
 	return &dto.GetUser{
-		Id:               int(user.ID),
-		Name:             user.Name,
-		Surname:          user.Surname,
-		Email:            user.Email,
-		Birthdate:        user.Birthdate,
-		Role:             user.Role,
-		CreatedAt:        user.CreatedAt,
-		UpdatedAt:        user.UpdatedAt,
-		VerificationCode: user.VerificationCode,
-		Verified:         user.Verified,
-		IsActive:         user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		ProfilePicture: user.ProfilePicture,
+		Birthdate:      user.Birthdate,
+		Role:           user.Role,
+		Verified:       user.Verified,
+		IsActive:       user.IsActive,
 	}, nil
 }
 func (r *UsersRepo) UpdateVerificationCode(ctx context.Context, id int, verificationCode string) error {
@@ -325,17 +314,15 @@ func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error
 	}
 
 	return dto.GetUser{
-		Id:               int(user.ID),
-		Name:             user.Name,
-		Surname:          user.Surname,
-		Email:            user.Email,
-		Birthdate:        user.Birthdate,
-		Role:             user.Role,
-		CreatedAt:        user.CreatedAt,
-		UpdatedAt:        user.UpdatedAt,
-		VerificationCode: user.VerificationCode,
-		Verified:         user.Verified,
-		IsActive:         user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		ProfilePicture: user.ProfilePicture,
+		Birthdate:      user.Birthdate,
+		Role:           user.Role,
+		Verified:       user.Verified,
+		IsActive:       user.IsActive,
 	}, nil
 }
 func (r *UsersRepo) SavePasswordResetToken(ctx context.Context, id int, resetToken string) error {
@@ -365,32 +352,28 @@ func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.
 	result := r.db.Where("reset_token = ?", token).First(&user)
 	if result.Error != nil {
 		return dto.GetUser{
-			Id:               int(user.ID),
-			Name:             user.Name,
-			Surname:          user.Surname,
-			Email:            user.Email,
-			Birthdate:        user.Birthdate,
-			Role:             user.Role,
-			CreatedAt:        user.CreatedAt,
-			UpdatedAt:        user.UpdatedAt,
-			VerificationCode: user.VerificationCode,
-			Verified:         user.Verified,
-			IsActive:         user.IsActive,
+			Id:             int(user.ID),
+			Name:           user.Name,
+			Surname:        user.Surname,
+			Email:          user.Email,
+			ProfilePicture: user.ProfilePicture,
+			Birthdate:      user.Birthdate,
+			Role:           user.Role,
+			Verified:       user.Verified,
+			IsActive:       user.IsActive,
 		}, result.Error
 	}
 
 	return dto.GetUser{
-		Id:               int(user.ID),
-		Name:             user.Name,
-		Surname:          user.Surname,
-		Email:            user.Email,
-		Birthdate:        user.Birthdate,
-		Role:             user.Role,
-		CreatedAt:        user.CreatedAt,
-		UpdatedAt:        user.UpdatedAt,
-		VerificationCode: user.VerificationCode,
-		Verified:         user.Verified,
-		IsActive:         user.IsActive,
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		ProfilePicture: user.ProfilePicture,
+		Birthdate:      user.Birthdate,
+		Role:           user.Role,
+		Verified:       user.Verified,
+		IsActive:       user.IsActive,
 	}, nil
 }
 func (r *UsersRepo) UpdatePasswordAndClearResetToken(ctx context.Context, id int, newPassword string) error {

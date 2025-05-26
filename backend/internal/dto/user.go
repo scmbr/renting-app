@@ -11,11 +11,9 @@ type GetUser struct {
 	Name             string    `json:"name"`
 	Surname          string    `json:"surname"`
 	Email            string    `json:"email"`
+	ProfilePicture   string    `json:"profile_picture"`
 	Birthdate        time.Time `json:"birthdate"`
 	Role             string    `json:"role"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	VerificationCode string    `json:"verification_code"`
 	Verified         bool      `json:"verified"`
 	IsActive         bool      `json:"is_active"`
 }
@@ -42,11 +40,9 @@ func FromUser(u *models.User) *GetUser {
 		Name:             u.Name,
 		Surname:          u.Surname,
 		Email:            u.Email,
+		ProfilePicture: u.ProfilePicture,
 		Birthdate:        u.Birthdate,
 		Role:             u.Role,
-		CreatedAt:        u.CreatedAt,
-		UpdatedAt:        u.UpdatedAt,
-		VerificationCode: u.VerificationCode,
 		Verified:         u.Verified,
 		IsActive:         u.IsActive,
 	}

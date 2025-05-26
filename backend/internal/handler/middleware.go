@@ -83,7 +83,6 @@ func corsMiddleware(c *gin.Context) {
 	c.Header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 	c.Header("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
 	c.Header("Access-Control-Allow-Credentials", "true")
-	c.Header("Content-Type", "application/json")
 
 	if c.Request.Method == "OPTIONS" {
 		c.AbortWithStatus(http.StatusOK)
