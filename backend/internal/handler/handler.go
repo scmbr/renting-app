@@ -7,8 +7,8 @@ import (
 	_ "github.com/scmbr/renting-app/docs"
 	"github.com/scmbr/renting-app/internal/service"
 	"github.com/scmbr/renting-app/pkg/auth"
-	swaggerFiles "github.com/swaggo/files"     // swagger embed files
-	ginSwagger "github.com/swaggo/gin-swagger" // gin-swagger middleware
+	swaggerFiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 type Handler struct {
@@ -39,7 +39,6 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	publicAdverts := router.Group("/adverts")
 	{
 		publicAdverts.GET("", h.getAllAdverts)
-		publicAdverts.GET("/", h.getAllAdverts)
 		publicAdverts.GET("/:id", h.getAdvertById)
 		
 	}
@@ -73,9 +72,9 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
 		userApartment := authenticated.Group("/my/apartment")
 		{
-			userApartment.GET("/", h.getAllUserApartments)
+			userApartment.GET("", h.getAllUserApartments)
 			userApartment.GET("/:id", h.getUserApartmentById)
-			userApartment.POST("/", h.createApartment)
+			userApartment.POST("", h.createApartment)
 			userApartment.DELETE("/:id", h.deleteApartment)
 			userApartment.PATCH("/:id", h.updateApartment)
 			photo := userApartment.Group("/:id/photos")
@@ -90,8 +89,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		userAdvert := authenticated.Group("/my/advert")
 		{
 			userAdvert.GET("/:id", h.getUserAdvertById)
-			userAdvert.GET("/", h.getAllUserAdverts)
-			userAdvert.POST("/", h.createAdvert)
+			userAdvert.GET("", h.getAllUserAdverts)
+			userAdvert.POST("", h.createAdvert)
 			userAdvert.DELETE("/:id", h.deleteAdvert)
 			userAdvert.PATCH("/:id", h.updateAdvert)
 		}
