@@ -24,12 +24,11 @@ func (s *UserService) SignUp(ctx context.Context, user dto.CreateUser) error {
 	if err := s.repo.CreateUser(ctx, user, verificationCode); err != nil {
 		return err
 	}
-	// return s.emailService.SendUserVerificationEmail(VerificationEmailInput{
-	// 	Email:            user.Email,
-	// 	Name:             user.Name,
-	// 	VerificationCode: verificationCode,
-	// })
-	return nil
+	return s.emailService.SendUserVerificationEmail(VerificationEmailInput{
+		Email:            user.Email,
+		Name:             user.Name,
+		VerificationCode: verificationCode,
+	})
 }
 func (s *UserService) SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error) {
 	passwordHash, err := s.hasher.Hash(password)
@@ -44,16 +43,23 @@ func (s *UserService) SignIn(ctx context.Context, email string, password string,
 
 	return s.sessionService.CreateSession(ctx, user.Role, user.Id, ip, os, browser)
 }
+func (s *UserService)GenerateTokens(ctx context.Context, email string,ip string, os string, browser string)(Tokens, error){
+	user, err := s.repo.GetByEmail(ctx, email)
+	if err != nil {
+		return Tokens{}, err
+	}
 
-func (s *UserService) VerifyEmail(ctx context.Context, code string) error {
+	return s.sessionService.CreateSession(ctx, user.Role, user.Id, ip, os, browser)
+}
+func (s *UserService) VerifyEmail(ctx context.Context, code string) (*dto.GetUser, error) {
 	user, err := s.repo.Verify(ctx, code)
 	if err != nil {
 
-		return err
+		return &user,err
 	}
 
 	logrus.Info(user)
-	return nil
+	return &user,nil
 }
 func (s *UserService) ResendVerificationCode(ctx context.Context, email string) error {
 	verificationCode := generateVerificationCode()

@@ -27,11 +27,12 @@ type User interface {
 	UpdateAvatar(userId int, avatarURL string) error
 	SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error)
 	SignUp(ctx context.Context, user dto.CreateUser) error
-	VerifyEmail(ctx context.Context, code string) error
+	VerifyEmail(ctx context.Context, code string) (*dto.GetUser, error)
 	ResendVerificationCode(ctx context.Context, email string) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
 	LogOut(ctx context.Context, id int, ip, os, browser string) error
+	GenerateTokens(ctx context.Context, email string,ip string, os string, browser string)(Tokens, error)
 }
 type Session interface {
 	CreateSession(ctx context.Context, role string, userID int, ip string, os string, browser string) (Tokens, error)
