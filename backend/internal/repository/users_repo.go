@@ -165,7 +165,6 @@ func (r *UsersRepo) UpdateAvatar(userId int, avatarURL string) error {
 	return nil
 
 }
-
 func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code string) error {
 	tx := r.db.Begin()
 	defer func() {
@@ -173,20 +172,29 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 			tx.Rollback()
 		}
 	}()
+
 	existingUser, err := r.GetByEmail(ctx, user.Email)
 	if err != nil && !errors.Is(err, gorm.ErrRecordNotFound) {
 		tx.Rollback()
 		return errors.New("ошибка получения пользователя")
 	}
-	if err == nil && !existingUser.Verified {
-		err = r.UpdateVerificationCode(ctx, existingUser.Id, code)
-		if err != nil {
-			return nil
+
+
+	if err == nil {
+		if existingUser.Verified {
+			tx.Rollback()
+			return errors.New("пользователь с таким email уже зарегистрирован")
 		}
-		tx.Rollback()
-		return nil
+
+
+		if err := tx.Delete(&existingUser).Error; err != nil {
+			tx.Rollback()
+			return errors.New("ошибка удаления старой незавершённой регистрации")
+		}
 	}
-	userGorm := models.User{
+
+
+	newUser := models.User{
 		Name:             user.Name,
 		Surname:          user.Surname,
 		Email:            user.Email,
@@ -194,19 +202,22 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 		Birthdate:        user.Birthdate,
 		VerificationCode: code,
 	}
-	result := tx.Create(&userGorm)
-	if result.Error != nil {
 
-		if errors.Is(result.Error, gorm.ErrDuplicatedKey) {
+	if err := tx.Create(&newUser).Error; err != nil {
+		tx.Rollback()
+
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
 			return errors.New("пользователь с таким email уже зарегистрирован")
 		}
-		tx.Rollback()
-		return result.Error
-	}
-	tx.Commit()
 
+		return err
+	}
+
+	tx.Commit()
 	return nil
 }
+
+
 func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
 
 	var user models.User
