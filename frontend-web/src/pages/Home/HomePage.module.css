@@ -1,0 +1,35 @@
+.container {
+  display: flex;
+  height: calc(100vh - 70px);
+}
+
+.mapContainer {
+  flex: 1;
+  min-width: 0; /* Фикс для переполнения */
+  height: 100%;
+}
+
+.advertsContainer {
+  width: 700px;
+  height: 100%;
+  overflow-y: auto;
+  padding: 20px;
+  background: #ffffff;
+  border-left: 1px solid #e0e0e0;
+}
+
+/* Для мобильных устройств - переключаем на вертикальный layout */
+@media (max-width: 768px) {
+  .container {
+    flex-direction: column;
+  }
+
+  .mapContainer {
+    height: 300px;
+  }
+
+  .advertsContainer {
+    width: 100%;
+    height: auto;
+  }
+}

@@ -30,7 +30,8 @@ const AdvertList = ({ filters }) => {
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>Найдено: {total}</h2>
+      <h2>{filters.city}</h2>
+      <h5>Найдено {total} объявлений</h5>
       <div className={styles.list}>
         {adverts.map((ad) => (
           <AdvertCard key={ad.id} advert={ad} />

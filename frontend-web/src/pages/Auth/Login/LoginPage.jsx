@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import styles from "./LoginPage.module.css";
 import api from "@/shared/api/axios";
+import { useUser } from "@/shared/contexts/UserContext";
 const LoginPage = () => {
   const navigate = useNavigate();
+  const { login } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
@@ -14,7 +16,19 @@ const LoginPage = () => {
 
     try {
       const res = await api.post("/auth/sign-in", { email, password });
-      localStorage.setItem("accessToken", res.data.accessToken);
+      const token = res.data.accessToken;
+      localStorage.setItem("accessToken", token);
+
+      const userRes = await api.get("/me", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const name = userRes.data.name;
+      const surname = userRes.data.surname;
+      const avatarUrl = userRes.data.profile_picture;
+      login(name, surname, avatarUrl);
       navigate("/");
     } catch (err) {
       console.error(err);
@@ -26,12 +40,13 @@ const LoginPage = () => {
     <div className={styles.wrapper}>
       <div className={styles.left}>
         <div className={styles.container}>
-          <img
-            src="/images/ROOMY.png"
-            alt="Login Icon"
-            className={styles.icon}
-          />
-          {/* <h2 className={styles.title}>Вход</h2> */}
+          <Link to="/">
+            <img
+              src="/images/logo.png"
+              alt="Login Icon"
+              className={styles.icon}
+            />
+          </Link>
 
           {error && <p className={styles.error}>{error}</p>}
 

@@ -25,7 +25,6 @@
   padding: 2rem;
   border-radius: 12px;
   background-color: #fff;
-  /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05); */
 }
 
 .title {
@@ -87,14 +86,68 @@
 .link:hover {
   text-decoration: underline;
 }
-.icon {
+
+.logo {
   width: 250px;
   height: auto;
-
   display: block;
   margin: 0 auto 1rem auto;
   margin-bottom: 3rem;
 }
+
 body {
   font-family: "TikTok", sans-serif;
+}
+.steps {
+  display: flex;
+  justify-content: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.stepHeader {
+  position: relative;
+  margin-bottom: 1rem;
+  height: 24px;
+}
+
+.stepIndicators {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: #ccc;
+}
+
+.active {
+  background-color: #8b51ff;
+}
+.backButton {
+  position: absolute;
+  left: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
 }

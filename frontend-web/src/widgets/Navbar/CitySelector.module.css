@@ -7,15 +7,15 @@
   width: 100%;
   padding: 0.5rem 0.75rem;
   font-size: 1rem;
-  border: 1px solid #ccc;
+  border: 2px solid #ccc;
   border-radius: 8px;
   outline: none;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   transition: border 0.2s ease, box-shadow 0.2s ease;
+  font-family: "TikTok", sans-serif;
 }
 
 .input:focus {
-  border-color: #3399ff;
+  border-color: #8b51ff;
 }
 
 .suggestions {
