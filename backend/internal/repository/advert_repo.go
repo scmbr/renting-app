@@ -132,47 +132,25 @@ func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertR
 }
 func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
 	var adverts []models.Advert
-	tx := r.db.WithContext(ctx).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	result := tx.
-		Where("user_id = ?", userId).
-		Find(&adverts)
-	if result.Error != nil {
-		tx.Rollback()
-		return nil, result.Error
-	}
-	var getAdvertDTOs []*dto.GetAdvertResponse
 
+	err := r.db.WithContext(ctx).
+		Model(&models.Advert{}).
+		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
+		Where("apartments.user_id = ?", userId).
+		Preload("Apartment").
+		Find(&adverts).Error
+
+	if err != nil {
+		return nil, err
+	}
+
+	var result []*dto.GetAdvertResponse
 	for _, advert := range adverts {
-		getAdvertDTO := dto.GetAdvertResponse{
-			ID:             advert.ID,
-			UserID:         advert.UserID,
-			ApartmentID:    advert.ApartmentID,
-			CreatedAt:      advert.CreatedAt,
-			UpdatedAt:      advert.UpdatedAt,
-			Status:         advert.Status,
-			Title:          advert.Title,
-			Pets:           advert.Pets,
-			Babies:         advert.Babies,
-			Smoking:        advert.Smoking,
-			Internet:       advert.Internet,
-			WashingMachine: advert.WashingMachine,
-			TV:             advert.TV,
-			Conditioner:    advert.Conditioner,
-			Concierge:      advert.Concierge,
-			Rent:           advert.Rent,
-			Deposit:        advert.Deposit,
-			RentalType:     advert.RentalType,
-		}
-		getAdvertDTOs = append(getAdvertDTOs, &getAdvertDTO)
+		resp := dto.FromAdvert(advert)
+		result = append(result, resp)
 	}
-	tx.Commit()
 
-	return getAdvertDTOs, nil
+	return result, nil
 }
 func (r *AdvertRepo) GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error) {
 	var advert models.Advert

@@ -72,13 +72,15 @@ func (h *Handler) createApartment(c *gin.Context) {
 		return
 	}
 	userId, _ := c.Get("userId")
-	err := h.services.Apartment.CreateApartment(c, userId.(int), input)
+	apartmentID, err := h.services.Apartment.CreateApartment(c, userId.(int), input)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
-	c.Status(http.StatusCreated)
+	
+	c.JSON(http.StatusCreated, gin.H{"id": apartmentID})
 }
+
 
 // @Summary Удалить квартиру
 // @Description Удалить квартиру по ID

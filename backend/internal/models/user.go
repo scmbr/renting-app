@@ -11,10 +11,12 @@ type User struct {
 	Name             string
 	Surname          string
 	Email            string `gorm:"unique;not null"`
+	Phone            string
 	PasswordHash     string `gorm:"not null"`
 	Birthdate        time.Time
 	Role             string `gorm:"default:user;not null"`
 	ProfilePicture   string
+	City             string
 	CreatedAt        time.Time
 	UpdatedAt        time.Time
 	VerificationCode string `gorm:"column:verification_code"`

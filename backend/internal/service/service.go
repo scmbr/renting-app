@@ -46,7 +46,7 @@ type Emails interface {
 type Apartment interface {
 	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
-	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint,error)
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)

@@ -3,23 +3,21 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
-// UsersRepo — структура для работы с пользователями в PostgreSQL через GORM
 type UsersRepo struct {
 	db *gorm.DB
 }
 
-// NewUsersRepo — конструктор для UsersRepo
 func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	return &UsersRepo{db: db}
 }
 
-// GetAllUsers — получение всех пользователей
 func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
 	var users []models.User
 	result := r.db.Find(&users)
@@ -45,7 +43,6 @@ func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
 	return getUserDTOs, nil
 }
 
-// GetUserById — получение пользователя по ID
 func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 	tx := r.db.Begin()
 	defer func() {
@@ -69,6 +66,10 @@ func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 		Name:           user.Name,
 		Surname:        user.Surname,
 		Email:          user.Email,
+		Phone:          user.Phone,
+		Rating:         float64(user.Rating),
+		City:           user.City,
+		CreatedAt:      user.CreatedAt,
 		ProfilePicture: user.ProfilePicture,
 		Birthdate:      user.Birthdate,
 		Role:           user.Role,
@@ -179,20 +180,17 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 		return errors.New("ошибка получения пользователя")
 	}
 
-
 	if err == nil {
 		if existingUser.Verified {
 			tx.Rollback()
 			return errors.New("пользователь с таким email уже зарегистрирован")
 		}
-
-
-		if err := tx.Delete(&existingUser).Error; err != nil {
+		fmt.Println("Deleting user with ID:", existingUser.Id)
+		if err := tx.Unscoped().Where("id = ?", existingUser.Id).Delete(&models.User{}).Error; err != nil {
 			tx.Rollback()
 			return errors.New("ошибка удаления старой незавершённой регистрации")
 		}
 	}
-
 
 	newUser := models.User{
 		Name:             user.Name,
@@ -200,6 +198,7 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 		Email:            user.Email,
 		PasswordHash:     user.Password,
 		Birthdate:        user.Birthdate,
+		City:             user.City,
 		VerificationCode: code,
 	}
 
@@ -216,7 +215,6 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 	tx.Commit()
 	return nil
 }
-
 
 func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
 

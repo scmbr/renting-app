@@ -8,16 +8,13 @@ import (
 
 type CreateApartmentInput struct {
 	City             string  `json:"city" binding:"required"`
-	CitySlug         string  `json:"city_slug" binding:"required"`
 	Street           string  `json:"street" binding:"required"`
-	District         string  `json:"district"`
-	House            string  `json:"house"`
 	Building         string  `json:"building"`
 	Floor            int     `json:"floor" binding:"required"`
-	ApartmentNumber  string  `json:"apartment_number"`
 	Longitude        float64 `json:"longitude" binding:"required"`
 	Latitude         float64 `json:"latitude" binding:"required"`
 	Rooms            int     `json:"rooms" binding:"required"`
+	Area             int     `json:"area"`
 	Elevator         bool    `json:"elevator"`
 	GarbageChute     bool    `json:"garbage_chute"`
 	BathroomType     string  `json:"bathroom_type"`
@@ -83,8 +80,6 @@ func FromApartment(apartment *models.Apartment) *GetApartmentResponse {
 		UserID:           apartment.UserID,
 		City:             apartment.City,
 		Street:           apartment.Street,
-		District:         apartment.District,
-		House:            apartment.House,
 		Building:         apartment.Building,
 		Floor:            apartment.Floor,
 		ApartmentNumber:  apartment.ApartmentNumber,

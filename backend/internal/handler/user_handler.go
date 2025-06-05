@@ -2,6 +2,7 @@ package handler
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
 )
@@ -46,9 +47,8 @@ type signInInput struct {
 	Password string `json:"password" binding:"required"`
 }
 type tokenResponse struct {
-	AccessToken  string `json:"accessToken"`
+	AccessToken string `json:"accessToken"`
 }
-
 
 type ErrorResponse struct {
 	Message string `json:"message" example:"Invalid input data"`
@@ -66,4 +66,19 @@ type ResetPasswordInput struct {
 }
 type VerifyResendRequest struct {
 	Email string `json:"email" example:"user@example.com"`
+}
+
+func (h *Handler) getUserById(c *gin.Context) {
+	id := c.Param("id")
+	userID, err := strconv.Atoi(id)
+	if err != nil {
+		newErrorResponse(c, http.StatusBadRequest, err.Error())
+		return
+	}
+	user, err := h.services.User.GetUserById(userID)
+	if err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		return
+	}
+	c.JSON(http.StatusOK, user)
 }

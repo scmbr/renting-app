@@ -41,8 +41,6 @@ func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userId int) ([]*dt
 			UserID:           apartment.UserID,
 			City:             apartment.City,
 			Street:           apartment.Street,
-			District:         apartment.District,
-			House:            apartment.House,
 			Building:         apartment.Building,
 			Floor:            apartment.Floor,
 			ApartmentNumber:  apartment.ApartmentNumber,
@@ -80,12 +78,11 @@ func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int
 	}
 
 	getApartmentDTO := dto.GetApartmentResponse{
-		ID:               apartment.ID,
-		UserID:           apartment.UserID,
-		City:             apartment.City,
-		Street:           apartment.Street,
-		District:         apartment.District,
-		House:            apartment.House,
+		ID:     apartment.ID,
+		UserID: apartment.UserID,
+		City:   apartment.City,
+		Street: apartment.Street,
+
 		Building:         apartment.Building,
 		Floor:            apartment.Floor,
 		ApartmentNumber:  apartment.ApartmentNumber,
@@ -107,26 +104,24 @@ func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int
 
 	return &getApartmentDTO, nil
 }
-func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) error {
+func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error) {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
+
 	apartmentGorm := models.Apartment{
 		UserID:           uint(userId),
 		City:             input.City,
-		CitySlug:         input.CitySlug,
 		Street:           input.Street,
-		District:         input.District,
-		House:            input.House,
 		Building:         input.Building,
 		Floor:            input.Floor,
-		ApartmentNumber:  input.ApartmentNumber,
 		Longitude:        input.Longitude,
 		Latitude:         input.Latitude,
 		Rooms:            input.Rooms,
+		Area:             input.Area,
 		Elevator:         input.Elevator,
 		GarbageChute:     input.GarbageChute,
 		BathroomType:     input.BathroomType,
@@ -137,16 +132,17 @@ func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input d
 		Rating:           0,
 		Status:           "active",
 	}
+
 	result := tx.Create(&apartmentGorm)
 	if result.Error != nil {
-
 		tx.Rollback()
-		return result.Error
+		return 0, result.Error
 	}
 	tx.Commit()
 
-	return nil
+	return apartmentGorm.ID, nil
 }
+
 func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -196,12 +192,7 @@ func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int,
 	if input.Street != nil {
 		apartment.Street = *input.Street
 	}
-	if input.District != nil {
-		apartment.District = *input.District
-	}
-	if input.House != nil {
-		apartment.House = *input.House
-	}
+
 	if input.Building != nil {
 		apartment.Building = *input.Building
 	}
@@ -271,12 +262,11 @@ func (r *ApartmentRepo) GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetAp
 	var getApartmentDTOs []*dto.GetApartmentResponse
 	for _, apartment := range apartments {
 		getApartmentDTO := dto.GetApartmentResponse{
-			ID:               apartment.ID,
-			UserID:           apartment.UserID,
-			City:             apartment.City,
-			Street:           apartment.Street,
-			District:         apartment.District,
-			House:            apartment.House,
+			ID:     apartment.ID,
+			UserID: apartment.UserID,
+			City:   apartment.City,
+			Street: apartment.Street,
+
 			Building:         apartment.Building,
 			Floor:            apartment.Floor,
 			ApartmentNumber:  apartment.ApartmentNumber,
@@ -323,12 +313,11 @@ func (r *ApartmentRepo) GetApartmentByIdAdmin(ctx context.Context, id int) (*dto
 	}
 
 	getApartmentDTO := dto.GetApartmentResponse{
-		ID:               apartment.ID,
-		UserID:           apartment.UserID,
-		City:             apartment.City,
-		Street:           apartment.Street,
-		District:         apartment.District,
-		House:            apartment.House,
+		ID:     apartment.ID,
+		UserID: apartment.UserID,
+		City:   apartment.City,
+		Street: apartment.Street,
+
 		Building:         apartment.Building,
 		Floor:            apartment.Floor,
 		ApartmentNumber:  apartment.ApartmentNumber,
@@ -376,12 +365,7 @@ func (r *ApartmentRepo) UpdateApartmentAdmin(ctx context.Context, id int, input 
 	if input.Street != nil {
 		apartment.Street = *input.Street
 	}
-	if input.District != nil {
-		apartment.District = *input.District
-	}
-	if input.House != nil {
-		apartment.House = *input.House
-	}
+
 	if input.Building != nil {
 		apartment.Building = *input.Building
 	}

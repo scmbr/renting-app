@@ -43,7 +43,7 @@ func (s *UserService) SignIn(ctx context.Context, email string, password string,
 
 	return s.sessionService.CreateSession(ctx, user.Role, user.Id, ip, os, browser)
 }
-func (s *UserService)GenerateTokens(ctx context.Context, email string,ip string, os string, browser string)(Tokens, error){
+func (s *UserService) GenerateTokens(ctx context.Context, email string, ip string, os string, browser string) (Tokens, error) {
 	user, err := s.repo.GetByEmail(ctx, email)
 	if err != nil {
 		return Tokens{}, err
@@ -55,11 +55,11 @@ func (s *UserService) VerifyEmail(ctx context.Context, code string) (*dto.GetUse
 	user, err := s.repo.Verify(ctx, code)
 	if err != nil {
 
-		return &user,err
+		return &user, err
 	}
 
 	logrus.Info(user)
-	return &user,nil
+	return &user, nil
 }
 func (s *UserService) ResendVerificationCode(ctx context.Context, email string) error {
 	verificationCode := generateVerificationCode()

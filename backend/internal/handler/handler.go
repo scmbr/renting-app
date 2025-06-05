@@ -40,15 +40,19 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		publicAdverts.GET("", h.getAllAdverts)
 		publicAdverts.GET("/:id", h.getAdvertById)
-		
+
+	}
+	publicUser := router.Group("/users")
+	{
+		publicUser.GET("/:id", h.getUserById)
 	}
 	publicApartment := router.Group("/apartment")
 	{
 		publicPhoto := publicApartment.Group("/:id/photos")
-			{
-				publicPhoto.GET("", h.getAllPhotos)
-				publicPhoto.GET("/:photoId", h.getPhotoById)
-			}
+		{
+			publicPhoto.GET("", h.getAllPhotos)
+			publicPhoto.GET("/:photoId", h.getPhotoById)
+		}
 	}
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	auth := router.Group("/auth")
