@@ -1,0 +1,34 @@
+.subnavbar {
+  display: flex;
+  gap: 2rem;
+  background-color: #f9f9f9;
+  padding: 1rem 2rem;
+  border-bottom: 1px solid #ddd;
+  justify-content: center;
+}
+
+.link {
+  color: #333;
+  text-decoration: none;
+  font-weight: 500;
+  position: relative;
+  padding-bottom: 4px;
+  padding-right: 1rem;
+  transition: color 0.2s ease;
+}
+.central {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5rem;
+}
+.link:hover {
+  color: #8b51ff;
+}
+
+.link.active {
+  color: #8b51ff;
+  font-weight: 600;
+}

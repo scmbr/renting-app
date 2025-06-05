@@ -28,8 +28,14 @@ const LoginPage = () => {
       const name = userRes.data.name;
       const surname = userRes.data.surname;
       const avatarUrl = userRes.data.profile_picture;
-      login(name, surname, avatarUrl);
-      navigate("/");
+      const city = userRes.data.city;
+
+      const avatarUrlToUse = avatarUrl
+        ? avatarUrl
+        : "https://storage.yandexcloud.net/profile-pictures/user.png";
+
+      login(name, surname, avatarUrlToUse, city);
+      navigate(`/${city}`);
     } catch (err) {
       console.error(err);
       setError("Неверный email или пароль");

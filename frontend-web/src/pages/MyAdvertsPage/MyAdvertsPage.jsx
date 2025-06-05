@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/shared/api/axios";
-
+import MyAdvertCard from "@/entities/my-advert/MyAdvertCard";
+import styles from "./MyAdvertsPage.module.css";
+import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
+import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 const MyAdvertsPage = () => {
   const [adverts, setAdverts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -10,12 +13,10 @@ const MyAdvertsPage = () => {
 
   useEffect(() => {
     let isMounted = true;
-    console.log("Загрузка объявлений...");
 
     const fetchAdverts = async () => {
       try {
         const res = await api.get("/my/advert");
-        console.log("Ответ от API:", res.data);
         if (isMounted) {
           setAdverts(res.data || []);
           setLoading(false);
@@ -37,25 +38,28 @@ const MyAdvertsPage = () => {
       isMounted = false;
     };
   }, [navigate]);
-  if (loading) return <p>Загрузка объявлений...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
-  if (adverts.length === 0) return <p>У вас пока нет объявлений.</p>;
+
+  if (loading) return <p className={styles.loading}>Загрузка объявлений...</p>;
+  if (error) return <p className={styles.error}>{error}</p>;
+  if (adverts.length === 0)
+    return <p className={styles.empty}>У вас пока нет объявлений.</p>;
 
   return (
-    <div>
-      <h1>Мои объявления</h1>
-      <ul>
+    <>
+      <SubNavbar />
+      <NavPanel />
+      <div className={styles.container}>
+        <h1 className={styles.title}>Мои объявления</h1>
         {adverts.map((ad) => (
-          <li key={ad.id} style={{ marginBottom: "1em" }}>
-            <strong>{ad.title}</strong> — {ad.rent} ₽ / {ad.rental_type}
-            <br />
-            Адрес: {ad.city}, {ad.street} {ad.house}
-            <br />
-            Депозит: {ad.deposit} ₽
-          </li>
+          <MyAdvertCard
+            key={ad.id}
+            advert={ad}
+            onEdit={(id) => console.log("Редактировать", id)}
+            onDelete={(id) => console.log("Удалить", id)}
+          />
         ))}
-      </ul>
-    </div>
+      </div>
+    </>
   );
 };
 

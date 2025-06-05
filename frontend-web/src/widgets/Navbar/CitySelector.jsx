@@ -1,13 +1,16 @@
 import { useState, useEffect } from "react";
 import styles from "./CitySelector.module.css";
+import { useCityStore } from "@/stores/useCityStore";
 
-const CitySelector = ({ selectedCity = "", onSelect }) => {
-  const [query, setQuery] = useState(selectedCity || "");
+const CitySelector = () => {
+  const city = useCityStore((state) => state.city);
+  const setCity = useCityStore((state) => state.setCity);
+  const [query, setQuery] = useState(city || "");
   const [suggestions, setSuggestions] = useState([]);
 
   useEffect(() => {
-    setQuery(selectedCity || "");
-  }, [selectedCity]);
+    setQuery(city || "");
+  }, [city]);
 
   const fetchSuggestions = async (text) => {
     if (!text) return setSuggestions([]);
@@ -30,10 +33,10 @@ const CitySelector = ({ selectedCity = "", onSelect }) => {
     fetchSuggestions(text);
   };
 
-  const handleSelect = (city) => {
-    setQuery(city);
+  const handleSelect = (cityName) => {
+    setQuery(cityName);
     setSuggestions([]);
-    onSelect(city);
+    setCity(cityName);
   };
 
   return (

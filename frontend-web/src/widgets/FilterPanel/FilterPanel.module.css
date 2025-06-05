@@ -16,3 +16,14 @@
   background-color: white;
   min-width: 140px;
 }
+
+.triCheckbox {
+  padding: 0.5rem 1rem;
+  font-size: 1rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  background-color: white;
+  cursor: pointer;
+  min-width: 140px;
+  text-align: left;
+}

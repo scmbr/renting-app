@@ -1,16 +1,19 @@
 .container {
   display: flex;
   height: calc(100vh - 70px);
+  min-height: 500px;
 }
 
 .mapContainer {
   flex: 1;
-  min-width: 0; /* Фикс для переполнения */
+  min-width: 500px;
   height: 100%;
+  position: relative;
 }
 
 .advertsContainer {
-  width: 700px;
+  width: 500px;
+  min-width: 500px;
   height: 100%;
   overflow-y: auto;
   padding: 20px;
@@ -18,18 +21,29 @@
   border-left: 1px solid #e0e0e0;
 }
 
-/* Для мобильных устройств - переключаем на вертикальный layout */
+@media (max-width: 1200px) {
+  .advertsContainer {
+    width: 500px;
+  }
+}
+
 @media (max-width: 768px) {
   .container {
     flex-direction: column;
+    height: auto;
+    min-height: unset;
   }
 
   .mapContainer {
-    height: 300px;
+    height: 50vh;
+    min-height: 300px;
+    min-width: 100%;
   }
 
   .advertsContainer {
     width: 100%;
     height: auto;
+    max-height: 50vh;
+    min-width: 100%;
   }
 }

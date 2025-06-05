@@ -1,0 +1,154 @@
+.navbar {
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  margin: 0;
+  width: 100%;
+  background-color: #ffffff;
+  display: flex;
+  align-items: center;
+  border-bottom: 1px solid #e0e0e0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+.navbarItems {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+}
+.central {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 5rem;
+}
+
+.spacer {
+  margin-left: auto;
+}
+
+.link {
+  color: #ffffff;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  margin-right: 3em;
+  padding: 0.7em;
+  background-color: #8b51ff;
+  border-radius: 8px;
+  display: inline-block;
+  font-size: 0.9rem;
+}
+
+.link:hover {
+  color: #ffffff;
+  background-color: #000000;
+}
+
+.link.active {
+  color: #0066cc;
+  font-weight: 500;
+  border-bottom: 2px solid #0066cc;
+}
+body {
+  margin: 0;
+  padding: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+.userMenu {
+  position: relative;
+}
+
+.userButton {
+  background: none;
+  border: none;
+  color: rgb(88, 88, 88);
+  cursor: pointer;
+  font-size: 1rem;
+  font-family: "TikTok", sans-serif;
+}
+
+.userButton:hover {
+  text-decoration: underline;
+}
+
+.dropdown {
+  position: absolute;
+  right: 0;
+  top: 100%;
+  background-color: #fff;
+  color: #000;
+  border: 1px solid #ccc;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+  margin-top: 0.3rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  z-index: 1000;
+}
+
+.logout {
+  background: none;
+  border: none;
+  color: #f44;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.logout:hover {
+  text-decoration: underline;
+}
+.avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+.icon {
+  width: 24px;
+  height: 24px;
+  object-fit: contain;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.favoriteIcon:hover {
+  transform: scale(1.1);
+}
+.iconLink {
+  background: none;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
+.iconLink:hover {
+  background: none;
+}
+.logoLink {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.logo {
+  height: 60px;
+  width: auto;
+  margin-right: 2rem;
+  margin-bottom: 0.3rem;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}

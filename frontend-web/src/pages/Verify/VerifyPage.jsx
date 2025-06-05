@@ -22,9 +22,9 @@ const VerifyPage = () => {
       api.defaults.headers.common["Authorization"] = `Bearer ${token}`;
 
       const userRes = await api.get("/me");
-      const { name, surname, profile_picture } = userRes.data;
+      const { name, surname, profile_picture,city } = userRes.data;
 
-      login(name, surname, profile_picture);
+      login(name, surname, profile_picture,city);
       navigate("/");
     } catch (err) {
       console.error(err);

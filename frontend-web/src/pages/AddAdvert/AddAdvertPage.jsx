@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import AddAdvertForm from "@/features/add-form/ui/AddAdvertForm";
 import api from "@/shared/api/axios";
-
+import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 const AddAdvertPage = () => {
   const [apartments, setApartments] = useState([]);
   const navigate = useNavigate();
@@ -15,11 +15,6 @@ const AddAdvertPage = () => {
         const res = await api.get("/my/apartment");
         const data = res.data;
         const apartmentList = data.apartments;
-
-        if (!apartmentList || apartmentList.length === 0) {
-          navigate("/apartment/add");
-          return;
-        }
 
         if (isMounted) {
           setApartments(apartmentList);
@@ -40,12 +35,9 @@ const AddAdvertPage = () => {
 
   return (
     <div>
-      <h1>Добавление объявления</h1>
-      {Array.isArray(apartments) && apartments.length > 0 ? (
-        <AddAdvertForm apartments={apartments} />
-      ) : (
-        <p>Загрузка данных...</p>
-      )}
+      <SubNavbar />
+
+      <AddAdvertForm apartments={apartments} />
     </div>
   );
 };

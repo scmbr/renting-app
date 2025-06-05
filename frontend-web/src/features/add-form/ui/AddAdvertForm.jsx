@@ -4,7 +4,7 @@ import api from "@/shared/api/axios";
 import ApartmentCard from "@/entities/apartment/ui/ApartmentCard";
 import styles from "./AddAdvertForm.module.css";
 
-const AddAdvertForm = ({ apartments }) => {
+const AddAdvertForm = ({ apartments = [] }) => {
   const [form, setForm] = useState({
     apartment_id: "",
     title: "",
@@ -34,7 +34,7 @@ const AddAdvertForm = ({ apartments }) => {
   };
 
   useEffect(() => {
-    if (apartments.length > 0) {
+    if (apartments && apartments.length > 0) {
       setForm((prev) => ({
         ...prev,
         apartment_id: apartments[0].id,
@@ -70,7 +70,7 @@ const AddAdvertForm = ({ apartments }) => {
     <form onSubmit={handleSubmit} className={styles.form}>
       <h2 className={styles.formTitle}>Выберите квартиру:</h2>
       <div className={styles.apartmentsContainer}>
-        {apartments.map((a) => (
+        {(apartments ?? []).map((a) => (
           <ApartmentCard
             key={a.id}
             apartment={a}

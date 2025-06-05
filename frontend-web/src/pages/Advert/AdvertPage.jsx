@@ -1,23 +1,36 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import { fetchAdvertById } from "@/entities/advert/model";
+import styles from "./AdvertPage.module.css";
+import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
+import api from "@/shared/api/axios";
+import { Carousel } from "react-responsive-carousel";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 
 const AdvertPage = () => {
   const { id } = useParams();
   const [advert, setAdvert] = useState(null);
+  const [photos, setPhotos] = useState([]);
+  const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
   useEffect(() => {
     const loadAdvert = async () => {
-      console.log("Загружаем объявление с ID:", id); // <-- добавь
-
       try {
+        setLoading(true);
         const data = await fetchAdvertById(id);
-        console.log("Получено объявление:", data); // <-- добавь
         setAdvert(data);
+
+        const photosResponse = await api.get(
+          `/apartment/${data.apartment.id}/photos`
+        );
+        setPhotos(photosResponse.data || []);
+
+        const userResponse = await api.get(`/users/${data.apartment.user_id}`);
+        setOwner(userResponse.data);
       } catch (err) {
-        console.error("Ошибка при загрузке:", err); // <-- добавь
+        console.error("Ошибка при загрузке:", err);
         setError("Ошибка при загрузке объявления");
       } finally {
         setLoading(false);
@@ -28,24 +41,185 @@ const AdvertPage = () => {
   }, [id]);
 
   if (loading) return <p>Загрузка объявления...</p>;
-  if (error) return <p style={{ color: "red" }}>{error}</p>;
+  if (error) return <p className={styles.error}>{error}</p>;
   if (!advert) return null;
 
+  const {
+    apartment,
+    title,
+    rent,
+    deposit,
+    rental_type,
+    pets,
+    babies,
+    smoking,
+    internet,
+    washing_machine,
+    tv,
+    conditioner,
+    dishwasher,
+    concierge,
+  } = advert;
+
   return (
-    <div style={{ maxWidth: "600px", margin: "auto", padding: "1rem" }}>
-      <h1>{advert.title}</h1>
-      <p>
-        {advert.apartment.city}, {advert.apartment.street}{" "}
-        {advert.apartment.house}
-      </p>
-      <p>
-        Этаж: {advert.apartment.floor} | Комнат: {advert.apartment.rooms}
-      </p>
-      <p style={{ fontWeight: "bold", fontSize: "1.2rem" }}>
-        {advert.rent.toLocaleString()} ₽/мес
-      </p>
-    </div>
+    <>
+      <SubNavbar />
+      <div className={styles.pageWrapper}>
+        <div className={styles.container}>
+          {photos.length > 0 && (
+            <div className={styles.carouselWrapper}>
+              <Carousel
+                className={styles.carousel}
+                showThumbs={false}
+                dynamicHeight={false}
+                infiniteLoop
+                useKeyboardArrows
+                autoFocus={false}
+              >
+                {photos.map((photo) => (
+                  <div key={photo.id}>
+                    <img src={photo.url} alt={`Фото квартиры ${title}`} />
+                  </div>
+                ))}
+              </Carousel>
+            </div>
+          )}
+          <div className={styles.info}>
+            <h1 className={styles.title}>{title}</h1>
+            <section className={styles.address}>
+              <p>
+                <strong>Адрес:</strong> {apartment.city}, {apartment.district},{" "}
+                {apartment.street} {apartment.house}{" "}
+                {apartment.building && `корпус ${apartment.building}`}, кв.{" "}
+                {apartment.apartment_number}
+              </p>
+              <p>
+                <strong>Этаж:</strong> {apartment.floor} |{" "}
+                <strong>Комнат:</strong> {apartment.rooms}
+              </p>
+              <p>
+                <strong>Тип дома:</strong> {apartment.construction_type} (
+                {apartment.construction_year} г.)
+              </p>
+              <p>
+                <strong>Ремонт:</strong> {apartment.remont}
+              </p>
+            </section>
+
+            <section className={styles.details}>
+              <p>
+                <strong>Аренда:</strong>{" "}
+                <span className={styles.price}>
+                  {rent.toLocaleString()} ₽/мес
+                </span>
+              </p>
+              <p>
+                <strong>Залог:</strong> {deposit.toLocaleString()} ₽
+              </p>
+              <p>
+                <strong>Тип аренды:</strong> {rental_type}
+              </p>
+              <p>
+                <strong>Статус:</strong> {advert.status}
+              </p>
+            </section>
+
+            <section className={styles.features}>
+              <h2>Удобства</h2>
+              <ul>
+                <li>Питомцы: {pets ? "разрешены" : "запрещены"}</li>
+                <li>Дети: {babies ? "разрешены" : "запрещены"}</li>
+                <li>Курение: {smoking ? "разрешено" : "запрещено"}</li>
+                <li>Интернет: {internet ? "есть" : "нет"}</li>
+                <li>Стиральная машина: {washing_machine ? "есть" : "нет"}</li>
+                <li>Телевизор: {tv ? "есть" : "нет"}</li>
+                <li>Кондиционер: {conditioner ? "есть" : "нет"}</li>
+                <li>Посудомоечная машина: {dishwasher ? "есть" : "нет"}</li>
+                <li>Консьерж: {concierge ? "есть" : "нет"}</li>
+                <li>
+                  Мусоропровод: {apartment.garbage_chute ? "есть" : "нет"}
+                </li>
+                <li>Лифт: {apartment.elevator ? "есть" : "нет"}</li>
+                <li>Тип ванной: {apartment.bathroom_type}</li>
+              </ul>
+            </section>
+          </div>
+        </div>
+
+        <div className={styles.ownerCard}>
+          {owner ? (
+            <>
+              {owner.profile_picture && (
+                <img
+                  src={owner.profile_picture}
+                  alt={`${owner.name} ${owner.surname}`}
+                  className={styles.avatar}
+                />
+              )}
+              <div className={styles.ownerName}>
+                <p>
+                  {owner.name} {owner.surname}
+                </p>
+              </div>
+              <p>
+                <strong>Email:</strong> {owner.email}
+              </p>
+              <p>
+                <strong>Телефон:</strong> {owner.phone}
+              </p>
+              <p>
+                <strong>Рейтинг:</strong>
+              </p>
+              <div className={styles.rating}>{renderStars(owner.rating)}</div>
+            </>
+          ) : (
+            <p>Загрузка владельца...</p>
+          )}
+        </div>
+      </div>
+    </>
   );
 };
 
 export default AdvertPage;
+const renderStars = (rating) => {
+  const stars = [];
+  const fullStars = Math.floor(rating);
+  const hasHalfStar = rating % 1 >= 0.25 && rating % 1 <= 0.75;
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(
+      <img
+        key={`full-${i}`}
+        src="/icons/full-star.png"
+        alt="★"
+        className={styles.star}
+      />
+    );
+  }
+
+  if (hasHalfStar) {
+    stars.push(
+      <img
+        key="half"
+        src="/icons/half-star.png"
+        alt="☆"
+        className={styles.star}
+      />
+    );
+  }
+
+  for (let i = 0; i < emptyStars; i++) {
+    stars.push(
+      <img
+        key={`empty-${i}`}
+        src="/icons/empty-star.png"
+        alt="✩"
+        className={styles.star}
+      />
+    );
+  }
+
+  return stars;
+};

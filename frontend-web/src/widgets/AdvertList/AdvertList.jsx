@@ -1,29 +1,10 @@
-import React, { useEffect, useState } from "react";
-import { fetchAdverts } from "@/entities/advert/model";
+import React from "react";
 import AdvertCard from "@/entities/advert/components/AdvertCard";
 import styles from "./AdvertList.module.css";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 
-const AdvertList = ({ filters }) => {
-  const [adverts, setAdverts] = useState([]);
-  const [total, setTotal] = useState(0);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  useEffect(() => {
-    setLoading(true);
-    setError(null);
-
-    fetchAdverts(filters)
-      .then((data) => {
-        setAdverts(Array.isArray(data.adverts) ? data.adverts : []);
-        setTotal(data.total ?? 0);
-      })
-      .catch((err) => {
-        setError("Ошибка при загрузке объявлений");
-        console.error(err);
-      })
-      .finally(() => setLoading(false));
-  }, [filters]);
+const AdvertList = ({ adverts, loading, error, total }) => {
+  const filters = useFiltersStore((state) => state.filters);
 
   if (loading) return <p className={styles.loading}>Загрузка...</p>;
   if (error) return <p className={styles.error}>{error}</p>;

@@ -1,13 +1,10 @@
 import { NavLink, useNavigate } from "react-router-dom";
-import CitySelector from "./CitySelector";
-import styles from "./Navbar.module.css";
-import { useRef, useState, useEffect } from "react";
+import styles from "./SubNavbar.module.css";
+import { useRef, useState } from "react";
 import { useUser } from "@/shared/contexts/UserContext";
 import api from "@/shared/api/axios";
-import { useCityStore } from "@/stores/useCityStore";
-import { useFiltersStore } from "@/stores/useFiltersStore";
 import { nameToSlug } from "@/shared/constants/cities";
-
+import { useCityStore } from "@/stores/useCityStore";
 const Navbar = () => {
   const { user, logout } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -15,14 +12,6 @@ const Navbar = () => {
   const navigate = useNavigate();
   const city = useCityStore((state) => state.city);
   const citySlug = nameToSlug(city || "Москва");
-  const updateFilter = useFiltersStore((state) => state.updateFilter);
-
-  useEffect(() => {
-    if (!city) return;
-    updateFilter("city", city);
-    const slug = nameToSlug(city);
-    navigate(`/${slug}`);
-  }, [city]);
 
   const handleLogout = async () => {
     try {
@@ -30,6 +19,7 @@ const Navbar = () => {
     } catch (err) {
       console.error("Ошибка при выходе:", err);
     }
+
     logout();
     navigate("/login");
   };
@@ -40,8 +30,6 @@ const Navbar = () => {
         <NavLink to={`/${citySlug}`} className={styles.logoLink}>
           <img src="/images/logo.png" alt="Дом" className={styles.logo} />
         </NavLink>
-
-        <CitySelector />
 
         <div className={styles.spacer}></div>
         <div className={styles.navbarItems}>

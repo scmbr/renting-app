@@ -17,6 +17,29 @@ export const nameToSlug = (cityName) => {
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-+|-+$/g, "");
 };
+export async function getCoordsByCity(cityName) {
+  const apiKey = import.meta.env.VITE_YANDEX_GEOCODER_KEY;
+  const baseUrl = "https://geocode-maps.yandex.ru/1.x/";
+  const url = `${baseUrl}?format=json&apikey=${apiKey}&geocode=${encodeURIComponent(
+    cityName
+  )}`;
+
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+
+    const geoObject =
+      data?.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject;
+
+    if (!geoObject || !geoObject.Point?.pos) {
+      return null;
+    }
+    const [lon, lat] = geoObject.Point.pos.split(" ").map(Number);
+    return [lon, lat];
+  } catch (err) {
+    return null;
+  }
+}
 export const cityMappings = {
   Москва: "moskva",
   "Санкт-Петербург": "spb",

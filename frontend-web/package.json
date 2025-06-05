@@ -11,11 +11,14 @@
   },
   "dependencies": {
     "@2gis/mapgl": "^1.60.0",
+    "@2gis/mapgl-clusterer": "^2.5.0",
     "axios": "^1.9.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
+    "react-responsive-carousel": "^3.2.23",
     "react-router-dom": "^7.6.0",
-    "transliteration": "^2.3.5"
+    "transliteration": "^2.3.5",
+    "zustand": "^5.0.5"
   },
   "devDependencies": {
     "@eslint/js": "^9.25.0",
