@@ -1,12 +1,15 @@
 import { useState, useEffect } from "react";
 import styles from "./CitySelector.module.css";
 import { useCityStore } from "@/stores/useCityStore";
-
+import { useFiltersStore } from "@/stores/useFiltersStore";
 const CitySelector = () => {
   const city = useCityStore((state) => state.city);
   const setCity = useCityStore((state) => state.setCity);
   const [query, setQuery] = useState(city || "");
   const [suggestions, setSuggestions] = useState([]);
+  const updateFilter = useFiltersStore((state) => state.updateFilter);
+  const filters = useFiltersStore((state) => state.filters);
+  const setFilters = useFiltersStore((state) => state.setFilters);
 
   useEffect(() => {
     setQuery(city || "");
@@ -37,6 +40,7 @@ const CitySelector = () => {
     setQuery(cityName);
     setSuggestions([]);
     setCity(cityName);
+    updateFilter("city", cityName);
   };
 
   return (

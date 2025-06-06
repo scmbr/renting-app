@@ -24,6 +24,17 @@ const Navbar = () => {
     navigate(`/${slug}`);
   }, [city]);
 
+  // Закрытие меню при клике вне его
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const handleLogout = async () => {
     try {
       await api.post("/auth/logout");
@@ -32,6 +43,11 @@ const Navbar = () => {
     }
     logout();
     navigate("/login");
+  };
+
+  const handleNavigate = (path) => {
+    navigate(path);
+    setMenuOpen(false);
   };
 
   return (
@@ -85,20 +101,28 @@ const Navbar = () => {
               className={styles.icon}
             />
           </NavLink>
+
           {user ? (
             <div className={styles.userMenu} ref={menuRef}>
               <button
                 className={styles.userButton}
                 onClick={() => setMenuOpen((prev) => !prev)}
               >
-                <img src={user.avatarUrl} alt={``} className={styles.avatar} />
+                <img src={user.avatarUrl} alt="" className={styles.avatar} />
                 {user.name} {user.surname}
               </button>
               {menuOpen && (
                 <div className={styles.dropdown}>
-                  <button onClick={handleLogout} className={styles.logout}>
-                    Выйти
+                  <button onClick={() => handleNavigate("/my/advert")}>
+                    Мои объявления
                   </button>
+                  <button onClick={() => handleNavigate("/favorites")}>
+                    Избранное
+                  </button>
+                  <button onClick={() => handleNavigate("/settings")}>
+                    Настройки
+                  </button>
+                  <button onClick={handleLogout}>Выйти</button>
                 </div>
               )}
             </div>

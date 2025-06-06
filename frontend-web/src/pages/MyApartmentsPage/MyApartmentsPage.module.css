@@ -1,0 +1,23 @@
+.container {
+  margin: 2rem auto;
+  max-width: 1080px;
+  padding: 2rem 1rem;
+  border-radius: 12px;
+  background-color: #fff;
+}
+
+.title {
+  margin-bottom: 2rem;
+  font-size: 2rem;
+}
+
+.message {
+  text-align: center;
+  font-size: 1.1rem;
+}
+
+.list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}

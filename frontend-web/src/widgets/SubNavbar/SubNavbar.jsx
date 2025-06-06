@@ -23,7 +23,10 @@ const Navbar = () => {
     logout();
     navigate("/login");
   };
-
+  const handleNavigate = (path) => {
+    navigate(path);
+    setMenuOpen(false);
+  };
   return (
     <nav className={styles.navbar}>
       <div className={styles.central}>
@@ -84,9 +87,16 @@ const Navbar = () => {
               </button>
               {menuOpen && (
                 <div className={styles.dropdown}>
-                  <button onClick={handleLogout} className={styles.logout}>
-                    Выйти
+                  <button onClick={() => handleNavigate("/my/advert")}>
+                    Мои объявления
                   </button>
+                  <button onClick={() => handleNavigate("/favorites")}>
+                    Избранное
+                  </button>
+                  <button onClick={() => handleNavigate("/settings")}>
+                    Настройки
+                  </button>
+                  <button onClick={handleLogout}>Выйти</button>
                 </div>
               )}
             </div>

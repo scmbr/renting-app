@@ -1,6 +1,6 @@
 import React from "react";
 import AdvertCard from "@/entities/advert/components/AdvertCard";
-import styles from "./AdvertList.module.css";
+import styles from "./FavoritesList.module.css";
 import { useFiltersStore } from "@/stores/useFiltersStore";
 
 const AdvertList = ({ adverts, loading, error, total, onRemoveFavorite }) => {
@@ -15,8 +15,6 @@ const AdvertList = ({ adverts, loading, error, total, onRemoveFavorite }) => {
 
   return (
     <div className={styles.container}>
-      <h2>{filters.city}</h2>
-      <h5>Найдено {total} объявлений</h5>
       <div className={styles.list}>
         {adverts.map((ad) => (
           <AdvertCard

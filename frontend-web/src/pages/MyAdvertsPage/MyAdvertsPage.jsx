@@ -2,42 +2,52 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/shared/api/axios";
 import MyAdvertCard from "@/entities/my-advert/MyAdvertCard";
+import ConfirmModal from "@/shared/ui/ConfirmModal";
 import styles from "./MyAdvertsPage.module.css";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
+
 const MyAdvertsPage = () => {
   const [adverts, setAdverts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedAdvertId, setSelectedAdvertId] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
-    let isMounted = true;
-
     const fetchAdverts = async () => {
       try {
         const res = await api.get("/my/advert");
-        if (isMounted) {
-          setAdverts(res.data || []);
-          setLoading(false);
-        }
+        setAdverts(res.data || []);
       } catch (err) {
-        console.error("Ошибка запроса:", err);
         if (err?.response?.status === 401) {
           navigate("/login");
         } else {
           setError("Не удалось загрузить объявления");
-          setLoading(false);
         }
+      } finally {
+        setLoading(false);
       }
     };
 
     fetchAdverts();
-
-    return () => {
-      isMounted = false;
-    };
   }, [navigate]);
+
+  const handleConfirmDelete = async () => {
+    if (!selectedAdvertId) return;
+    setIsDeleting(true);
+    try {
+      await api.delete(`/my/advert/${selectedAdvertId}`);
+      setAdverts((prev) => prev.filter((ad) => ad.id !== selectedAdvertId));
+    } catch (err) {
+      alert("Не удалось удалить объявление.");
+      console.error(err);
+    } finally {
+      setIsDeleting(false);
+      setSelectedAdvertId(null);
+    }
+  };
 
   if (loading) return <p className={styles.loading}>Загрузка объявлений...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
@@ -55,10 +65,18 @@ const MyAdvertsPage = () => {
             key={ad.id}
             advert={ad}
             onEdit={(id) => console.log("Редактировать", id)}
-            onDelete={(id) => console.log("Удалить", id)}
+            onDelete={(id) => setSelectedAdvertId(id)}
+            isDeleting={isDeleting && selectedAdvertId === ad.id}
           />
         ))}
       </div>
+
+      <ConfirmModal
+        isOpen={selectedAdvertId !== null}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setSelectedAdvertId(null)}
+        message="Вы уверены, что хотите удалить это объявление?"
+      />
     </>
   );
 };

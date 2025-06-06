@@ -11,7 +11,7 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
   const clustererRef = useRef(null);
   const city = useCityStore((state) => state.city);
   const [isMapReady, setIsMapReady] = useState(false);
-  console.log(adverts);
+  console.log("Объявления ", adverts);
   useEffect(() => {
     if (clustererRef.current) {
       clustererRef.current.destroy();
@@ -67,17 +67,17 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
   }, [city, onSelect]);
 
   useEffect(() => {
-    if (
-      !isMapReady ||
-      !mapRef.current ||
-      !mapglAPIRef.current ||
-      !adverts?.length
-    )
-      return;
+    if (!isMapReady || !mapRef.current || !mapglAPIRef.current) return;
 
+    // Очищаем предыдущий кластер
     if (clustererRef.current) {
       clustererRef.current.destroy();
       clustererRef.current = null;
+    }
+
+    if (!adverts?.length) {
+      console.log("Нет объявлений для отображения, кластер не создаётся.");
+      return;
     }
 
     const clusterer = new Clusterer(mapRef.current, {
@@ -116,7 +116,10 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
       })
       .filter(Boolean);
 
-    clusterer.load(markers);
+    console.log("Загружаю маркеры:", markers.length);
+    setTimeout(() => {
+      clusterer.load(markers);
+    }, 500);
 
     clusterer.on("click", (event) => {
       if (event.target.type === "cluster") {

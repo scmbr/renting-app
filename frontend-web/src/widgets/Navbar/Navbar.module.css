@@ -60,85 +60,53 @@ body {
 }
 .userMenu {
   position: relative;
+  z-index: 1001;
 }
 
 .userButton {
-  background: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: transparent;
   border: none;
-  color: rgb(88, 88, 88);
   cursor: pointer;
   font-size: 1rem;
-  font-family: "TikTok", sans-serif;
 }
 
-.userButton:hover {
-  text-decoration: underline;
-}
-
-.dropdown {
-  position: absolute;
-  right: 0;
-  top: 100%;
-  background-color: #fff;
-  color: #000;
-  border: 1px solid #ccc;
-  border-radius: 0.5rem;
-  padding: 0.5rem;
-  margin-top: 0.3rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  z-index: 1000;
-}
-
-.logout {
-  background: none;
-  border: none;
-  color: #f44;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.logout:hover {
-  text-decoration: underline;
-}
 .avatar {
   width: 32px;
   height: 32px;
   border-radius: 50%;
   object-fit: cover;
-  margin-right: 8px;
-  vertical-align: middle;
 }
-.icon {
-  width: 24px;
-  height: 24px;
-  object-fit: contain;
+
+.dropdown {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  z-index: 10;
+  min-width: 180px;
+  padding: 0.5rem 0;
+}
+
+.dropdown button {
+  padding: 0.75rem 1rem;
   background: none;
   border: none;
-  padding: 0;
+  text-align: left;
+  font-size: 0.95rem;
   cursor: pointer;
-  /* filter: brightness(0) invert(0.5); */
-  transition: transform 0.2s ease;
+  transition: background-color 0.2s;
 }
 
-.favoriteIcon:hover {
-  transform: scale(1.1);
-}
-.iconLink {
-  background: none;
-  border: none;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-decoration: none;
-}
-
-.iconLink:hover {
-  background: none;
-}
-.logoLink {
-  display: flex;
-  align-items: center;
-  text-decoration: none;
+.dropdown button:hover {
+  background-color: #f2f2f2;
 }
 
 .logo {

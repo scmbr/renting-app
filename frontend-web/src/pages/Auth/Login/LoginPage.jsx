@@ -3,13 +3,16 @@ import { useNavigate, Link } from "react-router-dom";
 import styles from "./LoginPage.module.css";
 import api from "@/shared/api/axios";
 import { useUser } from "@/shared/contexts/UserContext";
+import { useCityStore } from "@/stores/useCityStore";
+import { nameToSlug } from "@/shared/constants/cities";
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login } = useUser();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState(null);
-
+  const city = useCityStore((state) => state.city);
+  const citySlug = nameToSlug(city || "Москва");
   const handleLogin = async (e) => {
     e.preventDefault();
     setError(null);
@@ -46,7 +49,7 @@ const LoginPage = () => {
     <div className={styles.wrapper}>
       <div className={styles.left}>
         <div className={styles.container}>
-          <Link to="/">
+          <Link to={`/${citySlug}`}>
             <img
               src="/images/logo.png"
               alt="Login Icon"

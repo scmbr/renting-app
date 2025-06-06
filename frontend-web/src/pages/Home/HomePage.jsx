@@ -23,7 +23,11 @@ const HomePage = () => {
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [mapKey, setMapKey] = useState(0);
 
+  useEffect(() => {
+    setMapKey((prev) => prev + 1);
+  }, [filters.city]);
   useEffect(() => {
     if (!citySlug) {
       const storedCity = localStorage.getItem("city");
@@ -53,6 +57,7 @@ const HomePage = () => {
         setError("Ошибка при загрузке объявлений");
       })
       .finally(() => setLoading(false));
+    console.log(filters);
   }, [filters]);
 
   const handleCitySelect = (newCity) => {
@@ -68,7 +73,11 @@ const HomePage = () => {
       <FilterPanel />
       <div className={styles.container}>
         <div className={styles.mapContainer}>
-          {city ? <MapGL adverts={adverts} /> : <div>Загрузка карты...</div>}
+          {city ? (
+            <MapGL key={mapKey} adverts={adverts} />
+          ) : (
+            <div>Загрузка карты...</div>
+          )}
         </div>
 
         <div className={styles.advertsContainer}>
