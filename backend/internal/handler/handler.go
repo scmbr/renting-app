@@ -98,6 +98,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			userAdvert.DELETE("/:id", h.deleteAdvert)
 			userAdvert.PATCH("/:id", h.updateAdvert)
 		}
+		favorites := authenticated.Group("/favorites")
+		{
+			favorites.GET("", h.getAllFavorites)
+			favorites.POST("", h.addToFavorites)
+			favorites.DELETE("/:advertId", h.removeFavorite)
+			favorites.GET("/:advertId/check", h.isFavorite)
+		}
 
 	}
 	admin := router.Group("/admin", h.adminMiddleware)

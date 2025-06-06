@@ -29,6 +29,7 @@ func NewPostgresDB(cfg Config) (*gorm.DB, error) {
 	db.AutoMigrate(&models.Apartment{})
 	db.AutoMigrate(&models.Advert{})
 	db.AutoMigrate(&models.ApartmentPhoto{})
+	db.AutoMigrate(&models.Favorites{})
 	if err != nil {
 		return nil, err
 	}

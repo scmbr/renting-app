@@ -32,7 +32,7 @@ type User interface {
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
 	LogOut(ctx context.Context, id int, ip, os, browser string) error
-	GenerateTokens(ctx context.Context, email string,ip string, os string, browser string)(Tokens, error)
+	GenerateTokens(ctx context.Context, email string, ip string, os string, browser string) (Tokens, error)
 }
 type Session interface {
 	CreateSession(ctx context.Context, role string, userID int, ip string, os string, browser string) (Tokens, error)
@@ -46,7 +46,7 @@ type Emails interface {
 type Apartment interface {
 	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
-	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint,error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error)
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)
@@ -77,12 +77,19 @@ type ApartmentPhoto interface {
 	UploadPhotoToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
 	HasCoverPhoto(apartmentId int) (bool, error)
 }
+type Favorites interface {
+	GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error)
+	AddToFavorites(ctx context.Context, userId int, advertId int) error
+	RemoveFromFavorites(ctx context.Context, userId int, advertId int) error
+	IsFavorite(ctx context.Context, userId int, advertId int) (bool, error)
+}
 type Services struct {
 	User
 	Session
 	Apartment
 	Advert
 	ApartmentPhoto
+	Favorites
 }
 
 type Deps struct {
@@ -124,11 +131,13 @@ func NewServices(deps Deps) *Services {
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
 	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
 	advertService := NewAdvertService(deps.Repos.Advert)
+	favoritesService := NewFavoritesService(deps.Repos.Favorites)
 	return &Services{
 		User:           userService,
 		Session:        sessionService,
 		Apartment:      apartmentService,
 		Advert:         advertService,
 		ApartmentPhoto: apartmentPhotoService,
+		Favorites:      favoritesService,
 	}
 }

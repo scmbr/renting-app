@@ -40,7 +40,7 @@ type Session interface {
 type Apartment interface {
 	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
-	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput)(uint,error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error)
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)
@@ -69,12 +69,19 @@ type ApartmentPhoto interface {
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
 	HasCoverPhoto(apartmentId int) (bool, error)
 }
+type Favorites interface {
+	GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error)
+	AddToFavorites(ctx context.Context, userId int, listingId int) error
+	RemoveFromFavorites(ctx context.Context, userId int, listingId int) error
+	IsFavorite(ctx context.Context, userId int, listingId int) (bool, error)
+}
 type Repository struct {
 	Users
 	Session
 	Apartment
 	Advert
 	ApartmentPhoto
+	Favorites
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -84,5 +91,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Apartment:      NewApartmentRepo(db),
 		Advert:         NewAdvertRepo(db),
 		ApartmentPhoto: NewApartmentPhotoRepo(db),
+		Favorites:      NewFavoritesRepo(db),
 	}
 }
