@@ -168,7 +168,24 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		return err
 	}
 
-	
+
+	var advertIDs []int
+	if err := tx.Model(&models.Advert{}).
+		Where("apartment_id = ?", apartment.ID).
+		Pluck("id", &advertIDs).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+
+	if len(advertIDs) > 0 {
+		if err := tx.Where("advert_id IN ?", advertIDs).Delete(&models.Favorites{}).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+
 	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.Advert{}).Error; err != nil {
 		tx.Rollback()
 		return err

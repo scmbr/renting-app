@@ -70,10 +70,10 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 		tx = tx.Where("adverts.rental_type = ?", filter.RentalType)
 	}
 	if filter.Lat != 0 {
-		tx = tx.Where("apartments.latitude BETWEEN ? AND ?", filter.Lat-0.01, filter.Lat+0.01)
+		tx = tx.Where("apartments.latitude BETWEEN ? AND ?", filter.Lat-0.0001, filter.Lat+0.0001)
 	}
 	if filter.Lng != 0 {
-		tx = tx.Where("apartments.longitude BETWEEN ? AND ?", filter.Lng-0.01, filter.Lng+0.01)
+		tx = tx.Where("apartments.longitude BETWEEN ? AND ?", filter.Lng-0.0001, filter.Lng+0.0001)
 	}
 	boolMap := map[string]*bool{
 		"apartments.elevator":     filter.Elevator,
