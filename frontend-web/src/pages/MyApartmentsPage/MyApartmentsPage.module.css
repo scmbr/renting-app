@@ -21,3 +21,20 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 1rem;
 }
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.addButton {
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.addButton img {
+  width: 36px;
+  height: 36px;
+}

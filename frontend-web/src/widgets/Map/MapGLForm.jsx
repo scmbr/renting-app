@@ -18,13 +18,17 @@ export const MapGLForm = ({ center, markerPosition }) => {
       const map = new mapglAPI.Map(containerRef.current, {
         key: import.meta.env.VITE_2GIS_MAP_API_KEY,
         center: center || DEFAULT_COORDS,
-        zoom: 14,
+        zoom: 17,
+        style: "96072560-ad86-46df-8126-b6f478fc6010",
       });
       mapRef.current = map;
 
       if (markerPosition) {
         const marker = new mapglAPI.Marker(map, {
           coordinates: markerPosition,
+          icon: "/icons/apartment.png",
+          size: [25, 24],
+          offset: [0, -20],
         });
         markerRef.current = marker;
       }

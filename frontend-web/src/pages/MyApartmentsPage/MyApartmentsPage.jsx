@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom"; // ✅ добавлено
 import styles from "./MyApartmentsPage.module.css";
 import api from "@/shared/api/axios";
 import MyApartmentCard from "@/entities/my-apartment/MyApartmentCard";
@@ -12,6 +13,8 @@ const MyApartmentPage = () => {
   const [error, setError] = useState(null);
   const [selectedApartmentId, setSelectedApartmentId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const navigate = useNavigate(); // ✅ добавлено
 
   useEffect(() => {
     const fetchApartments = async () => {
@@ -48,15 +51,22 @@ const MyApartmentPage = () => {
 
   if (loading) return <p className={styles.message}>Загрузка...</p>;
   if (error) return <p className={styles.message}>{error}</p>;
-  if (!apartments.length)
-    return <p className={styles.message}>Квартиры не найдены.</p>;
 
   return (
     <>
       <SubNavbar />
       <NavPanel />
       <div className={styles.container}>
-        <h1 className={styles.title}>Мои квартиры</h1>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Мои квартиры</h1>
+          <button
+            className={styles.addButton}
+            onClick={() => navigate("/my/apartment/add")}
+            aria-label="Добавить квартиру"
+          >
+            <img src="/icons/add.svg" alt="Добавить" />
+          </button>
+        </div>
         <div className={styles.list}>
           {apartments.map((apt) => (
             <MyApartmentCard

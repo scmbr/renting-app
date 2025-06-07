@@ -143,8 +143,8 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
 
         const allClose = apartments.every((apt) => {
           return (
-            Math.abs(apt.latitude - refLat) <= 0.0001 &&
-            Math.abs(apt.longitude - refLng) <= 0.0001
+            Math.abs(apt.latitude - refLat) <= 0.001 &&
+            Math.abs(apt.longitude - refLng) <= 0.001
           );
         });
 

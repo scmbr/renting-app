@@ -1,0 +1,56 @@
+.dropZone {
+  border: 2px dashed #aaa;
+  border-radius: 6px;
+  padding: 150px;
+  text-align: center;
+  height: 250px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  color: #000000;
+}
+
+.dragActive {
+  border-color: #8b51ff;
+}
+
+.fileInputLabel {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+}
+
+.fileInputHidden {
+  display: none;
+}
+
+.previewContainer {
+  margin-top: 15px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.previewImage {
+  width: 315px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  box-shadow: 0 0 4px rgba(0, 0, 0, 0.1);
+}
+.deleteIcon {
+  position: absolute;
+  top: 2px;
+  right: 5px;
+  color: white;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  line-height: 20px;
+  text-align: center;
+  font-weight: bold;
+  font-size: 14px;
+  pointer-events: none;
+  user-select: none;
+}

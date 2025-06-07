@@ -49,6 +49,7 @@ const MyAdvertCard = ({ advert, onEdit, onDelete }) => {
         >
           <img src="/icons/edit.svg" alt="Изменить" className={styles.icon} />
         </button>
+
         <button
           className={styles.actionBtn}
           onClick={(e) => {

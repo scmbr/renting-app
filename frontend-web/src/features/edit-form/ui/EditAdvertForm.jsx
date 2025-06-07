@@ -1,16 +1,15 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "@/shared/api/axios";
-import ApartmentCard from "@/entities/apartment/ui/ApartmentCard";
 import FeatureCard from "@/entities/feature-card/FeatureCard";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import styles from "./AddAdvertForm.module.css";
+import styles from "./EditAdvertForm.module.css";
 
-const AddAdvertForm = ({ apartments = [] }) => {
+const EditAdvertForm = ({ apartment, advertId, initialData }) => {
   const [form, setForm] = useState({
-    apartment_id: "",
+    apartment_id: apartment ? apartment.id : null,
     title: "",
     rent: "",
     deposit: "",
@@ -25,13 +24,6 @@ const AddAdvertForm = ({ apartments = [] }) => {
     dishwasher: false,
     concierge: false,
   });
-
-  const [selectedApartment, setSelectedApartment] = useState(null);
-  const [photos, setPhotos] = useState([]);
-  const [loadingPhotos, setLoadingPhotos] = useState(false);
-
-  const navigate = useNavigate();
-
   const featureIcons = {
     pets: { label: "Можно с животными", src: "/icons/pets.svg" },
     babies: { label: "Можно с детьми", src: "/icons/baby.svg" },
@@ -43,15 +35,24 @@ const AddAdvertForm = ({ apartments = [] }) => {
     dishwasher: { label: "Посудомойка", src: "/icons/dishwasher.svg" },
     concierge: { label: "Консьерж", src: "/icons/concierge.svg" },
   };
+  const [photos, setPhotos] = useState([]);
+  const [loadingPhotos, setLoadingPhotos] = useState(false);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
-    if (Array.isArray(apartments) && apartments.length > 0) {
-      const firstApartment = apartments[0];
-      setForm((prev) => ({ ...prev, apartment_id: firstApartment.id }));
-      setSelectedApartment(firstApartment);
-      fetchPhotos(firstApartment.id);
+    if (apartment && initialData) {
+      setForm({
+        ...initialData,
+        apartment_id: apartment.id,
+        rent: String(initialData.rent),
+        deposit: String(initialData.deposit),
+      });
+      fetchPhotos(apartment.id);
+    } else if (apartment) {
+      fetchPhotos(apartment.id);
     }
-  }, [apartments]);
+  }, [initialData, apartment]);
 
   const fetchPhotos = async (apartmentId) => {
     setLoadingPhotos(true);
@@ -77,7 +78,7 @@ const AddAdvertForm = ({ apartments = [] }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const normalizedForm = {
       ...form,
@@ -85,23 +86,22 @@ const AddAdvertForm = ({ apartments = [] }) => {
       deposit: Number(form.deposit),
     };
 
-    api
-      .post("/my/advert", normalizedForm)
-      .then(() => navigate("/my/advert"))
-      .catch((err) => console.error("Ошибка при создании объявления", err));
+    try {
+      await api.patch(`/my/advert/${advertId}`, normalizedForm);
+      navigate("/my/advert");
+    } catch (err) {
+      console.error("Ошибка при обновлении объявления", err);
+    }
   };
 
-  const handleSelectApartment = (apartment) => {
-    setForm((prev) => ({ ...prev, apartment_id: apartment.id }));
-    setSelectedApartment(apartment);
-    fetchPhotos(apartment.id);
-  };
-
+  if (!apartment) {
+    return <p>Загрузка квартиры...</p>;
+  }
   return (
     <motion.form
       onSubmit={handleSubmit}
       className={styles.form}
-      animate={{ scale: form.apartment_id ? 1.02 : 1 }}
+      animate={{ scale: 1.02 }}
       transition={{ duration: 0.3 }}
     >
       <div className={styles.inputs}>
@@ -158,82 +158,51 @@ const AddAdvertForm = ({ apartments = [] }) => {
         </div>
       </div>
 
-      <h2 className={styles.formTitle}>Выберите квартиру</h2>
-
-      <div className={styles.apartmentsContainer}>
-        {(apartments || []).map((a) => (
-          <ApartmentCard
-            key={a.id}
-            apartment={a}
-            isSelected={form.apartment_id === a.id}
-            onSelect={() => handleSelectApartment(a)}
-          />
-        ))}
-        <div
-          className={styles.apartmentCard}
-          onClick={() => navigate("/my/apartment/add")}
-        >
-          <div className={styles.addCardContent}>
-            <span className={styles.plusSign}>＋</span>
+      <h2 className={styles.formTitle}>Выбранная квартира</h2>
+      <div className={styles.apartmentDetails}>
+        {loadingPhotos ? (
+          <p>Загрузка фото...</p>
+        ) : photos.length > 0 ? (
+          <Carousel
+            showThumbs={false}
+            showStatus={false}
+            infiniteLoop
+            className={styles.carousel}
+          >
+            {photos.map((photo) => (
+              <div key={photo.id}>
+                <img
+                  src={photo.url}
+                  alt="Фото квартиры"
+                  className={styles.photo}
+                />
+              </div>
+            ))}
+          </Carousel>
+        ) : (
+          <div className={styles.noPhotoWrapper}>
+            <img
+              src="/images/no-photo.png"
+              alt="Нет фото"
+              className={styles.noPhoto}
+            />
           </div>
+        )}
+        <div className={styles.apartmentInfo}>
+          <p>
+            Адрес: {apartment.city} {apartment.street}, {apartment.building}
+          </p>
+          <p>Год постройки: {apartment.construction_year}</p>
+          <p>Тип: {apartment.construction_type}</p>
+          <hr />
+          <p>Комнат: {apartment.rooms}</p>
+          <p>Площадь: {apartment.area} м²</p>
+          <p>Этаж: {apartment.floor}</p>
+          <p>Санузел: {apartment.bathroom_type}</p>
+          <p>Ремонт: {apartment.remont}</p>
         </div>
       </div>
 
-      <AnimatePresence>
-        {selectedApartment && (
-          <motion.div
-            key="apartment-details"
-            className={styles.apartmentDetails}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
-            transition={{ duration: 0.4 }}
-          >
-            {loadingPhotos ? (
-              <p>Загрузка фото...</p>
-            ) : photos.length > 0 ? (
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop
-                className={styles.carousel}
-              >
-                {photos.map((photo) => (
-                  <div key={photo.id}>
-                    <img
-                      src={photo.url}
-                      alt="Фото квартиры"
-                      className={styles.photo}
-                    />
-                  </div>
-                ))}
-              </Carousel>
-            ) : (
-              <div className={styles.noPhotoWrapper}>
-                <img
-                  src="/images/no-photo.png"
-                  alt="Нет фото"
-                  className={styles.noPhoto}
-                />
-              </div>
-            )}
-            <div className={styles.apartmentInfo}>
-              <p>
-                Адрес: {selectedApartment.city} {selectedApartment.street},{" "}
-                {selectedApartment.building}
-              </p>
-              <p>Год постройки: {selectedApartment.construction_year}</p>
-              <p>Тип: {selectedApartment.construction_type}</p>
-              <hr />
-              <p>Комнат: {selectedApartment.rooms}</p>
-              <p>Площадь: {selectedApartment.area} м²</p>
-              <p>Этаж: {selectedApartment.floor}</p>
-              <p>Санузел: {selectedApartment.bathroom_type}</p>
-              <p>Ремонт: {selectedApartment.remont}</p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
       <h2 className={styles.formTitle}>Удобства и разрешения</h2>
       <div className={styles.featuresGrid}>
         {Object.entries(featureIcons).map(([key, { label, src }]) => (
@@ -250,10 +219,10 @@ const AddAdvertForm = ({ apartments = [] }) => {
       </div>
 
       <button type="submit" className={styles.submitButton}>
-        Добавить
+        Сохранить
       </button>
     </motion.form>
   );
 };
 
-export default AddAdvertForm;
+export default EditAdvertForm;

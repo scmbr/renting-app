@@ -51,20 +51,27 @@ const MyAdvertsPage = () => {
 
   if (loading) return <p className={styles.loading}>Загрузка объявлений...</p>;
   if (error) return <p className={styles.error}>{error}</p>;
-  if (adverts.length === 0)
-    return <p className={styles.empty}>У вас пока нет объявлений.</p>;
 
   return (
     <>
       <SubNavbar />
       <NavPanel />
       <div className={styles.container}>
-        <h1 className={styles.title}>Мои объявления</h1>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Мои объявления</h1>
+          <button
+            className={styles.addButton}
+            onClick={() => navigate("/my/advert/add")}
+            aria-label="Добавить объявление"
+          >
+            <img src={"/icons/add.svg"} alt="Добавить" />
+          </button>
+        </div>
         {adverts.map((ad) => (
           <MyAdvertCard
             key={ad.id}
             advert={ad}
-            onEdit={(id) => console.log("Редактировать", id)}
+            onEdit={(id) => navigate(`/my/advert/edit/${id}`)}
             onDelete={(id) => setSelectedAdvertId(id)}
             isDeleting={isDeleting && selectedAdvertId === ad.id}
           />
