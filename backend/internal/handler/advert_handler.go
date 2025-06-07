@@ -167,6 +167,8 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 		Offset:             parseIntOrDefault(c.Query("offset"), 0),
 		SortBy:             c.DefaultQuery("sort_by", "created_at"),
 		Order:              c.DefaultQuery("order", "desc"),
+		Lat:                parseFloat32OrZero(c.Query("lat")),
+		Lng:                parseFloat32OrZero(c.Query("lng")),
 	}
 
 	filter.Elevator = parseBoolPointer(c.Query("elevator"))

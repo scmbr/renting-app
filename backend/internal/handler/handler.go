@@ -16,14 +16,21 @@ type Handler struct {
 	tokenManager    auth.TokenManager
 	accessTokenTTL  time.Duration
 	refreshTokenTTL time.Duration
+	wsHandler       *WebSocketHandler
 }
 
-func NewHandler(services *service.Services, tokenManager auth.TokenManager, accessTTL, refreshTTL time.Duration) *Handler {
+func NewHandler(
+	services *service.Services,
+	tokenManager auth.TokenManager,
+	accessTTL, refreshTTL time.Duration,
+	wsHandler *WebSocketHandler,
+) *Handler {
 	return &Handler{
 		services:        services,
 		tokenManager:    tokenManager,
 		refreshTokenTTL: refreshTTL,
 		accessTokenTTL:  accessTTL,
+		wsHandler:       wsHandler,
 	}
 }
 
@@ -69,7 +76,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	{
 		authAuthorized.POST("/logout", h.logOut)
 	}
-
+	router.GET("/notifications/ws", h.wsHandler.HandleWebSocket)
 	authenticated := router.Group("/", h.userIdentity)
 	{
 		authenticated.GET("/me", h.getCurrentUser)
@@ -105,6 +112,8 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			favorites.DELETE("/:advertId", h.removeFavorite)
 			favorites.GET("/:advertId/check", h.isFavorite)
 		}
+
+		authenticated.GET("/notifications", h.getUserNotifications)
 
 	}
 	admin := router.Group("/admin", h.adminMiddleware)

@@ -64,18 +64,21 @@ func Run(configPath string) {
 		return
 	}
 	repos := repository.NewRepository(db)
+	hub := server.NewWebSocketHub()
+	wsHandler := handler.NewWebSocketHandler(hub, tokenManager)
 	services := service.NewServices(service.Deps{
-		Repos:           repos,
-		Hasher:          hasher,
-		StorageProvider: storageProvider,
-		AccessTokenTTL:  cfg.Auth.JWT.AccessTokenTTL,
-		RefreshTokenTTL: cfg.Auth.JWT.RefreshTokenTTL,
-		TokenManager:    tokenManager,
-		EmailSender:     emailSender,
-		EmailConfig:     cfg.Email,
-		HTTPConfig:      cfg.HTTP,
+		Repos:              repos,
+		Hasher:             hasher,
+		StorageProvider:    storageProvider,
+		AccessTokenTTL:     cfg.Auth.JWT.AccessTokenTTL,
+		RefreshTokenTTL:    cfg.Auth.JWT.RefreshTokenTTL,
+		TokenManager:       tokenManager,
+		EmailSender:        emailSender,
+		EmailConfig:        cfg.Email,
+		HTTPConfig:         cfg.HTTP,
+		NotificationSender: hub,
 	})
-	handlers := handler.NewHandler(services, tokenManager, cfg.Auth.JWT.AccessTokenTTL, cfg.Auth.JWT.RefreshTokenTTL)
+	handlers := handler.NewHandler(services, tokenManager, cfg.Auth.JWT.AccessTokenTTL, cfg.Auth.JWT.RefreshTokenTTL, wsHandler)
 
 	srv := new(server.Server)
 	if err := srv.Run(cfg.HTTP.Port, handlers.InitRoutes()); err != nil {

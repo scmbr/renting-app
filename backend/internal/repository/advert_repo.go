@@ -3,6 +3,7 @@ package repository
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/scmbr/renting-app/internal/dto"
@@ -68,7 +69,12 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 	if filter.RentalType != "" {
 		tx = tx.Where("adverts.rental_type = ?", filter.RentalType)
 	}
-
+	if filter.Lat != 0 {
+		tx = tx.Where("apartments.latitude BETWEEN ? AND ?", filter.Lat-0.01, filter.Lat+0.01)
+	}
+	if filter.Lng != 0 {
+		tx = tx.Where("apartments.longitude BETWEEN ? AND ?", filter.Lng-0.01, filter.Lng+0.01)
+	}
 	boolMap := map[string]*bool{
 		"apartments.elevator":     filter.Elevator,
 		"apartments.concierge":    filter.Concierge,
@@ -225,6 +231,7 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 			tx.Rollback()
 		}
 	}()
+
 	var advert models.Advert
 	result := tx.First(&advert, "id = ? AND user_id = ?", id, userId)
 	if result.Error != nil {
@@ -233,14 +240,22 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 	}
 	if result.RowsAffected == 0 {
 		tx.Rollback()
-		return errors.New("user not found")
+		return errors.New("advert not found or not owned by user")
 	}
+
+	
+	if err := tx.Where("advert_id = ?", id).Delete(&models.Favorites{}).Error; err != nil {
+		tx.Rollback()
+		return fmt.Errorf("ошибка при удалении из избранного: %w", err)
+	}
+
+
 	if err := tx.Delete(&advert).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
-	return nil
+
+	return tx.Commit().Error
 }
 func (r *AdvertRepo) UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error {
 	tx := r.db.WithContext(ctx).Begin()

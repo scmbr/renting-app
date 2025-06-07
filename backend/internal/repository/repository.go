@@ -75,6 +75,11 @@ type Favorites interface {
 	RemoveFromFavorites(ctx context.Context, userId int, listingId int) error
 	IsFavorite(ctx context.Context, userId int, listingId int) (bool, error)
 }
+type Notification interface {
+    Save(notification dto.NotificationDTO) error
+    GetByUserID(userID uint) ([]*dto.NotificationResponseDTO, error)
+    MarkAsRead(notificationID uint) error
+}
 type Repository struct {
 	Users
 	Session
@@ -82,6 +87,7 @@ type Repository struct {
 	Advert
 	ApartmentPhoto
 	Favorites
+	Notification
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -92,5 +98,6 @@ func NewRepository(db *gorm.DB) *Repository {
 		Advert:         NewAdvertRepo(db),
 		ApartmentPhoto: NewApartmentPhotoRepo(db),
 		Favorites:      NewFavoritesRepo(db),
+		Notification: NewNotificationRepo(db),
 	}
 }

@@ -145,11 +145,13 @@ func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input d
 
 func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int) error {
 	tx := r.db.WithContext(ctx).Begin()
+
 	defer func() {
 		if r := recover(); r != nil {
 			tx.Rollback()
 		}
 	}()
+
 	var apartment models.Apartment
 	result := tx.First(&apartment, "id = ? AND user_id = ?", id, userId)
 	if result.Error != nil {
@@ -158,15 +160,30 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 	}
 	if result.RowsAffected == 0 {
 		tx.Rollback()
-		return errors.New("user not found")
+		return errors.New("apartment not found or not owned by user")
 	}
+
+	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.ApartmentPhoto{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+	
+	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.Advert{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+
 	if err := tx.Delete(&apartment).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-	tx.Commit()
-	return nil
+
+	return tx.Commit().Error
 }
+
+
 func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {

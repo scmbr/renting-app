@@ -83,6 +83,11 @@ type Favorites interface {
 	RemoveFromFavorites(ctx context.Context, userId int, advertId int) error
 	IsFavorite(ctx context.Context, userId int, advertId int) (bool, error)
 }
+type Notification interface {
+	CreateAndSend(notification dto.NotificationDTO) error
+	GetUserNotifications(userID uint) ([]*dto.NotificationResponseDTO, error)
+	MarkAsRead(notificationID uint) error
+}
 type Services struct {
 	User
 	Session
@@ -90,18 +95,20 @@ type Services struct {
 	Advert
 	ApartmentPhoto
 	Favorites
+	Notification
 }
 
 type Deps struct {
-	Repos           *repository.Repository
-	Hasher          hash.PasswordHasher
-	StorageProvider storage.Provider
-	AccessTokenTTL  time.Duration
-	RefreshTokenTTL time.Duration
-	TokenManager    auth.TokenManager
-	EmailSender     email.Sender
-	EmailConfig     config.EmailConfig
-	HTTPConfig      config.HTTPConfig
+	Repos              *repository.Repository
+	Hasher             hash.PasswordHasher
+	StorageProvider    storage.Provider
+	AccessTokenTTL     time.Duration
+	RefreshTokenTTL    time.Duration
+	TokenManager       auth.TokenManager
+	EmailSender        email.Sender
+	EmailConfig        config.EmailConfig
+	HTTPConfig         config.HTTPConfig
+	NotificationSender NotificationSender
 }
 type VerificationEmailInput struct {
 	Email            string
@@ -131,7 +138,9 @@ func NewServices(deps Deps) *Services {
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
 	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
 	advertService := NewAdvertService(deps.Repos.Advert)
-	favoritesService := NewFavoritesService(deps.Repos.Favorites)
+
+	notificationService := NewNotificationService(deps.Repos.Notification, deps.NotificationSender)
+	favoritesService := NewFavoritesService(deps.Repos.Favorites, deps.Repos.Users, deps.Repos.Advert, notificationService)
 	return &Services{
 		User:           userService,
 		Session:        sessionService,
@@ -139,5 +148,6 @@ func NewServices(deps Deps) *Services {
 		Advert:         advertService,
 		ApartmentPhoto: apartmentPhotoService,
 		Favorites:      favoritesService,
+		Notification:   notificationService,
 	}
 }

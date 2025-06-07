@@ -98,6 +98,8 @@ type AdvertFilter struct {
 	Offset int
 	SortBy string
 	Order  string
+	Lat    float32
+	Lng    float32
 }
 
 func FromAdvert(advert models.Advert) *GetAdvertResponse {

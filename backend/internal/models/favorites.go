@@ -9,6 +9,6 @@ type Favorites struct {
     UserID    uint      `gorm:"not null"`          
     AdvertID uint      `gorm:"not null"`         
     CreatedAt time.Time `gorm:"autoCreateTime"`   
-    User    User    `gorm:"foreignKey:UserID"`
-    Advert Advert `gorm:"foreignKey:AdvertID"`
+    User   User   `gorm:"foreignKey:UserID;constraint:OnDelete:CASCADE"`
+    Advert Advert `gorm:"foreignKey:AdvertID;constraint:OnDelete:CASCADE"`
 }
