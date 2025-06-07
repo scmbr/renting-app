@@ -7,7 +7,10 @@ const MyAdvertCard = ({ advert, onEdit, onDelete }) => {
   const [coverUrl, setCoverUrl] = useState(null);
   const { id, title, rent, deposit, rental_type, apartment } = advert;
   const navigate = useNavigate();
-
+  const rentalTypeMap = {
+    daily: "Посуточно",
+    monthly: "Помесячно",
+  };
   useEffect(() => {
     const fetchPhotos = async () => {
       try {
@@ -73,7 +76,8 @@ const MyAdvertCard = ({ advert, onEdit, onDelete }) => {
           Этаж: {apartment.floor} | Комнат: {apartment.rooms}
         </p>
         <p>
-          Тип аренды: <strong>{rental_type}</strong>
+          Тип аренды:{" "}
+          <strong>{rentalTypeMap[rental_type] || rental_type}</strong>
         </p>
         <p>
           Депозит: <strong>{deposit.toLocaleString()} ₽</strong>

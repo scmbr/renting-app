@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import AddAdvertForm from "@/features/add-form/ui/AddAdvertForm";
 import api from "@/shared/api/axios";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
+import styles from "./AddAdvertPage.module.css";
+import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 const AddAdvertPage = () => {
   const [apartments, setApartments] = useState([]);
   const navigate = useNavigate();
@@ -36,8 +38,11 @@ const AddAdvertPage = () => {
   return (
     <div>
       <SubNavbar />
-
-      <AddAdvertForm apartments={apartments} />
+      <NavPanel />
+      <div className={styles.container}>
+        <h1 className={styles.title}>Добавить объявление</h1>
+        <AddAdvertForm apartments={apartments} />
+      </div>
     </div>
   );
 };

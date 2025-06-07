@@ -62,7 +62,7 @@ const Navbar = () => {
         <div className={styles.spacer}></div>
         <div className={styles.navbarItems}>
           <NavLink
-            to="/advert/add"
+            to="/my/advert/add"
             className={({ isActive }) =>
               isActive ? `${styles.iconLink} ${styles.active}` : styles.iconLink
             }

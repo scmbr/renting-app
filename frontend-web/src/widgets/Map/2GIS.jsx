@@ -3,6 +3,8 @@ import React, { useEffect, useRef, useState } from "react";
 import { useCityStore } from "@/stores/useCityStore";
 import { getCoordsByCity } from "@/shared/constants/cities";
 import { Clusterer } from "@2gis/mapgl-clusterer";
+import { useFiltersStore } from "@/stores/useFiltersStore";
+import { useNavigate } from "react-router-dom";
 
 export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
   const containerRef = useRef(null);
@@ -11,7 +13,9 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
   const clustererRef = useRef(null);
   const city = useCityStore((state) => state.city);
   const [isMapReady, setIsMapReady] = useState(false);
-  console.log("Объявления ", adverts);
+  const updateFilter = useFiltersStore((state) => state.updateFilter);
+  const navigate = useNavigate();
+
   useEffect(() => {
     if (clustererRef.current) {
       clustererRef.current.destroy();
@@ -44,11 +48,15 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
 
       setTimeout(() => {
         map.resize();
-      }, 0);
+      }, 200);
 
       map.on("click", (event) => {
         const coords = event.lngLat;
         onSelect?.(coords);
+
+        updateFilter("lat", undefined);
+        updateFilter("lng", undefined);
+        console.log("Клик вне маркера — координаты очищены");
       });
 
       setIsMapReady(true);
@@ -69,7 +77,6 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
   useEffect(() => {
     if (!isMapReady || !mapRef.current || !mapglAPIRef.current) return;
 
-    // Очищаем предыдущий кластер
     if (clustererRef.current) {
       clustererRef.current.destroy();
       clustererRef.current = null;
@@ -117,15 +124,46 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
       .filter(Boolean);
 
     console.log("Загружаю маркеры:", markers.length);
-    setTimeout(() => {
-      clusterer.load(markers);
-    }, 500);
+
+    clusterer.load(markers);
 
     clusterer.on("click", (event) => {
       if (event.target.type === "cluster") {
-        console.log("Кластер кликнут", event.target.data);
+        const clusterData = event.target.data;
+        console.log("Кластер кликнут", clusterData);
+
+        const apartments = clusterData
+          .map((item) => item.data.apartment)
+          .filter(Boolean);
+
+        if (apartments.length === 0) return;
+
+        const refLat = apartments[0].latitude;
+        const refLng = apartments[0].longitude;
+
+        const allClose = apartments.every((apt) => {
+          return (
+            Math.abs(apt.latitude - refLat) <= 0.0001 &&
+            Math.abs(apt.longitude - refLng) <= 0.0001
+          );
+        });
+
+        if (allClose) {
+          updateFilter("lat", refLat);
+          updateFilter("lng", refLng);
+          console.log("Установлены координаты из кластера", refLat, refLng);
+        } else {
+          console.log(
+            "Квартиры в кластере слишком разбросаны, фильтр не обновлен"
+          );
+        }
       } else if (event.target.type === "marker") {
-        console.log("Маркер кликнут", event.target.data);
+        console.log("Маркер кликнут", event.target.data.data);
+        console.log("Маркер кликнут", event.target.data.data.id);
+        const advertId = event.target.data?.data.id;
+        if (advertId) {
+          navigate(`/advert/${advertId}`);
+        }
       }
     });
   }, [adverts, isMapReady, city]);

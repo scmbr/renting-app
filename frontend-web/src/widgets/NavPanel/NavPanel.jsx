@@ -22,6 +22,14 @@ const NavPanel = () => {
           Мои квартиры
         </NavLink>
         <NavLink
+          to="/notifications"
+          className={({ isActive }) =>
+            isActive ? `${styles.link} ${styles.active}` : styles.link
+          }
+        >
+          Уведомления
+        </NavLink>
+        <NavLink
           to="/favorites"
           className={({ isActive }) =>
             isActive ? `${styles.link} ${styles.active}` : styles.link

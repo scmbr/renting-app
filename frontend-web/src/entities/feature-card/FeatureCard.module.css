@@ -1,0 +1,41 @@
+.card {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 170px;
+  height: 70px;
+  border-radius: 1rem;
+  border: 2px solid #ccc;
+  cursor: pointer;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+}
+
+.card:hover {
+  border-color: #8b51ff;
+}
+
+.active {
+  border-color: #8b51ff;
+  background-color: #f4eefd;
+}
+
+.icon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.label {
+  font-size: 0.85rem;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+}

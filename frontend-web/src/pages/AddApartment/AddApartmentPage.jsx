@@ -4,8 +4,8 @@ import api from "@/shared/api/axios";
 import styles from "./AddApartmentPage.module.css";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import { MapGLForm } from "@/widgets/Map/MapGLForm";
-import AddressSuggester from "@/features/add-apartment/AddressSuggester.jsx";
-
+import AddressSuggester from "@/features/add-apartment/addressSuggester.jsx";
+import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 const AddApartmentPage = () => {
   const navigate = useNavigate();
 
@@ -150,7 +150,7 @@ const AddApartmentPage = () => {
         });
       }
 
-      navigate("/advert/add");
+      navigate("/my/advert/add");
     } catch (err) {
       console.error(err);
       setError("Ошибка при создании квартиры или загрузке фото");
@@ -160,6 +160,7 @@ const AddApartmentPage = () => {
   return (
     <>
       <SubNavbar />
+      <NavPanel />
       <div className={styles.wrapper}>
         <h2 className={styles.title}>Добавление квартиры</h2>
         {error && <p className={styles.error}>{error}</p>}
