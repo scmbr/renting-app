@@ -17,7 +17,7 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
     const fetchPhotos = async () => {
       try {
         const response = await api.get(`/apartment/${apartment.id}/photos`);
-        const cover = response.data.find((photo) => photo.is_cover);
+        const cover = response.data[0];
         if (cover) setCoverUrl(cover.url);
       } catch (err) {
         console.error("Ошибка при загрузке фото:", err);
@@ -26,7 +26,7 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
 
     const checkFavorite = async () => {
       const token = localStorage.getItem("accessToken");
-      if (!token) return; // Не авторизован — не проверяем избранное
+      if (!token) return;
 
       try {
         const response = await api.get(`/favorites/${id}/check`);

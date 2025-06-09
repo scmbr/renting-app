@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import api from "@/shared/api/axios";
-import styles from "./AddApartmentPage.module.css";
+import styles from "./EditApartmentPage.module.css";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import { MapGLForm } from "@/widgets/Map/MapGLForm";
 import AddressSuggester from "@/features/add-apartment/addressSuggester.jsx";
 import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 import PhotoUploader from "@/features/upload-photo/PhotoUploader";
-const AddApartmentPage = () => {
+
+const EditApartmentPage = () => {
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
@@ -25,48 +27,56 @@ const AddApartmentPage = () => {
     concierge: false,
     construction_year: "",
     construction_type: "",
-    remont: "",
+    remont_type: "",
   });
 
-  const [photos, setPhotos] = useState([]);
   const [previewUrls, setPreviewUrls] = useState([]);
+  const [photos, setPhotos] = useState([]);
+  const [photosToDelete, setPhotosToDelete] = useState([]);
   const [error, setError] = useState(null);
-  const [cityLocation, setCityLocation] = useState(null);
-
   const [mapCenter, setMapCenter] = useState([37.620393, 55.75396]);
   const [mapMarker, setMapMarker] = useState([37.620393, 55.75396]);
 
   useEffect(() => {
-    const city = localStorage.getItem("city") || "Москва";
-
-    const fetchCoords = async () => {
+    const fetchApartment = async () => {
       try {
-        const API_KEY = import.meta.env.VITE_2GIS_MAP_API_KEY;
-        const res = await fetch(
-          `https://catalog.api.2gis.com/3.0/items/geocode?q=${encodeURIComponent(
-            city
-          )}&fields=items.point&key=${API_KEY}`
+        const res = await api.get(`/my/apartment/${id}`);
+        const apt = res.data;
+
+        setForm({
+          city: apt.city || "",
+          street: apt.street || "",
+          building: apt.building || "",
+          floor: apt.floor || "",
+          longitude: apt.longitude,
+          latitude: apt.latitude,
+          rooms: apt.rooms,
+          area: apt.area,
+          elevator: apt.elevator,
+          garbage_chute: apt.garbage_chute,
+          bathroom_type: apt.bathroom_type,
+          concierge: apt.concierge,
+          construction_year: apt.construction_year,
+          construction_type: apt.construction_type,
+          remont_type: apt.remont_type,
+        });
+
+        setMapCenter([apt.longitude, apt.latitude]);
+        setMapMarker([apt.longitude, apt.latitude]);
+
+        const photoRes = await api.get(`/apartment/${id}/photos`);
+
+        setPreviewUrls(
+          photoRes.data.map((photo) => ({ id: photo.id, url: photo.url }))
         );
-        const data = await res.json();
-        const point = data.result?.items?.[0]?.point;
-        if (point) {
-          setCityLocation(`${point.lon},${point.lat}`);
-          setMapCenter([point.lon, point.lat]);
-          setMapMarker([point.lon, point.lat]);
-          setForm((prev) => ({
-            ...prev,
-            city,
-            longitude: point.lon,
-            latitude: point.lat,
-          }));
-        }
-      } catch (e) {
-        console.error("Ошибка геокодирования города", e);
+      } catch (err) {
+        console.error(err);
+        setError("Не удалось загрузить данные квартиры");
       }
     };
 
-    fetchCoords();
-  }, []);
+    fetchApartment();
+  }, [id]);
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -74,12 +84,6 @@ const AddApartmentPage = () => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
-  };
-
-  const handlePhotoChange = (e) => {
-    const files = Array.from(e.target.files);
-    setPhotos(files);
-    setPreviewUrls(files.map((file) => URL.createObjectURL(file)));
   };
 
   const handleAddressChange = ({
@@ -96,7 +100,6 @@ const AddApartmentPage = () => {
       latitude,
       longitude,
     }));
-
     setMapCenter([longitude, latitude]);
     setMapMarker([longitude, latitude]);
   };
@@ -106,55 +109,39 @@ const AddApartmentPage = () => {
     setError(null);
 
     const payload = {
-      city: form.city || localStorage.getItem("city") || "Москва",
-      street: form.street.trim(),
-      building: form.building.trim(),
+      ...form,
       floor: Number(form.floor),
       longitude: Number(form.longitude),
       latitude: Number(form.latitude),
       rooms: Number(form.rooms),
       area: form.area ? Number(form.area) : 0,
-      elevator: form.elevator,
-      garbage_chute: form.garbage_chute,
-      bathroom_type: form.bathroom_type.trim(),
-      concierge: form.concierge,
       construction_year: Number(form.construction_year),
-      construction_type: form.construction_type.trim(),
-      remont: form.remont.trim(),
     };
 
-    if (
-      !payload.city ||
-      !payload.street ||
-      !payload.floor ||
-      !payload.longitude ||
-      !payload.latitude ||
-      !payload.rooms ||
-      !payload.construction_year
-    ) {
-      setError("Заполните все обязательные поля");
-      return;
-    }
-
     try {
-      const res = await api.post("my/apartment", payload);
-      const apartmentId = res.data.id;
-      console.log("Создана квартира, ответ сервера:", res.data);
+      await api.patch(`/my/apartment/${id}`, payload);
+
+      await Promise.all(
+        photosToDelete.map((photoId) =>
+          api.delete(`/my/apartment/${id}/photos/${photoId}`)
+        )
+      );
+
       if (photos.length > 0) {
         const photoForm = new FormData();
         photos.forEach((file) => photoForm.append("photos", file));
 
-        await api.post(`/my/apartment/${apartmentId}/photos/batch`, photoForm, {
+        await api.post(`/my/apartment/${id}/photos`, photoForm, {
           headers: {
             "Content-Type": "multipart/form-data",
           },
         });
       }
 
-      navigate("/my/advert/add");
+      navigate("/my/apartment");
     } catch (err) {
       console.error(err);
-      setError("Ошибка при создании квартиры или загрузке фото");
+      setError("Ошибка при обновлении квартиры");
     }
   };
 
@@ -163,21 +150,18 @@ const AddApartmentPage = () => {
       <SubNavbar />
       <NavPanel />
       <div className={styles.wrapper}>
-        <h2 className={styles.title}>Добавление квартиры</h2>
+        <h2 className={styles.title}>Редактирование квартиры</h2>
         {error && <p className={styles.error}>{error}</p>}
 
         <form onSubmit={handleSubmit} className={styles.form}>
           <div className={styles.section}>
             <h3>Адрес</h3>
-            {cityLocation ? (
-              <AddressSuggester
-                className={styles.addressSuggester}
-                location={cityLocation}
-                onSelect={handleAddressChange}
-              />
-            ) : (
-              <p>Загрузка адресного ввода...</p>
-            )}
+            <AddressSuggester
+              className={styles.addressSuggester}
+              location={`${form.longitude},${form.latitude}`}
+              onSelect={handleAddressChange}
+              value={`${form.street}, ${form.building}`}
+            />
 
             <div className={styles.mapContainer}>
               <MapGLForm
@@ -428,10 +412,11 @@ const AddApartmentPage = () => {
             setPreviewUrls={setPreviewUrls}
             photos={photos}
             setPhotos={setPhotos}
+            setPhotosToDelete={setPhotosToDelete}
           />
 
           <button type="submit" className={styles.button}>
-            Добавить квартиру
+            Сохранить изменения
           </button>
         </form>
       </div>
@@ -439,4 +424,4 @@ const AddApartmentPage = () => {
   );
 };
 
-export default AddApartmentPage;
+export default EditApartmentPage;

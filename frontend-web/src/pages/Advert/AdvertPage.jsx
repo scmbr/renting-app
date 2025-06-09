@@ -60,7 +60,16 @@ const AdvertPage = () => {
     dishwasher,
     concierge,
   } = advert;
-
+  const formatRentalType = (type) => {
+    switch (type) {
+      case "monthly":
+        return "Помесячно";
+      case "daily":
+        return "Посуточно";
+      default:
+        return type;
+    }
+  };
   return (
     <>
       <SubNavbar />
@@ -85,47 +94,39 @@ const AdvertPage = () => {
             </div>
           )}
           <div className={styles.info}>
-            <h1 className={styles.title}>{title}</h1>
+            <h2 className={styles.title}>{advert.title}</h2>
+
             <section className={styles.address}>
               <p>
-                <strong>Адрес:</strong> {apartment.city}, {apartment.district},{" "}
-                {apartment.street} {apartment.house}{" "}
-                {apartment.building && `корпус ${apartment.building}`}, кв.{" "}
+                Адрес: {apartment.city}, {apartment.district},{" "}
+                {apartment.street} {apartment.house}
+                {apartment.building && ` корпус ${apartment.building}`}, кв.{" "}
                 {apartment.apartment_number}
               </p>
               <p>
-                <strong>Этаж:</strong> {apartment.floor} |{" "}
-                <strong>Комнат:</strong> {apartment.rooms}
+                Этаж: {apartment.floor} | Комнат: {apartment.rooms}
               </p>
               <p>
-                <strong>Тип дома:</strong> {apartment.construction_type} (
+                Тип дома: {apartment.construction_type} (
                 {apartment.construction_year} г.)
               </p>
-              <p>
-                <strong>Ремонт:</strong> {apartment.remont}
-              </p>
+              <p>Ремонт: {apartment.remont}</p>
             </section>
 
             <section className={styles.details}>
               <p>
-                <strong>Аренда:</strong>{" "}
+                Аренда:{" "}
                 <span className={styles.price}>
                   {rent.toLocaleString()} ₽/мес
                 </span>
               </p>
-              <p>
-                <strong>Залог:</strong> {deposit.toLocaleString()} ₽
-              </p>
-              <p>
-                <strong>Тип аренды:</strong> {rental_type}
-              </p>
-              <p>
-                <strong>Статус:</strong> {advert.status}
-              </p>
+              <p>Залог: {deposit.toLocaleString()} ₽</p>
+              <p>Тип аренды: {formatRentalType(rental_type)}</p>
+              <p>Статус: {advert.status}</p>
             </section>
 
             <section className={styles.features}>
-              <h2>Удобства</h2>
+              <h2 className={styles.title}>Удобства</h2>
               <ul>
                 <li>Питомцы: {pets ? "разрешены" : "запрещены"}</li>
                 <li>Дети: {babies ? "разрешены" : "запрещены"}</li>

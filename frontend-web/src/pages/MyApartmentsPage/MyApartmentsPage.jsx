@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom"; // ✅ добавлено
+import { useNavigate } from "react-router-dom";
 import styles from "./MyApartmentsPage.module.css";
 import api from "@/shared/api/axios";
 import MyApartmentCard from "@/entities/my-apartment/MyApartmentCard";
@@ -14,7 +14,7 @@ const MyApartmentPage = () => {
   const [selectedApartmentId, setSelectedApartmentId] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
-  const navigate = useNavigate(); // ✅ добавлено
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchApartments = async () => {
@@ -72,7 +72,7 @@ const MyApartmentPage = () => {
             <MyApartmentCard
               key={apt.id}
               apartment={apt}
-              onEdit={(id) => console.log("Редактировать квартиру:", id)}
+              onEdit={(id) => navigate(`/my/apartment/edit/${id}`)}
               onDelete={(id) => setSelectedApartmentId(id)}
               isDeleting={isDeleting && selectedApartmentId === apt.id}
             />

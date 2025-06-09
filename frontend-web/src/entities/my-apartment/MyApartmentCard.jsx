@@ -9,7 +9,7 @@ const MyApartmentCard = ({ apartment, onEdit, onDelete }) => {
     const fetchPhotos = async () => {
       try {
         const response = await api.get(`/apartment/${apartment.id}/photos`);
-        const cover = response.data.find((photo) => photo.is_cover);
+        const cover = response.data[0];
         if (cover) {
           setCoverUrl(cover.url);
         }

@@ -25,7 +25,7 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
 
   useEffect(() => {
     let destroyed = false;
-
+    let timer;
     const initMap = async () => {
       const mapglAPI = await load();
       mapglAPIRef.current = mapglAPI;
@@ -46,10 +46,6 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
 
       mapRef.current = map;
 
-      setTimeout(() => {
-        map.resize();
-      }, 200);
-
       map.on("click", (event) => {
         const coords = event.lngLat;
         onSelect?.(coords);
@@ -62,8 +58,9 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
       setIsMapReady(true);
     };
 
-    initMap();
-
+    timer = setTimeout(() => {
+      initMap();
+    }, 500);
     return () => {
       destroyed = true;
       clustererRef.current?.destroy();
@@ -176,8 +173,7 @@ export const MapGL = ({ markerPosition, onSelect, adverts = [] }) => {
         mapRef.current.setCenter(coords);
       }
     });
-  }, [city]);
-
+  }, [adverts, isMapReady]);
   return (
     <div
       ref={containerRef}

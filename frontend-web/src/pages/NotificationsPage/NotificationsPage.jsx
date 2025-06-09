@@ -8,6 +8,7 @@ import {
 import { NotificationList } from "@/features/notifications/ui/NotificationList";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
+import styles from "./NotificationsPage.module.css";
 const NotificationsPage = () => {
   const addNotification = useNotificationStore(
     (state) => state.addNotification
@@ -42,7 +43,10 @@ const NotificationsPage = () => {
     <>
       <SubNavbar />
       <NavPanel />
-      <div className="p-4">
+      <div className={styles.container}>
+        <div className={styles.header}>
+          <h1 className={styles.title}>Уведомления</h1>
+        </div>
         <NotificationList />
       </div>
     </>

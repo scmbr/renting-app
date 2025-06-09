@@ -7,11 +7,15 @@ const AddressSuggester = ({
   onSelect,
   placeholder = "Введите адрес",
   location,
+  value = "",
 }) => {
   const [query, setQuery] = useState("");
   const [suggestions, setSuggestions] = useState([]);
   const wrapperRef = useRef(null);
 
+  useEffect(() => {
+    setQuery(value || "");
+  }, [value]);
   useEffect(() => {
     if (!location) setSuggestions([]);
   }, [location]);

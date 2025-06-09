@@ -87,7 +87,7 @@ const EditAdvertForm = ({ apartment, advertId, initialData }) => {
     };
 
     try {
-      await api.patch(`/my/advert/${advertId}`, normalizedForm);
+      await api.put(`/my/advert/${advertId}`, normalizedForm);
       navigate("/my/advert");
     } catch (err) {
       console.error("Ошибка при обновлении объявления", err);
