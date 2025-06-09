@@ -4,7 +4,7 @@ import api from "@/shared/api/axios";
 import styles from "./AddApartmentPage.module.css";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import { MapGLForm } from "@/widgets/Map/MapGLForm";
-import AddressSuggester from "@/features/add-apartment/addressSuggester.jsx";
+import AddressSuggester from "@/features/add-apartment/AddressSuggester.jsx";
 import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 import PhotoUploader from "@/features/upload-photo/PhotoUploader";
 const AddApartmentPage = () => {
