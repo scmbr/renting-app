@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import styles from "./FilterPanel.module.css";
-import { useFiltersStore } from "@/stores/usefiltersStore";
+import { useFiltersStore } from "@/stores/useFiltersStore";
 import { FaChevronDown, FaChevronUp } from "react-icons/fa";
 
 const FilterPanel = () => {
