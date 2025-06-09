@@ -137,3 +137,33 @@ func (r *ApartmentPhotoRepo) HasCoverPhoto(apartmentId int) (bool, error) {
 	}
 	return count > 0, nil
 }
+
+func (r *ApartmentPhotoRepo) ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error {
+	tx := r.db.WithContext(ctx).Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+
+	if err := tx.Where("apartment_id = ?", apartmentId).Delete(&models.ApartmentPhoto{}).Error; err != nil {
+		tx.Rollback()
+		return err
+	}
+
+
+	for _, input := range inputs {
+		photo := models.ApartmentPhoto{
+			ApartmentID: uint(apartmentId),
+			URL:         input.URL,
+			IsCover:     input.IsCover,
+		}
+		if err := tx.Create(&photo).Error; err != nil {
+			tx.Rollback()
+			return err
+		}
+	}
+
+	return tx.Commit().Error
+}

@@ -30,6 +30,15 @@ type CreateUser struct {
 	Birthdate time.Time `json:"birthdate"`
 	City      string    `json:"city"`
 }
+
+type UpdateUser struct {
+	Name      *string    `json:"name"`
+	Surname   *string    `json:"surname"`
+	Email     *string    `json:"email"`
+	Birthdate *time.Time `json:"birthdate"`
+	City      *string    `json:"city"`
+	Phone     *string    `json:"phone"`
+}
 type UpdateUserAdmin struct {
 	Name      *string    `json:"name"`
 	Surname   *string    `json:"surname"`

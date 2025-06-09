@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/scmbr/renting-app/internal/dto"
 )
 
 func (h *Handler) UploadAvatarHandler(c *gin.Context) {
@@ -81,4 +82,24 @@ func (h *Handler) getUserById(c *gin.Context) {
 		return
 	}
 	c.JSON(http.StatusOK, user)
+}
+func (h *Handler) updateCurrentUser(c *gin.Context) {
+	userID, exists := c.Get("userId")
+	if !exists {
+		newErrorResponse(c, http.StatusUnauthorized, "user ID not found in context")
+		return
+	}
+
+	var input dto.UpdateUser
+	if err := c.ShouldBindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+
+	if err := h.services.User.UpdateMe(userID.(int), input); err != nil {
+		newErrorResponse(c, http.StatusInternalServerError, "failed to update user: "+err.Error())
+		return
+	}
+
+	c.JSON(http.StatusOK, response{Message: "user updated"})
 }

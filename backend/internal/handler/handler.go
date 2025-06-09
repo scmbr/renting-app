@@ -80,6 +80,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	authenticated := router.Group("/", h.userIdentity)
 	{
 		authenticated.GET("/me", h.getCurrentUser)
+		authenticated.PUT("/me", h.updateCurrentUser)
 		authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
 		userApartment := authenticated.Group("/my/apartment")
 		{
@@ -90,11 +91,11 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			userApartment.PATCH("/:id", h.updateApartment)
 			photo := userApartment.Group("/:id/photos")
 			{
-				//photo.GET("/", h.getAllPhotos)
 				photo.GET("/:photoId", h.getPhotoById)
 				photo.POST("/batch", h.addPhotos)
 				photo.DELETE("/:photoId", h.deletePhoto)
 				photo.PATCH("/:photoId/set-cover", h.setCover)
+				photo.PATCH("/replace", h.replacePhotos)
 			}
 		}
 		userAdvert := authenticated.Group("/my/advert")
@@ -103,7 +104,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			userAdvert.GET("", h.getAllUserAdverts)
 			userAdvert.POST("", h.createAdvert)
 			userAdvert.DELETE("/:id", h.deleteAdvert)
-			userAdvert.PATCH("/:id", h.updateAdvert)
+			userAdvert.PUT("/:id", h.updateAdvert)
 		}
 		favorites := authenticated.Group("/favorites")
 		{

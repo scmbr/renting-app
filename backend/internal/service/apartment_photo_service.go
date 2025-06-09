@@ -60,3 +60,6 @@ func (s *ApartmentPhotoService) SetCover(ctx context.Context, userId, apartmentI
 func (s *ApartmentPhotoService) HasCoverPhoto(apartmentId int) (bool, error) {
 	return s.repo.HasCoverPhoto(apartmentId)
 }
+func (s *ApartmentPhotoService) ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error {
+	return s.repo.ReplaceAllPhotos(ctx, userId, apartmentId, inputs)
+}

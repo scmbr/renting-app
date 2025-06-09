@@ -407,3 +407,63 @@ func (r *UsersRepo) UpdatePasswordAndClearResetToken(ctx context.Context, id int
 
 	return nil
 }
+func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error) {
+	tx := r.db.Begin()
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+		}
+	}()
+
+	var user models.User
+	result := tx.First(&user, "id = ?", userId)
+	if result.Error != nil {
+		tx.Rollback()
+		return nil, result.Error
+	}
+	if result.RowsAffected == 0 {
+		tx.Rollback()
+		return nil, errors.New("user not found")
+	}
+
+	if input.Name != nil {
+		user.Name = *input.Name
+	}
+	if input.Surname != nil {
+		user.Surname = *input.Surname
+	}
+	if input.Email != nil {
+		user.Email = *input.Email
+	}
+	if input.Birthdate != nil {
+		user.Birthdate = *input.Birthdate
+	}
+	if input.City != nil {
+		user.City = *input.City
+	}
+	if input.Phone != nil {
+		user.Phone = *input.Phone
+	}
+
+	if err := tx.Save(&user).Error; err != nil {
+		tx.Rollback()
+		return nil, err
+	}
+
+	tx.Commit()
+
+	getUserDTO := dto.GetUser{
+		Id:             int(user.ID),
+		Name:           user.Name,
+		Surname:        user.Surname,
+		Email:          user.Email,
+		Birthdate:      user.Birthdate,
+		City:           user.City,
+		Phone:          user.Phone,
+		ProfilePicture: user.ProfilePicture,
+		Role:           user.Role,
+		IsActive:       user.IsActive,
+	}
+
+	return &getUserDTO, nil
+}

@@ -33,6 +33,7 @@ type User interface {
 	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
 	LogOut(ctx context.Context, id int, ip, os, browser string) error
 	GenerateTokens(ctx context.Context, email string, ip string, os string, browser string) (Tokens, error)
+	UpdateMe(userID int, input dto.UpdateUser) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, role string, userID int, ip string, os string, browser string) (Tokens, error)
@@ -76,6 +77,7 @@ type ApartmentPhoto interface {
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
 	UploadPhotoToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
 	HasCoverPhoto(apartmentId int) (bool, error)
+	ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
 }
 type Favorites interface {
 	GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error)

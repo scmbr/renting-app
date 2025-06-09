@@ -28,6 +28,7 @@ type Users interface {
 	SavePasswordResetToken(ctx context.Context, id int, resetToken string) error
 	GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error)
 	UpdatePasswordAndClearResetToken(ctx context.Context, userID int, newPassword string) error
+	 UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error)
 }
 type Session interface {
 	CreateSession(ctx context.Context, session models.Session) error
@@ -68,6 +69,7 @@ type ApartmentPhoto interface {
 	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
 	HasCoverPhoto(apartmentId int) (bool, error)
+	ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
 }
 type Favorites interface {
 	GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error)

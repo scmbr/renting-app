@@ -72,3 +72,7 @@ func (s *UserService) UpdateAvatar(userId int, avatarURL string) error {
 
 	return s.repo.UpdateAvatar(userId, avatarURL)
 }
+func (s *UserService) UpdateMe(userID int, input dto.UpdateUser) error {
+	_, err := s.repo.UpdateMe(&input, userID)
+	return err
+}
