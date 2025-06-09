@@ -1,5 +1,5 @@
 http:
-  port: 8000
+  port: 8080
   maxHeaderBytes: 1
   readTimeout: 10s
   writeTimeout: 10s
@@ -7,7 +7,7 @@ http:
 postgres:
   username: "postgres"
   host: "localhost"
-  port: "5436"
+  port: "5432"
   dbname: "postgres"
   sslmode: "disable"
 fileStorage:
@@ -19,7 +19,7 @@ smtp:
   from: "renting-app@mail.ru"
 auth:
   accessTokenTTL: 3h
-  refreshTokenTTL: 720h 
+  refreshTokenTTL: 720h
   verificationCodeLength: 8
 email:
   templates:
