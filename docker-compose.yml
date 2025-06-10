@@ -10,9 +10,7 @@ services:
       - ./backend/.env
     volumes:
       - ./backend/.env:/app/.env
-    volumes:
       - ./backend/configs:/app/configs
-
   frontend:
     build:
       context: ./frontend-web
