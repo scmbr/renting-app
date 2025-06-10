@@ -1,6 +1,8 @@
 package smtp
 
 import (
+	"crypto/tls"
+
 	"github.com/go-gomail/gomail"
 	"github.com/pkg/errors"
 	"github.com/scmbr/renting-app/pkg/email"
@@ -32,6 +34,7 @@ func (s *SMTPSender) Send(input email.SendEmailInput) error {
 	msg.SetBody("text/html", input.Body)
 
 	dialer := gomail.NewDialer(s.host, s.port, s.from, s.pass)
+	dialer.TLSConfig = &tls.Config{InsecureSkipVerify: true}
 	if err := dialer.DialAndSend(msg); err != nil {
 		return errors.Wrap(err, "failed to sent email via smtp")
 	}
