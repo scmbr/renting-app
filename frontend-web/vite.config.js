@@ -6,7 +6,7 @@ export default defineConfig({
   plugins: [react(), svgr()],
   envDir: ".",
   build: {
-    outDir: "/dist",
+    outDir: "../dist",
   },
   resolve: {
     alias: {
