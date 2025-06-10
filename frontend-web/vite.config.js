@@ -7,7 +7,7 @@ export default defineConfig({
   envDir: ".",
   root: ".",
   build: {
-    outDir: "../dist",
+    outDir: "/dist",
   },
   resolve: {
     alias: {
