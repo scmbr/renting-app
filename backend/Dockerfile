@@ -15,10 +15,12 @@ FROM debian:bookworm-slim
 
 WORKDIR /app
 
+# Устанавливаем сертификаты для TLS
+RUN apt-get update && apt-get install -y ca-certificates && update-ca-certificates
 
 COPY --from=builder /app/main .
 COPY --from=builder /app/templates ./templates
-EXPOSE 8000
 
+EXPOSE 8000
 
 CMD ["./main"]
