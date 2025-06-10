@@ -7,6 +7,7 @@ import (
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/pkg/storage"
+	"github.com/sirupsen/logrus"
 )
 
 type ApartmentPhotoService struct {
@@ -33,8 +34,13 @@ func (s *ApartmentPhotoService) UploadPhotoToS3(ctx context.Context, fileHeader 
 		ContentType: fileHeader.Header.Get("Content-Type"),
 	})
 	if err != nil {
-		return "", err
-	}
+		logrus.WithFields(logrus.Fields{
+		"filename": fileHeader.Filename,
+		"size":     fileHeader.Size,
+		"type":     fileHeader.Header.Get("Content-Type"),
+	}).Errorf("failed to upload to S3: %s", err.Error())
+	return "", err
+}
 
 	return url, nil
 }
