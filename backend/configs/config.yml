@@ -3,7 +3,7 @@ http:
   maxHeaderBytes: 1
   readTimeout: 10s
   writeTimeout: 10s
-  baseUrl: "http://localhost:8000"
+  baseUrl: "http://localhost:8080"
 postgres:
   username: "postgres"
   host: "db"
