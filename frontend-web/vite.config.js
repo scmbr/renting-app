@@ -4,9 +4,9 @@ import path from "path";
 import svgr from "vite-plugin-svgr";
 export default defineConfig({
   plugins: [react(), svgr()],
-  root: "src",
+  envDir: ".",
   build: {
-    outDir: "../dist",
+    outDir: "/dist",
   },
   resolve: {
     alias: {

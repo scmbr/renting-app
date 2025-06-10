@@ -10,6 +10,11 @@ RUN npm run build
 
 # Run stage
 FROM nginx:alpine
+
+# Копируем своё nginx.conf в образ
+COPY nginx.conf /etc/nginx/conf.d/default.conf
+
+# Копируем билд
 COPY --from=builder /app/dist /usr/share/nginx/html
 
 EXPOSE 80
