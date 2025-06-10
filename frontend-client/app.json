@@ -4,7 +4,7 @@
     "slug": "frontend-client",
     "version": "1.0.0",
     "extra": {
-      "API_BASE_URL": "https://localhost:8000"
+      "API_BASE_URL": "https://backend:8000"
     },
     "orientation": "portrait",
     "icon": "./assets/icon.png",
@@ -28,8 +28,6 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-font"
-    ]
+    "plugins": ["expo-font"]
   }
 }
