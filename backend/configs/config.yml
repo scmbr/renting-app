@@ -6,7 +6,7 @@ http:
   baseUrl: "http://localhost:8000"
 postgres:
   username: "postgres"
-  host: "localhost"
+  host: "db"
   port: "5436"
   dbname: "postgres"
   sslmode: "disable"
