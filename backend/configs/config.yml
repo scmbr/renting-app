@@ -7,7 +7,7 @@ http:
 postgres:
   username: "postgres"
   host: "db"
-  port: "5436"
+  port: "5432"
   dbname: "postgres"
   sslmode: "disable"
 fileStorage:
