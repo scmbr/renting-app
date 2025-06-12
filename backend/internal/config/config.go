@@ -7,6 +7,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	EnvLocal = "local"
+	Prod     = "prod"
+)
+
 type (
 	Config struct {
 		Postgres    PostgresConfig
@@ -65,7 +70,7 @@ type (
 
 func Init(configsDir string) (*Config, error) {
 
-	if err := parseConfigFile(configsDir); err != nil {
+	if err := parseConfigFile(configsDir, os.Getenv("APP_ENV")); err != nil {
 		return nil, err
 	}
 
@@ -119,12 +124,15 @@ func setFromEnv(cfg *Config) {
 	cfg.SMTP.Pass = os.Getenv("SMTP_PASSWORD")
 }
 
-func parseConfigFile(folder string) error {
+func parseConfigFile(folder, env string) error {
 	viper.AddConfigPath(folder)
-	viper.SetConfigName("config")
-
+	viper.SetConfigName("main")
+	viper.SetConfigType("yml")
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
-	return nil
+
+	viper.SetConfigName(env)
+
+	return viper.MergeInConfig()
 }

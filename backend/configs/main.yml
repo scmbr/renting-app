@@ -4,12 +4,6 @@ http:
   readTimeout: 10s
   writeTimeout: 10s
   baseUrl: "http://localhost:8000"
-postgres:
-  username: "postgres"
-  host: "db"
-  port: "5432"
-  dbname: "postgres"
-  sslmode: "disable"
 fileStorage:
   url: website.yandexcloud.net
   bucket: profile-pictures
