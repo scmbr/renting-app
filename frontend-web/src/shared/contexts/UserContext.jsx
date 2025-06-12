@@ -10,22 +10,29 @@ export const UserProvider = ({ children }) => {
     const storedSurname = localStorage.getItem("surname");
     const storedAvatarUrl = localStorage.getItem("avatarUrl");
     const storedCity = localStorage.getItem("city");
-    if (storedName && storedSurname && storedAvatarUrl && storedCity) {
+    if (storedName && storedSurname && storedCity) {
+      const avatar =
+        storedAvatarUrl && storedAvatarUrl !== ""
+          ? storedAvatarUrl
+          : "https://storage.yandexcloud.net/profile-pictures/user.png";
+
       setUser({
         name: storedName,
         surname: storedSurname,
-        avatarUrl: storedAvatarUrl,
+        avatarUrl: avatar,
         city: storedCity,
       });
     }
   }, []);
 
   const login = (name, surname, avatarUrl, city) => {
+    const avatar =
+      avatarUrl || "https://storage.yandexcloud.net/profile-pictures/user.png";
     localStorage.setItem("name", name);
     localStorage.setItem("surname", surname);
-    localStorage.setItem("avatarUrl", avatarUrl);
+    localStorage.setItem("avatarUrl", avatar);
     localStorage.setItem("city", city);
-    setUser({ name, surname, avatarUrl, city });
+    setUser({ name, surname, avatarUrl: avatar, city });
   };
 
   const logout = () => {
