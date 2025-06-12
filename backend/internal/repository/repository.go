@@ -28,7 +28,8 @@ type Users interface {
 	SavePasswordResetToken(ctx context.Context, id int, resetToken string) error
 	GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error)
 	UpdatePasswordAndClearResetToken(ctx context.Context, userID int, newPassword string) error
-	 UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error)
+	UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error)
+	UpdateRating(ctx context.Context, userID uint, rating float32) error
 }
 type Session interface {
 	CreateSession(ctx context.Context, session models.Session) error
@@ -78,9 +79,18 @@ type Favorites interface {
 	IsFavorite(ctx context.Context, userId int, listingId int) (bool, error)
 }
 type Notification interface {
-    Save(notification dto.NotificationDTO) error
-    GetByUserID(userID uint) ([]*dto.NotificationResponseDTO, error)
-    MarkAsRead(notificationID uint) error
+	Save(notification dto.NotificationDTO) error
+	GetByUserID(userID uint) ([]*dto.NotificationResponseDTO, error)
+	MarkAsRead(notificationID uint) error
+}
+type Review interface {
+	Create(ctx context.Context, authorID uint, input dto.CreateReviewInput) (*dto.GetReviewResponse, error)
+	Update(ctx context.Context, reviewID uint, input dto.UpdateReviewInput) (*dto.GetReviewResponse, error)
+	Delete(ctx context.Context, reviewID uint) error
+	GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.GetReviewResponse, error)
+	GetByTargetID(ctx context.Context, targetID uint) ([]*dto.GetReviewResponse, error)
+	ReviewExists(ctx context.Context, authorID uint, targetID uint) (bool, error)
+	IsAuthor(ctx context.Context, userID uint, reviewID uint) (bool, error)
 }
 type Repository struct {
 	Users
@@ -90,6 +100,7 @@ type Repository struct {
 	ApartmentPhoto
 	Favorites
 	Notification
+	Review
 }
 
 func NewRepository(db *gorm.DB) *Repository {
@@ -100,6 +111,7 @@ func NewRepository(db *gorm.DB) *Repository {
 		Advert:         NewAdvertRepo(db),
 		ApartmentPhoto: NewApartmentPhotoRepo(db),
 		Favorites:      NewFavoritesRepo(db),
-		Notification: NewNotificationRepo(db),
+		Notification:   NewNotificationRepo(db),
+		Review:         NewReviewRepo(db),
 	}
 }

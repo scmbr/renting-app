@@ -6,6 +6,14 @@ const NavPanel = () => {
     <nav className={styles.subnavbar}>
       <div className={styles.central}>
         <NavLink
+          to="/my/profile"
+          className={({ isActive }) =>
+            isActive ? `${styles.link} ${styles.active}` : styles.link
+          }
+        >
+          Профиль
+        </NavLink>
+        <NavLink
           to="/my/advert"
           className={({ isActive }) =>
             isActive ? `${styles.link} ${styles.active}` : styles.link

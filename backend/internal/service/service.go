@@ -90,6 +90,13 @@ type Notification interface {
 	GetUserNotifications(userID uint) ([]*dto.NotificationResponseDTO, error)
 	MarkAsRead(notificationID uint) error
 }
+type Review interface {
+    Create(ctx context.Context, authorID uint, input dto.CreateReviewInput) (*dto.GetReviewResponse, error)
+    Update(ctx context.Context, userID uint, reviewID uint, input dto.UpdateReviewInput) (*dto.GetReviewResponse, error)
+    Delete(ctx context.Context, userID uint, reviewID uint) error
+    GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.GetReviewResponse, error)
+    GetByTargetID(ctx context.Context, targetID uint) ([]*dto.GetReviewResponse, error)
+}
 type Services struct {
 	User
 	Session
@@ -98,6 +105,7 @@ type Services struct {
 	ApartmentPhoto
 	Favorites
 	Notification
+	Review
 }
 
 type Deps struct {
@@ -143,6 +151,7 @@ func NewServices(deps Deps) *Services {
 
 	notificationService := NewNotificationService(deps.Repos.Notification, deps.NotificationSender)
 	favoritesService := NewFavoritesService(deps.Repos.Favorites, deps.Repos.Users, deps.Repos.Advert, notificationService)
+	reviewService:=NewReviewService(deps.Repos.Review, deps.Repos.Users)
 	return &Services{
 		User:           userService,
 		Session:        sessionService,
@@ -151,5 +160,6 @@ func NewServices(deps Deps) *Services {
 		ApartmentPhoto: apartmentPhotoService,
 		Favorites:      favoritesService,
 		Notification:   notificationService,
+		Review: reviewService,
 	}
 }

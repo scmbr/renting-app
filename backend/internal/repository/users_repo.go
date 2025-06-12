@@ -467,3 +467,9 @@ func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, e
 
 	return &getUserDTO, nil
 }
+func (r *UsersRepo) UpdateRating(ctx context.Context, userID uint, rating float32) error {
+	return r.db.WithContext(ctx).
+		Model(&models.User{}).
+		Where("id = ?", userID).
+		Update("rating", rating).Error
+}

@@ -6,6 +6,7 @@ import AdvertPage from "@/pages/Advert/AdvertPage";
 import AddAdvertPage from "@/pages/AddAdvert/AddAdvertPage";
 import AddApartmentPage from "@/pages/AddApartment/AddApartmentPage";
 import MyAdvertsPage from "@/pages/MyAdvertsPage/MyAdvertsPage";
+import MyProfilePage from "@/pages/MyProfilePage/MyProfilePage";
 import MyApartmentsPage from "@/pages/MyApartmentsPage/MyApartmentsPage";
 import FavoritesPage from "@/pages/FavoritesPage/FavoritesPage";
 import SettingsPage from "@/pages/SettingsPage/SettingsPage";
@@ -21,6 +22,7 @@ const App = () => (
     <Route path="/my/apartment/add" element={<AddApartmentPage />} />
     <Route path="/my/apartment/edit/:id" element={<EditApartmentPage />} />
     <Route path="/my/advert/add" element={<AddAdvertPage />} />
+    <Route path="/my/profile" element={<MyProfilePage />} />
     <Route path="/my/advert/edit/:id" element={<EditAdvertPage />} />
     <Route path="/advert/:id" element={<AdvertPage />} />
 

@@ -1,0 +1,119 @@
+.container {
+  max-width: 1080px;
+
+  margin: 2rem auto;
+  padding: 2rem 1rem;
+}
+
+.title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-bottom: 2rem;
+}
+
+.profileCard {
+  background-color: #ffffff;
+  padding: 16px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.profileCard p {
+  margin: 8px 0;
+}
+
+.avatar {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin-bottom: 16px;
+  border: 2px solid #ddd;
+}
+
+.buttons {
+  display: flex;
+  gap: 12px;
+}
+
+.editButton {
+  background-color: #4caf50;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.logoutButton {
+  background-color: #f44336;
+  color: white;
+  padding: 10px 16px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.loading {
+  padding: 20px;
+  font-style: italic;
+}
+
+.error {
+  color: red;
+  padding: 20px;
+}
+.star {
+  width: 25px;
+  height: 25px;
+  margin-right: 4px;
+  vertical-align: middle;
+}
+
+.rating {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+.commentList {
+  margin-top: 30px;
+  background-color: #fafafa;
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.commentTitle {
+  font-size: 20px;
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.noComments {
+  font-style: italic;
+  color: #777;
+}
+
+.comment {
+  margin-bottom: 16px;
+  border-bottom: 1px solid #fffefe;
+  padding-bottom: 12px;
+}
+
+.commentHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.commentRating {
+  display: flex;
+}
+
+.star {
+  width: 20px;
+  height: 20px;
+  margin-right: 4px;
+}

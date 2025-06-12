@@ -52,6 +52,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	publicUser := router.Group("/users")
 	{
 		publicUser.GET("/:id", h.getUserById)
+		publicUser.GET("/:id/reviews", h.getUserReviews)
 	}
 	publicApartment := router.Group("/apartment")
 	{
@@ -82,6 +83,13 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		authenticated.GET("/me", h.getCurrentUser)
 		authenticated.PUT("/me", h.updateCurrentUser)
 		authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
+		reviews := authenticated.Group("/reviews")
+		{
+			reviews.POST("", h.createReview)
+			reviews.PUT("/:id", h.updateReview)
+			reviews.DELETE("/:id", h.deleteReview)
+			reviews.GET("/my", h.getMyReviews)
+		}
 		userApartment := authenticated.Group("/my/apartment")
 		{
 			userApartment.GET("", h.getAllUserApartments)
