@@ -107,7 +107,7 @@ const FilterPanel = () => {
           {filters.rooms
             ? filters.rooms === "4"
               ? "4+ комнаты"
-              : `${filters.rooms} комната${filters.rooms === "1" ? "" : "ы"}`
+              : `${filters.rooms} комнат${filters.rooms === "1" ? "а" : "ы"}`
             : "Кол-во комнат"}{" "}
           {roomsDropdownOpen ? <FaChevronUp /> : <FaChevronDown />}
         </button>

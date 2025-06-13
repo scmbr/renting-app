@@ -114,7 +114,16 @@ const Navbar = () => {
               {menuOpen && (
                 <div className={styles.dropdown}>
                   <button onClick={() => handleNavigate("/my/advert")}>
+                    Профиль
+                  </button>
+                  <button onClick={() => handleNavigate("/my/advert")}>
                     Мои объявления
+                  </button>
+                  <button onClick={() => handleNavigate("/my/apartment")}>
+                    Мои квартиры
+                  </button>
+                  <button onClick={() => handleNavigate("/notifications")}>
+                    Уведомления
                   </button>
                   <button onClick={() => handleNavigate("/favorites")}>
                     Избранное

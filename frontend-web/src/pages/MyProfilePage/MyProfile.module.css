@@ -102,18 +102,39 @@
   padding-bottom: 12px;
 }
 
-.commentHeader {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.commentRating {
-  display: flex;
-}
-
 .star {
   width: 20px;
   height: 20px;
   margin-right: 4px;
+}
+
+.commentHeader {
+  margin-bottom: 8px;
+}
+
+.commentAuthorInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.commentAuthorAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.commentAuthorText {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentAuthorName {
+  margin-bottom: 4px;
+}
+
+.commentRating {
+  display: flex;
+  gap: 2px;
 }

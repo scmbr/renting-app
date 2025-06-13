@@ -1,0 +1,139 @@
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.modal {
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  z-index: 10000;
+}
+
+.closeButton {
+  position: absolute;
+  top: 8px;
+  right: 12px;
+  font-size: 24px;
+  border: none;
+  background: none;
+  cursor: pointer;
+}
+
+.star,
+.starStatic {
+  width: 24px;
+  height: 24px;
+  margin-right: 4px;
+}
+
+.star:hover {
+  filter: brightness(0.8);
+}
+
+.starStatic {
+  cursor: default;
+}
+
+.section {
+  margin-top: 20px;
+}
+
+.commentList {
+  list-style: none;
+  padding: 0;
+}
+
+.commentItem {
+  border-bottom: 1px solid #ddd;
+  padding: 8px 0;
+}
+
+.commentRating {
+  display: flex;
+  margin-bottom: 4px;
+}
+
+.addCommentSection {
+  margin-top: 20px;
+}
+
+.starSelector {
+  margin-bottom: 10px;
+  display: flex;
+}
+
+.textarea {
+  width: 100%;
+  height: 80px;
+  margin-bottom: 10px;
+  resize: vertical;
+  padding: 8px;
+  font-size: 14px;
+}
+
+.submitButton {
+  background-color: #000000;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.submitButton:hover {
+  background-color: #0056b3;
+}
+
+.error {
+  color: red;
+  text-align: center;
+}
+.commentItem {
+  margin-bottom: 16px;
+}
+
+.commentAuthorInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.commentAuthorAvatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.commentAuthorText {
+  display: flex;
+  flex-direction: column;
+}
+
+.commentAuthorName {
+  font-weight: bold;
+  margin-bottom: 4px;
+}
+
+.commentText {
+  margin-left: 52px; /* чтобы отступ не залезал под аватар */
+}
+
+.commentRating {
+  display: flex;
+  gap: 2px;
+}

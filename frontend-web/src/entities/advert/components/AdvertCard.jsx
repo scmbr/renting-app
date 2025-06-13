@@ -70,7 +70,7 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
 
           <h3 className="text-lg font-bold">{title}</h3>
           <p>
-            {apartment.city}, {apartment.street} {apartment.house}
+            {apartment.city}, {apartment.street}, {apartment.building}
           </p>
           <p>
             Этаж: {apartment.floor} | Комнат: {apartment.rooms}

@@ -18,7 +18,7 @@ const ApartmentCard = ({ apartment, isSelected, onSelect }) => {
       )}
       <div className={styles.apartmentInfo}>
         <p>
-          {apartment.city}, {apartment.street} {apartment.house}
+          {apartment.city}, {apartment.street} {apartment.building}
         </p>
       </div>
     </div>

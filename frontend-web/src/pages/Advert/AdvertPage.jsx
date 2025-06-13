@@ -6,7 +6,7 @@ import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
 import api from "@/shared/api/axios";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-
+import OwnerModal from "@/widgets/OwnerModal/OwnerModal.jsx";
 const AdvertPage = () => {
   const { id } = useParams();
   const [advert, setAdvert] = useState(null);
@@ -14,7 +14,7 @@ const AdvertPage = () => {
   const [owner, setOwner] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-
+  const [showModal, setShowModal] = useState(false);
   useEffect(() => {
     const loadAdvert = async () => {
       try {
@@ -98,9 +98,7 @@ const AdvertPage = () => {
 
             <section className={styles.address}>
               <p>
-                Адрес: {apartment.city},{" "}
-                {apartment.street}{" "}
-                {apartment.building }
+                Адрес: {apartment.city}, {apartment.street} {apartment.building}
               </p>
               <p>
                 Этаж: {apartment.floor} | Комнат: {apartment.rooms}
@@ -146,7 +144,11 @@ const AdvertPage = () => {
           </div>
         </div>
 
-        <div className={styles.ownerCard}>
+        <div
+          className={styles.ownerCard}
+          onClick={() => setShowModal(true)}
+          style={{ cursor: "pointer" }}
+        >
           {owner ? (
             <>
               {owner.profile_picture && (
@@ -174,6 +176,13 @@ const AdvertPage = () => {
             </>
           ) : (
             <p>Загрузка владельца...</p>
+          )}
+
+          {showModal && (
+            <OwnerModal
+              ownerId={owner.id}
+              onClose={() => setShowModal(false)}
+            />
           )}
         </div>
       </div>

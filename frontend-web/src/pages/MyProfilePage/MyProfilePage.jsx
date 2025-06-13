@@ -15,11 +15,11 @@ const MyProfile = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [profileRes, commentsRes] = await Promise.all([
-          api.get("/me"),
-          api.get("/reviews/my"),
-        ]);
-        setProfile(profileRes.data);
+        const profileRes = await api.get("/me");
+        const profileData = profileRes.data;
+        setProfile(profileData);
+
+        const commentsRes = await api.get(`/users/${profileData.id}/reviews`);
         setComments(commentsRes.data || []);
       } catch (err) {
         if (err?.response?.status === 401) {
@@ -66,12 +66,25 @@ const MyProfile = () => {
             comments.map((comment, idx) => (
               <div key={idx} className={styles.comment}>
                 <div className={styles.commentHeader}>
-                  <strong>{comment.author_name}</strong>
-                  <div className={styles.commentRating}>
-                    {renderStars(comment.rating)}
+                  <div className={styles.commentAuthorInfo}>
+                    <img
+                      src={
+                        comment.author?.profile_picture || "/default-avatar.png"
+                      }
+                      alt="автор"
+                      className={styles.commentAuthorAvatar}
+                    />
+                    <div className={styles.commentAuthorText}>
+                      <div className={styles.commentAuthorName}>
+                        {comment.author?.name} {comment.author?.surname}
+                      </div>
+                      <div className={styles.commentRating}>
+                        {renderStars(comment.rating)}
+                      </div>
+                    </div>
                   </div>
                 </div>
-                <p>{comment.text}</p>
+                <p>{comment.comment}</p>
               </div>
             ))
           )}
