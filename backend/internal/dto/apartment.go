@@ -36,6 +36,7 @@ type GetApartmentResponse struct {
 	Longitude        float64   `json:"longitude"`
 	Latitude         float64   `json:"latitude"`
 	Rooms            int       `json:"rooms"`
+	Area             int       `json:"area"`
 	Elevator         bool      `json:"elevator"`
 	GarbageChute     bool      `json:"garbage_chute"`
 	BathroomType     string    `json:"bathroom_type"`
@@ -56,6 +57,7 @@ type UpdateApartmentInput struct {
 	House            *string  `json:"house,omitempty"`
 	Building         *string  `json:"building,omitempty"`
 	Floor            *int     `json:"floor,omitempty"`
+	Area             *int     `json:"area,omitempty"`
 	ApartmentNumber  *string  `json:"apartment_number,omitempty"`
 	Longitude        *float64 `json:"longitude,omitempty"`
 	Latitude         *float64 `json:"latitude,omitempty"`
@@ -82,6 +84,7 @@ func FromApartment(apartment *models.Apartment) *GetApartmentResponse {
 		Street:           apartment.Street,
 		Building:         apartment.Building,
 		Floor:            apartment.Floor,
+		Area:             apartment.Area,
 		ApartmentNumber:  apartment.ApartmentNumber,
 		Longitude:        apartment.Longitude,
 		Latitude:         apartment.Latitude,

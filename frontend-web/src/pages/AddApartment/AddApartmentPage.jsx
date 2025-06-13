@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
 import api from "@/shared/api/axios";
 import styles from "./AddApartmentPage.module.css";
 import SubNavbar from "@/widgets/SubNavbar/SubNavbar.jsx";
@@ -7,9 +6,12 @@ import { MapGLForm } from "@/widgets/Map/MapGLForm";
 import AddressSuggester from "@/features/add-apartment/AddressSuggester.jsx";
 import NavPanel from "@/widgets/NavPanel/NavPanel.jsx";
 import PhotoUploader from "@/features/upload-photo/PhotoUploader";
+import { useAdvertStore } from "@/stores/useAdvertStore";
+import { useNavigate, useLocation } from "react-router-dom";
 const AddApartmentPage = () => {
   const navigate = useNavigate();
-
+  const location = useLocation();
+  const from = location.state?.from || "apartment";
   const [form, setForm] = useState({
     city: "",
     street: "",
@@ -32,7 +34,7 @@ const AddApartmentPage = () => {
   const [previewUrls, setPreviewUrls] = useState([]);
   const [error, setError] = useState(null);
   const [cityLocation, setCityLocation] = useState(null);
-
+  const { clearFilledFormData } = useAdvertStore();
   const [mapCenter, setMapCenter] = useState([37.620393, 55.75396]);
   const [mapMarker, setMapMarker] = useState([37.620393, 55.75396]);
 
@@ -140,6 +142,7 @@ const AddApartmentPage = () => {
       const res = await api.post("my/apartment", payload);
       const apartmentId = res.data.id;
       console.log("Создана квартира, ответ сервера:", res.data);
+
       if (photos.length > 0) {
         const photoForm = new FormData();
         photos.forEach((file) => photoForm.append("photos", file));
@@ -151,7 +154,12 @@ const AddApartmentPage = () => {
         });
       }
 
-      navigate("/my/advert/add");
+      if (from === "advert") {
+        navigate("/my/advert/add");
+      } else {
+        clearFilledFormData();
+        navigate("/my/apartment");
+      }
     } catch (err) {
       console.error(err);
       setError("Ошибка при создании квартиры или загрузке фото");

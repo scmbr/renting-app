@@ -61,7 +61,9 @@ const MyApartmentPage = () => {
           <h1 className={styles.title}>Мои квартиры</h1>
           <button
             className={styles.addButton}
-            onClick={() => navigate("/my/apartment/add")}
+            onClick={() =>
+              navigate("/my/apartment/add", { state: { from: "apartment" } })
+            }
             aria-label="Добавить квартиру"
           >
             <img src="/icons/add.svg" alt="Добавить" />

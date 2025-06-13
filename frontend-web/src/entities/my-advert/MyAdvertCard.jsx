@@ -71,7 +71,7 @@ const MyAdvertCard = ({ advert, onEdit, onDelete }) => {
       <div className={styles.info}>
         <h3 className={styles.title}>{title}</h3>
         <p className={styles.address}>
-          {apartment.city}, {apartment.street} {apartment.house}
+          {apartment.city}, {apartment.street} {apartment.building}
         </p>
         <p>
           Этаж: {apartment.floor} | Комнат: {apartment.rooms}

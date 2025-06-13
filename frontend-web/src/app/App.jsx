@@ -16,9 +16,18 @@ import { UserProvider } from "@/shared/contexts/UserContext";
 import VerifyPage from "@/pages/Verify/VerifyPage";
 import EditAdvertPage from "@/pages/EditAdvert/EditAdvertPage";
 import EditApartmentPage from "@/pages/EditApartment/EditApartmentPage";
+import { nameToSlug } from "@/shared/constants/cities";
 const App = () => (
   <Routes>
-    <Route path="/" element={<Navigate to="/moskva" replace />} />
+    <Route
+      path="/"
+      element={
+        <Navigate
+          to={`/${nameToSlug(localStorage.getItem("city") || "Москва")}`}
+          replace
+        />
+      }
+    />
     <Route path="/my/apartment/add" element={<AddApartmentPage />} />
     <Route path="/my/apartment/edit/:id" element={<EditApartmentPage />} />
     <Route path="/my/advert/add" element={<AddAdvertPage />} />

@@ -47,6 +47,7 @@ func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userId int) ([]*dt
 			Longitude:        apartment.Longitude,
 			Latitude:         apartment.Latitude,
 			Rooms:            apartment.Rooms,
+			Area:             apartment.Area,
 			Elevator:         apartment.Elevator,
 			GarbageChute:     apartment.GarbageChute,
 			BathroomType:     apartment.BathroomType,
@@ -89,6 +90,7 @@ func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int
 		Longitude:        apartment.Longitude,
 		Latitude:         apartment.Latitude,
 		Rooms:            apartment.Rooms,
+		Area:             apartment.Area,
 		Elevator:         apartment.Elevator,
 		GarbageChute:     apartment.GarbageChute,
 		BathroomType:     apartment.BathroomType,
@@ -168,7 +170,6 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		return err
 	}
 
-
 	var advertIDs []int
 	if err := tx.Model(&models.Advert{}).
 		Where("apartment_id = ?", apartment.ID).
@@ -177,7 +178,6 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		return err
 	}
 
-
 	if len(advertIDs) > 0 {
 		if err := tx.Where("advert_id IN ?", advertIDs).Delete(&models.Favorites{}).Error; err != nil {
 			tx.Rollback()
@@ -185,12 +185,10 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		}
 	}
 
-
 	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.Advert{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
-
 
 	if err := tx.Delete(&apartment).Error; err != nil {
 		tx.Rollback()
@@ -199,7 +197,6 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 
 	return tx.Commit().Error
 }
-
 
 func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error {
 	tx := r.db.WithContext(ctx).Begin()
@@ -268,6 +265,9 @@ func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int,
 	}
 	if input.Status != nil {
 		apartment.Status = *input.Status
+	}
+	if input.Area != nil {
+		apartment.Area = *input.Area
 	}
 
 	if err := tx.Save(&apartment).Error; err != nil {

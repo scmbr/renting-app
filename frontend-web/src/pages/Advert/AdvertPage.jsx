@@ -98,10 +98,9 @@ const AdvertPage = () => {
 
             <section className={styles.address}>
               <p>
-                Адрес: {apartment.city}, {apartment.district},{" "}
-                {apartment.street} {apartment.house}
-                {apartment.building && ` корпус ${apartment.building}`}, кв.{" "}
-                {apartment.apartment_number}
+                Адрес: {apartment.city},{" "}
+                {apartment.street}{" "}
+                {apartment.building }
               </p>
               <p>
                 Этаж: {apartment.floor} | Комнат: {apartment.rooms}

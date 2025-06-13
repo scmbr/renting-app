@@ -7,30 +7,46 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import styles from "./AddAdvertForm.module.css";
-
+import { useAdvertStore } from "@/stores/useAdvertStore";
 const AddAdvertForm = ({ apartments = [] }) => {
-  const [form, setForm] = useState({
-    apartment_id: "",
-    title: "",
-    rent: "",
-    deposit: "",
-    rental_type: "monthly",
-    pets: false,
-    babies: false,
-    smoking: false,
-    internet: false,
-    washing_machine: false,
-    tv: false,
-    conditioner: false,
-    dishwasher: false,
-    concierge: false,
-  });
-
+  const { filledFormData, setFilledFormData, clearFilledFormData } =
+    useAdvertStore();
+  console.log(filledFormData);
+  const [form, setForm] = useState(
+    filledFormData || {
+      apartment_id: "",
+      title: "",
+      rent: "",
+      deposit: "",
+      rental_type: "monthly",
+      pets: false,
+      babies: false,
+      smoking: false,
+      internet: false,
+      washing_machine: false,
+      tv: false,
+      conditioner: false,
+      dishwasher: false,
+      concierge: false,
+    }
+  );
+  const navigate = useNavigate();
   const [selectedApartment, setSelectedApartment] = useState(null);
   const [photos, setPhotos] = useState([]);
   const [loadingPhotos, setLoadingPhotos] = useState(false);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    if (filledFormData && Object.keys(filledFormData).length > 0) {
+      setForm(filledFormData);
+      const selected = apartments.find(
+        (a) => a.id === filledFormData.apartment_id
+      );
+      if (selected) {
+        setSelectedApartment(selected);
+        fetchPhotos(selected.id);
+      }
+    }
+  }, [filledFormData, apartments]);
 
   const featureIcons = {
     pets: { label: "Можно с животными", src: "/icons/pets.svg" },
@@ -87,7 +103,10 @@ const AddAdvertForm = ({ apartments = [] }) => {
 
     api
       .post("/my/advert", normalizedForm)
-      .then(() => navigate("/my/advert"))
+      .then(() => {
+        clearFilledFormData();
+        navigate("/my/advert");
+      })
       .catch((err) => console.error("Ошибка при создании объявления", err));
   };
 
@@ -96,7 +115,11 @@ const AddAdvertForm = ({ apartments = [] }) => {
     setSelectedApartment(apartment);
     fetchPhotos(apartment.id);
   };
-
+  const navigateToApartment = () => {
+    setFilledFormData(form);
+    console.log("Заполненные поля: ", filledFormData);
+    navigate("/my/apartment/add", { state: { from: "advert" } });
+  };
   return (
     <motion.form
       onSubmit={handleSubmit}
@@ -169,10 +192,7 @@ const AddAdvertForm = ({ apartments = [] }) => {
             onSelect={() => handleSelectApartment(a)}
           />
         ))}
-        <div
-          className={styles.apartmentCard}
-          onClick={() => navigate("/my/apartment/add")}
-        >
+        <div className={styles.apartmentCard} onClick={navigateToApartment}>
           <div className={styles.addCardContent}>
             <span className={styles.plusSign}>＋</span>
           </div>

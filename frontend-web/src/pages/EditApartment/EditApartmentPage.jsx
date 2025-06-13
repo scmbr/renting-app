@@ -58,7 +58,7 @@ const EditApartmentPage = () => {
           concierge: apt.concierge,
           construction_year: apt.construction_year,
           construction_type: apt.construction_type,
-          remont_type: apt.remont_type,
+          remont: apt.remont,
         });
 
         setMapCenter([apt.longitude, apt.latitude]);
@@ -279,7 +279,7 @@ const EditApartmentPage = () => {
                 id="area"
                 name="area"
                 type="number"
-                value={form.area}
+                value={form.area || ""}
                 onChange={handleChange}
                 className={styles.inputField}
               />
@@ -331,9 +331,9 @@ const EditApartmentPage = () => {
                   <label className={styles.customRadio}>
                     <input
                       type="radio"
-                      name="remont_type"
+                      name="remont"
                       value="косметический"
-                      checked={form.remont_type === "косметический"}
+                      checked={form.remont === "косметический"}
                       onChange={handleChange}
                     />
                     <span className={styles.radioText}>косметический</span>
@@ -342,9 +342,9 @@ const EditApartmentPage = () => {
                   <label className={styles.customRadio}>
                     <input
                       type="radio"
-                      name="remont_type"
+                      name="remont"
                       value="евро"
-                      checked={form.remont_type === "евро"}
+                      checked={form.remont === "евро"}
                       onChange={handleChange}
                     />
                     <span className={styles.radioText}>евро</span>
@@ -353,9 +353,9 @@ const EditApartmentPage = () => {
                   <label className={styles.customRadio}>
                     <input
                       type="radio"
-                      name="remont_type"
+                      name="remont"
                       value="дизайнерский"
-                      checked={form.remont_type === "дизайнерский"}
+                      checked={form.remont === "дизайнерский"}
                       onChange={handleChange}
                     />
                     <span className={styles.radioText}>дизайнерский</span>
@@ -364,9 +364,9 @@ const EditApartmentPage = () => {
                   <label className={styles.customRadio}>
                     <input
                       type="radio"
-                      name="remont_type"
+                      name="remont"
                       value="требуется"
-                      checked={form.remont_type === "требуется"}
+                      checked={form.remont === "требуется"}
                       onChange={handleChange}
                     />
                     <span className={styles.radioText}>требуется</span>
