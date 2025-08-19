@@ -1,10 +1,10 @@
 import { createContext, useContext, useState, useEffect } from "react";
-
+import { useNavigate } from "react-router-dom";
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-
+  const navigate = useNavigate();
   useEffect(() => {
     const storedName = localStorage.getItem("name");
     const storedSurname = localStorage.getItem("surname");
@@ -41,6 +41,7 @@ export const UserProvider = ({ children }) => {
     localStorage.removeItem("accessToken");
     localStorage.removeItem("city");
     setUser(null, null, null, null);
+    navigate("/login");
   };
 
   return (
