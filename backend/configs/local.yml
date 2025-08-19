@@ -7,6 +7,7 @@ postgres:
 redis:
   host: "localhost"
   port: "6379"
+  cacheTTL: 1m
 auth:
   accessTokenTTL: 24h
   refreshTokenTTL: 720h

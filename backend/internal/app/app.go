@@ -34,7 +34,7 @@ func Run(configPath string) {
 
 		return
 	}
-	redis, err := redis.NewRedis(redis.Config{
+	redisClient, err := redis.NewRedis(redis.Config{
 		Host:     cfg.Redis.Host,
 		Port:     cfg.Redis.Port,
 		Password: cfg.Redis.Password,
@@ -42,6 +42,7 @@ func Run(configPath string) {
 	if err != nil {
 		logrus.Fatalf("failed to initialize redis:%s", err.Error())
 	}
+	cacheProvider := redis.NewRedisCache(redisClient)
 	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
@@ -85,7 +86,8 @@ func Run(configPath string) {
 		EmailConfig:        cfg.Email,
 		HTTPConfig:         cfg.HTTP,
 		NotificationSender: hub,
-		Redis:              redis,
+		Cache:              cacheProvider,
+		CacheTTL:           cfg.Redis.CacheTTL,
 	})
 	handlers := handler.NewHandler(services, tokenManager, cfg.Auth.JWT.AccessTokenTTL, cfg.Auth.JWT.RefreshTokenTTL, wsHandler)
 

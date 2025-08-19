@@ -68,8 +68,9 @@ type (
 		Pass string
 	}
 	RedisConfig struct {
-		Host     string `mapstructure:"host"`
-		Port     string `mapstructure:"port"`
+		Host     string        `mapstructure:"host"`
+		Port     string        `mapstructure:"port"`
+		CacheTTL time.Duration `mapstructure:"cacheTTL"`
 		Password string
 	}
 )

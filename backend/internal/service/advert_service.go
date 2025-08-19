@@ -2,26 +2,48 @@ package service
 
 import (
 	"context"
+	"encoding/json"
+	"fmt"
+	"time"
 
 	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/infrastructure/redis/cache"
 	"github.com/scmbr/renting-app/internal/repository"
+	"github.com/sirupsen/logrus"
 )
 
 type AdvertService struct {
 	advertRepo         repository.Advert
 	favoritesRepo      repository.Favorites
 	apartmentPhotoRepo repository.ApartmentPhoto
+	cache              cache.Cache
+	cacheTTL           time.Duration
 }
 
-func NewAdvertService(advertRepo repository.Advert, favoritesRepo repository.Favorites, apartmentRepo repository.ApartmentPhoto) *AdvertService {
+func NewAdvertService(advertRepo repository.Advert, favoritesRepo repository.Favorites, apartmentRepo repository.ApartmentPhoto, cache cache.Cache, cacheTTL time.Duration) *AdvertService {
 	return &AdvertService{
 		advertRepo:         advertRepo,
 		favoritesRepo:      favoritesRepo,
 		apartmentPhotoRepo: apartmentRepo,
+		cache:              cache,
+		cacheTTL:           cacheTTL,
 	}
 }
 
 func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error) {
+	filterJSON, _ := json.Marshal(filter)
+	cacheKey := fmt.Sprintf("adverts:%v:%s", userID, string(filterJSON))
+	if cached, err := s.cache.Get(ctx, cacheKey); err == nil && cached != "" {
+		logrus.Info("GetAllAdverts: returned from cache")
+		var resp struct {
+			Adverts []*dto.GetAdvertResponse
+			Total   int64
+		}
+		if jsonErr := json.Unmarshal([]byte(cached), &resp); jsonErr == nil {
+			return resp.Adverts, resp.Total, nil
+		}
+	}
+
 	adverts, total, err := s.advertRepo.GetAllAdverts(ctx, filter)
 	if err != nil {
 		return nil, 0, err
@@ -34,6 +56,7 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 			return nil, 0, err
 		}
 	}
+
 	result := make([]*dto.GetAdvertResponse, len(adverts))
 	for i, adv := range adverts {
 		resp := dto.FromAdvert(adv)
@@ -42,10 +65,12 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 		} else {
 			resp.IsFavorite = false
 		}
+
 		photosPtrs, err := s.apartmentPhotoRepo.GetAllPhotos(ctx, int(adv.ApartmentID))
 		if err != nil {
 			return nil, 0, err
 		}
+
 		photos := make([]dto.GetApartmentPhoto, len(photosPtrs))
 		for j, p := range photosPtrs {
 			photos[j] = *p
@@ -53,6 +78,14 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 		resp.Apartment.ApartmentPhotos = photos
 		result[i] = resp
 	}
+	logrus.Info("GetAllAdverts: returned from database")
+
+	payload, _ := json.Marshal(struct {
+		Adverts []*dto.GetAdvertResponse
+		Total   int64
+	}{result, total})
+
+	_ = s.cache.Set(ctx, cacheKey, string(payload), s.cacheTTL)
 
 	return result, total, nil
 }

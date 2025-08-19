@@ -5,9 +5,9 @@ import (
 	"mime/multipart"
 	"time"
 
-	"github.com/redis/go-redis/v9"
 	"github.com/scmbr/renting-app/internal/config"
 	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/internal/infrastructure/redis/cache"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/pkg/auth"
 	"github.com/scmbr/renting-app/pkg/email"
@@ -120,7 +120,8 @@ type Deps struct {
 	EmailConfig        config.EmailConfig
 	HTTPConfig         config.HTTPConfig
 	NotificationSender NotificationSender
-	Redis              *redis.Client
+	Cache              cache.Cache
+	CacheTTL           time.Duration
 }
 type VerificationEmailInput struct {
 	Email            string
@@ -149,7 +150,7 @@ func NewServices(deps Deps) *Services {
 	)
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
 	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
-	advertService := NewAdvertService(deps.Repos.Advert, deps.Repos.Favorites, deps.Repos.ApartmentPhoto)
+	advertService := NewAdvertService(deps.Repos.Advert, deps.Repos.Favorites, deps.Repos.ApartmentPhoto, deps.Cache, deps.CacheTTL)
 
 	notificationService := NewNotificationService(deps.Repos.Notification, deps.NotificationSender)
 	favoritesService := NewFavoritesService(deps.Repos.Favorites, deps.Repos.Users, deps.Repos.Advert, notificationService)
