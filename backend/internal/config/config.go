@@ -20,6 +20,7 @@ type (
 		HTTP        HTTPConfig
 		SMTP        SMTPConfig
 		Email       EmailConfig
+		Redis       RedisConfig
 	}
 	PostgresConfig struct {
 		Username string `mapstructure:"username"`
@@ -66,6 +67,11 @@ type (
 		From string `mapstructure:"from"`
 		Pass string
 	}
+	RedisConfig struct {
+		Host     string `mapstructure:"host"`
+		Port     string `mapstructure:"port"`
+		Password string
+	}
 )
 
 func Init(configsDir string) (*Config, error) {
@@ -102,6 +108,9 @@ func unmarshal(cfg *Config) error {
 	if err := viper.UnmarshalKey("smtp", &cfg.SMTP); err != nil {
 		return err
 	}
+	if err := viper.UnmarshalKey("redis", &cfg.Redis); err != nil {
+		return err
+	}
 	if err := viper.UnmarshalKey("email.templates", &cfg.Email.Templates); err != nil {
 		return err
 	}
@@ -109,7 +118,7 @@ func unmarshal(cfg *Config) error {
 }
 func setFromEnv(cfg *Config) {
 	cfg.Postgres.Password = os.Getenv("POSTGRES_PASSWORD")
-
+	cfg.Redis.Password = os.Getenv("REDIS_PASSWORD")
 	cfg.Auth.PasswordSalt = os.Getenv("PASSWORD_SALT")
 	cfg.Auth.JWT.SigningKey = os.Getenv("JWT_SIGNING_KEY")
 

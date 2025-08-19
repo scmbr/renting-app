@@ -4,6 +4,9 @@ postgres:
   port: "5432"
   dbname: "postgres"
   sslmode: "disable"
+redis:
+  host: "redis"
+  port: "6379"
 auth:
   accessTokenTTL: 15m
   refreshTokenTTL: 720h

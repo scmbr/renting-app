@@ -37,8 +37,20 @@ services:
         - .env.pgadmin
     volumes:
       - pgadmin_data:/var/lib/pgadmin
+  redis:
+    image: redis:7
+    restart: always
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+
 
     
 volumes:
   postgres_data:
   pgadmin_data:
+  redis_data:

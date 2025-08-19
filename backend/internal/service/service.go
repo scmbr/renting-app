@@ -5,6 +5,7 @@ import (
 	"mime/multipart"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"github.com/scmbr/renting-app/internal/config"
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/repository"
@@ -119,6 +120,7 @@ type Deps struct {
 	EmailConfig        config.EmailConfig
 	HTTPConfig         config.HTTPConfig
 	NotificationSender NotificationSender
+	Redis              *redis.Client
 }
 type VerificationEmailInput struct {
 	Email            string

@@ -12,6 +12,7 @@ import (
 	app_cfg "github.com/scmbr/renting-app/internal/config"
 	"github.com/scmbr/renting-app/internal/handler"
 	"github.com/scmbr/renting-app/internal/infrastructure/db/postgres"
+	"github.com/scmbr/renting-app/internal/infrastructure/redis"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/internal/server"
 	"github.com/scmbr/renting-app/internal/service"
@@ -33,7 +34,14 @@ func Run(configPath string) {
 
 		return
 	}
-
+	redis, err := redis.NewRedis(redis.Config{
+		Host:     cfg.Redis.Host,
+		Port:     cfg.Redis.Port,
+		Password: cfg.Redis.Password,
+	})
+	if err != nil {
+		logrus.Fatalf("failed to initialize redis:%s", err.Error())
+	}
 	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
@@ -42,7 +50,6 @@ func Run(configPath string) {
 		DBName:   cfg.Postgres.Name,
 		SSLMode:  cfg.Postgres.SSLMode,
 	})
-
 	if err != nil {
 		logrus.Fatalf("failed to initialize db:%s", err.Error())
 	}
@@ -78,6 +85,7 @@ func Run(configPath string) {
 		EmailConfig:        cfg.Email,
 		HTTPConfig:         cfg.HTTP,
 		NotificationSender: hub,
+		Redis:              redis,
 	})
 	handlers := handler.NewHandler(services, tokenManager, cfg.Auth.JWT.AccessTokenTTL, cfg.Auth.JWT.RefreshTokenTTL, wsHandler)
 
