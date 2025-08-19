@@ -11,10 +11,6 @@ smtp:
   host: "smtp.mail.ru"
   port: 465
   from: "renting-app@mail.ru"
-auth:
-  accessTokenTTL: 3h
-  refreshTokenTTL: 720h
-  verificationCodeLength: 8
 email:
   templates:
     verification_email: "./templates/verification_code.html"

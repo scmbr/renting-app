@@ -4,3 +4,7 @@ postgres:
   port: "5432"
   dbname: "postgres"
   sslmode: "disable"
+auth:
+  accessTokenTTL: 15m
+  refreshTokenTTL: 720h
+  verificationCodeLength: 8
