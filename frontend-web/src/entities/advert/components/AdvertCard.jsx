@@ -1,7 +1,6 @@
 import { Link } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import styles from "./AdvertCard.module.css";
-import api from "@/shared/api/axios";
 import { addToFavorites, removeFromFavorites } from "@/entities/favorites/api";
 
 const AdvertCard = ({ advert, onRemoveFavorite }) => {
@@ -9,36 +8,14 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
     return <div>Данные объявления недоступны</div>;
   }
 
-  const { id, title, rent, apartment } = advert;
-  const [coverUrl, setCoverUrl] = useState(null);
-  const [isFavorite, setIsFavorite] = useState(false);
+  const { id, title, rent, apartment, is_favorite } = advert;
+  const [isFavorite, setIsFavorite] = useState(is_favorite || false);
 
-  useEffect(() => {
-    const fetchPhotos = async () => {
-      try {
-        const response = await api.get(`/apartment/${apartment.id}/photos`);
-        const cover = response.data[0];
-        if (cover) setCoverUrl(cover.url);
-      } catch (err) {
-        console.error("Ошибка при загрузке фото:", err);
-      }
-    };
-
-    const checkFavorite = async () => {
-      const token = localStorage.getItem("accessToken");
-      if (!token) return;
-
-      try {
-        const response = await api.get(`/favorites/${id}/check`);
-        setIsFavorite(response.data?.is_favorite === true);
-      } catch (err) {
-        console.error("Ошибка при проверке избранного:", err);
-      }
-    };
-
-    fetchPhotos();
-    checkFavorite();
-  }, [apartment.id, id]);
+  // Берем первую фотку, если есть
+  const coverUrl =
+    apartment.apartment_photos && apartment.apartment_photos.length > 0
+      ? apartment.apartment_photos[0].url
+      : null;
 
   const handleFavoriteClick = async (e) => {
     e.preventDefault();
@@ -63,11 +40,14 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
       <Link to={`/advert/${id}`} className={styles.advertLink}>
         <div className={styles.advertCard}>
           <img
-            src={coverUrl || "/images/no-photo.png"}
+            src={
+              coverUrl
+                ? `http://localhost:8000${coverUrl}`
+                : "/images/no-photo.png"
+            }
             alt="Фото квартиры"
             className={styles.coverPhoto}
           />
-
           <h3 className="text-lg font-bold">{title}</h3>
           <p>
             {apartment.city}, {apartment.street}, {apartment.building}

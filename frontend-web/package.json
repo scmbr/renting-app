@@ -12,6 +12,7 @@
   "dependencies": {
     "@2gis/mapgl": "^1.60.0",
     "@2gis/mapgl-clusterer": "^2.5.0",
+    "@pbe/react-yandex-maps": "^1.2.5",
     "axios": "^1.9.0",
     "clsx": "^2.1.1",
     "framer-motion": "^12.16.0",
@@ -28,7 +29,7 @@
     "@types/react": "^19.1.2",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.4.1",
-    "@yandex/ymaps3-types": "^1.0.16530300",
+    "@yandex/ymaps3-types": "^1.0.17084091",
     "eslint": "^9.25.0",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.19",

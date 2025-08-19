@@ -1,10 +1,15 @@
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
   withCredentials: true,
 });
+let logoutCallback = null;
 
+// Функции для работы с accessToken
+export function setLogoutCallback(cb) {
+  logoutCallback = cb;
+}
 function getAccessToken() {
   return localStorage.getItem("accessToken");
 }
@@ -42,7 +47,7 @@ api.interceptors.response.use(
         return api(originalRequest);
       } catch (refreshError) {
         localStorage.removeItem("accessToken");
-        window.location.href = "/login";
+         if (logoutCallback) logoutCallback();
         return Promise.reject(refreshError);
       }
     }

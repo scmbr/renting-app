@@ -2,6 +2,7 @@ import Navbar from "@/widgets/Navbar/Navbar.jsx";
 import AdvertList from "@/widgets/AdvertList/AdvertList.jsx";
 import FilterPanel from "@/widgets/FilterPanel/FilterPanel.jsx";
 import { MapGL } from "@/widgets/Map/2GIS.jsx";
+import { YandexMap } from "@/widgets/Map/YandexMap.jsx";
 import { slugToName, nameToSlug } from "@/shared/constants/cities";
 import styles from "./HomePage.module.css";
 import { useEffect, useState } from "react";
@@ -73,11 +74,19 @@ const HomePage = () => {
       <FilterPanel />
       <div className={styles.container}>
         <div className={styles.mapContainer}>
-          {city ? (
+          {/* {city ? (
             <MapGL key={mapKey} adverts={adverts} />
           ) : (
             <div>Загрузка карты...</div>
-          )}
+          )} */}
+          {city ? (
+    <YandexMap
+      key={mapKey}
+      adverts={adverts}
+    />
+  ) : (
+    <div>Загрузка карты...</div>
+  )}
         </div>
 
         <div className={styles.advertsContainer}>

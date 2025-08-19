@@ -35,7 +35,7 @@ export async function getCoordsByCity(cityName) {
       return null;
     }
     const [lon, lat] = geoObject.Point.pos.split(" ").map(Number);
-    return [lon, lat];
+    return [lat, lon];
   } catch (err) {
     return null;
   }

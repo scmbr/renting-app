@@ -35,7 +35,7 @@ const LoginPage = () => {
 
       const avatarUrlToUse = avatarUrl
         ? avatarUrl
-        : "https://storage.yandexcloud.net/profile-pictures/user.png";
+        : "/images/no-photo.png";
 
       login(name, surname, avatarUrlToUse, city);
       navigate(`/${city}`);

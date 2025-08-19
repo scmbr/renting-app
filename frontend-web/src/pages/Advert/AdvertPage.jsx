@@ -87,7 +87,7 @@ const AdvertPage = () => {
               >
                 {photos.map((photo) => (
                   <div key={photo.id}>
-                    <img src={photo.url} alt={`Фото квартиры ${title}`} />
+                    <img src={"http://localhost:8000"+photo.url} alt={`Фото квартиры ${title}`} />
                   </div>
                 ))}
               </Carousel>
