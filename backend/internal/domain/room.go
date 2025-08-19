@@ -1,4 +1,4 @@
-package models
+package domain
 
 type Room struct {
 	ID          uint      `gorm:"primaryKey"`

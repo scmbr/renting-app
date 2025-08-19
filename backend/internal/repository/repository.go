@@ -4,8 +4,8 @@ import (
 	"context"
 	"time"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -20,7 +20,7 @@ type Users interface {
 	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
 	UpdateAvatar(userId int, avatarURL string) error
 	CreateUser(ctx context.Context, user dto.CreateUser, code string) error
-	GetUser(email, password string) (models.User, error)
+	GetUser(email, password string) (domain.User, error)
 	GetByCredentials(ctx context.Context, email, password string) (*dto.GetUser, error)
 	Verify(ctx context.Context, code string) (dto.GetUser, error)
 	GetByEmail(ctx context.Context, email string) (*dto.GetUser, error)
@@ -32,10 +32,10 @@ type Users interface {
 	UpdateRating(ctx context.Context, userID uint, rating float32) error
 }
 type Session interface {
-	CreateSession(ctx context.Context, session models.Session) error
-	GetByRefreshToken(ctx context.Context, refreshToken string) (models.Session, error)
-	UpdateSession(ctx context.Context, session models.Session) error
-	GetByDevice(ctx context.Context, userID int, ip, os, browser string) (*models.Session, error)
+	CreateSession(ctx context.Context, session domain.Session) error
+	GetByRefreshToken(ctx context.Context, refreshToken string) (domain.Session, error)
+	UpdateSession(ctx context.Context, session domain.Session) error
+	GetByDevice(ctx context.Context, userID int, ip, os, browser string) (*domain.Session, error)
 	UpdateTokens(ctx context.Context, sessionID int, refreshToken string, expiresAt time.Time) error
 	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
@@ -60,7 +60,7 @@ type Advert interface {
 	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
 	DeleteAdvertAdmin(ctx context.Context, id int) error
-	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
+	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]domain.Advert, int64, error)
 	GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 }
 type ApartmentPhoto interface {
@@ -77,6 +77,7 @@ type Favorites interface {
 	AddToFavorites(ctx context.Context, userId int, listingId int) error
 	RemoveFromFavorites(ctx context.Context, userId int, listingId int) error
 	IsFavorite(ctx context.Context, userId int, listingId int) (bool, error)
+	GetUserFavorites(ctx context.Context, userID *int) (map[uint]bool, error)
 }
 type Notification interface {
 	Save(notification dto.NotificationDTO) error

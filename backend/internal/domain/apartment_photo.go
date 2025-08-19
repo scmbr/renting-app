@@ -1,4 +1,4 @@
-package models
+package domain
 
 type ApartmentPhoto struct {
 	ID          uint      `gorm:"primaryKey"`

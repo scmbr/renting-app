@@ -3,8 +3,8 @@ package repository
 import (
 	"time"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -17,7 +17,7 @@ func NewNotificationRepo(db *gorm.DB) *NotificationRepo {
 }
 
 func (r *NotificationRepo) Save(notification dto.NotificationDTO) error {
-	notif := models.Notification{
+	notif := domain.Notification{
 		UserID:    notification.UserID,
 		Type:      notification.Type,
 		Title:     notification.Title,
@@ -30,7 +30,7 @@ func (r *NotificationRepo) Save(notification dto.NotificationDTO) error {
 	return r.db.Create(&notif).Error
 }
 func (r *NotificationRepo) GetByUserID(userID uint) ([]*dto.NotificationResponseDTO, error) {
-	var notifications []models.Notification
+	var notifications []domain.Notification
 
 	err := r.db.
 		Where("user_id = ?", userID).
@@ -57,7 +57,7 @@ func (r *NotificationRepo) GetByUserID(userID uint) ([]*dto.NotificationResponse
 	return result, nil
 }
 func (r *NotificationRepo) MarkAsRead(notificationID uint) error {
-	return r.db.Model(&models.Notification{}).
+	return r.db.Model(&domain.Notification{}).
 		Where("id = ?", notificationID).
 		Update("is_read", true).Error
 }

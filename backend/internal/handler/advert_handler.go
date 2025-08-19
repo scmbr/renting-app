@@ -187,8 +187,15 @@ func (h *Handler) getAllAdverts(c *gin.Context) {
 	if filter.Offset < 0 {
 		filter.Offset = 0
 	}
-
-	adverts, total, err := h.services.Advert.GetAllAdverts(c, &filter)
+	userIdVal, exists := c.Get("userId")
+	var userId *int
+	if exists {
+		uid := userIdVal.(int)
+		userId = &uid
+	} else {
+		userId = nil
+	}
+	adverts, total, err := h.services.Advert.GetAllAdverts(c, userId, &filter)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return

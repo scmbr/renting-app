@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -19,7 +19,7 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 }
 
 func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
-	var users []models.User
+	var users []domain.User
 	result := r.db.Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
@@ -50,7 +50,7 @@ func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 			tx.Rollback()
 		}
 	}()
-	var user models.User
+	var user domain.User
 	result := tx.First(&user, "id = ?", id)
 	if result.Error != nil {
 		tx.Rollback()
@@ -85,7 +85,7 @@ func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUser, error) {
 			tx.Rollback()
 		}
 	}()
-	var user models.User
+	var user domain.User
 	result := tx.First(&user, "id = ?", id)
 	if result.Error != nil {
 		tx.Rollback()
@@ -119,7 +119,7 @@ func (r *UsersRepo) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
 			tx.Rollback()
 		}
 	}()
-	var user models.User
+	var user domain.User
 	result := tx.First(&user, "id = ?", input.Id)
 	if result.Error != nil {
 		tx.Rollback()
@@ -153,7 +153,7 @@ func (r *UsersRepo) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
 	return &getUserDTO, nil
 }
 func (r *UsersRepo) UpdateAvatar(userId int, avatarURL string) error {
-	var user models.User
+	var user domain.User
 	result := r.db.First(&user, "id = ?", userId)
 	if result.Error != nil {
 		return result.Error
@@ -186,13 +186,13 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 			return errors.New("пользователь с таким email уже зарегистрирован")
 		}
 		fmt.Println("Deleting user with ID:", existingUser.Id)
-		if err := tx.Unscoped().Where("id = ?", existingUser.Id).Delete(&models.User{}).Error; err != nil {
+		if err := tx.Unscoped().Where("id = ?", existingUser.Id).Delete(&domain.User{}).Error; err != nil {
 			tx.Rollback()
 			return errors.New("ошибка удаления старой незавершённой регистрации")
 		}
 	}
 
-	newUser := models.User{
+	newUser := domain.User{
 		Name:             user.Name,
 		Surname:          user.Surname,
 		Email:            user.Email,
@@ -218,7 +218,7 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 
 func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
 
-	var user models.User
+	var user domain.User
 	result := r.db.WithContext(ctx).Where("email = ? AND password_hash = ? AND verified=true", email, passwordHash).First(&user)
 	if result.Error != nil {
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -241,8 +241,8 @@ func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash st
 }
 
 // GetUser — получает пользователя по email и паролю
-func (r *UsersRepo) GetUser(email, password string) (models.User, error) {
-	var user models.User
+func (r *UsersRepo) GetUser(email, password string) (domain.User, error) {
+	var user domain.User
 	result := r.db.Where("email = ? AND password_hash = ?", email, password).First(&user)
 	if result.Error != nil {
 		return user, result.Error
@@ -251,7 +251,7 @@ func (r *UsersRepo) GetUser(email, password string) (models.User, error) {
 	return user, nil
 }
 func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser, error) {
-	var user models.User
+	var user domain.User
 	result := r.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
 		return &dto.GetUser{
@@ -280,7 +280,7 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser,
 	}, nil
 }
 func (r *UsersRepo) UpdateVerificationCode(ctx context.Context, id int, verificationCode string) error {
-	var user models.User
+	var user domain.User
 	tx := r.db.WithContext(ctx).Begin()
 
 	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
@@ -302,7 +302,7 @@ func (r *UsersRepo) UpdateVerificationCode(ctx context.Context, id int, verifica
 	return nil
 }
 func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error) {
-	var user models.User
+	var user domain.User
 
 	err := r.db.WithContext(ctx).
 		Where("verification_code = ?", code).
@@ -335,7 +335,7 @@ func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error
 	}, nil
 }
 func (r *UsersRepo) SavePasswordResetToken(ctx context.Context, id int, resetToken string) error {
-	var user models.User
+	var user domain.User
 	tx := r.db.WithContext(ctx).Begin()
 
 	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
@@ -357,7 +357,7 @@ func (r *UsersRepo) SavePasswordResetToken(ctx context.Context, id int, resetTok
 	return nil
 }
 func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error) {
-	var user models.User
+	var user domain.User
 	result := r.db.Where("reset_token = ?", token).First(&user)
 	if result.Error != nil {
 		return dto.GetUser{
@@ -386,7 +386,7 @@ func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.
 	}, nil
 }
 func (r *UsersRepo) UpdatePasswordAndClearResetToken(ctx context.Context, id int, newPassword string) error {
-	var user models.User
+	var user domain.User
 	tx := r.db.WithContext(ctx).Begin()
 
 	if err := tx.Where("id = ?", id).First(&user).Error; err != nil {
@@ -415,7 +415,7 @@ func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, e
 		}
 	}()
 
-	var user models.User
+	var user domain.User
 	result := tx.First(&user, "id = ?", userId)
 	if result.Error != nil {
 		tx.Rollback()
@@ -469,7 +469,7 @@ func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, e
 }
 func (r *UsersRepo) UpdateRating(ctx context.Context, userID uint, rating float32) error {
 	return r.db.WithContext(ctx).
-		Model(&models.User{}).
+		Model(&domain.User{}).
 		Where("id = ?", userID).
 		Update("rating", rating).Error
 }

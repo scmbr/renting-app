@@ -24,11 +24,12 @@ func (s *UserService) SignUp(ctx context.Context, user dto.CreateUser) error {
 	if err := s.repo.CreateUser(ctx, user, verificationCode); err != nil {
 		return err
 	}
-	return s.emailService.SendUserVerificationEmail(VerificationEmailInput{
-		Email:            user.Email,
-		Name:             user.Name,
-		VerificationCode: verificationCode,
-	})
+	// return s.emailService.SendUserVerificationEmail(VerificationEmailInput{
+	// 	Email:            user.Email,
+	// 	Name:             user.Name,
+	// 	VerificationCode: verificationCode,
+	// })
+	return nil
 }
 func (s *UserService) SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error) {
 	passwordHash, err := s.hasher.Hash(password)

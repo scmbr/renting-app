@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -24,7 +24,7 @@ func (r *ReviewRepo) Create(ctx context.Context, authorID uint, input dto.Create
 		}
 	}()
 
-	review := models.Review{
+	review := domain.Review{
 		AuthorID: authorID,
 		TargetID: input.TargetID,
 		Rating:   input.Rating,
@@ -53,7 +53,7 @@ func (r *ReviewRepo) Update(ctx context.Context, reviewID uint, input dto.Update
 		}
 	}()
 
-	var review models.Review
+	var review domain.Review
 	if err := tx.First(&review, reviewID).Error; err != nil {
 		tx.Rollback()
 		return nil, err
@@ -88,7 +88,7 @@ func (r *ReviewRepo) Delete(ctx context.Context, reviewID uint) error {
 		}
 	}()
 
-	if err := tx.Delete(&models.Review{}, reviewID).Error; err != nil {
+	if err := tx.Delete(&domain.Review{}, reviewID).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -97,7 +97,7 @@ func (r *ReviewRepo) Delete(ctx context.Context, reviewID uint) error {
 }
 
 func (r *ReviewRepo) GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.GetReviewResponse, error) {
-	var reviews []models.Review
+	var reviews []domain.Review
 
 	err := r.db.WithContext(ctx).
 		Preload("Author").
@@ -117,7 +117,7 @@ func (r *ReviewRepo) GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.G
 }
 
 func (r *ReviewRepo) GetByTargetID(ctx context.Context, targetID uint) ([]*dto.GetReviewResponse, error) {
-	var reviews []models.Review
+	var reviews []domain.Review
 
 	err := r.db.WithContext(ctx).
 		Preload("Author").
@@ -139,7 +139,7 @@ func (r *ReviewRepo) GetByTargetID(ctx context.Context, targetID uint) ([]*dto.G
 func (r *ReviewRepo) ReviewExists(ctx context.Context, authorID uint, targetID uint) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&models.Review{}).
+		Model(&domain.Review{}).
 		Where("author_id = ? AND target_id = ?", authorID, targetID).
 		Count(&count).Error
 
@@ -153,7 +153,7 @@ func (r *ReviewRepo) ReviewExists(ctx context.Context, authorID uint, targetID u
 func (r *ReviewRepo) IsAuthor(ctx context.Context, userID uint, reviewID uint) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&models.Review{}).
+		Model(&domain.Review{}).
 		Where("id = ? AND author_id = ?", reviewID, userID).
 		Count(&count).Error
 

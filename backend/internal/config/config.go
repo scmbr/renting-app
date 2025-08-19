@@ -80,7 +80,6 @@ func Init(configsDir string) (*Config, error) {
 	}
 
 	setFromEnv(&cfg)
-
 	return &cfg, nil
 }
 func unmarshal(cfg *Config) error {

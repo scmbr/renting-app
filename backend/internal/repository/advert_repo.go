@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -18,11 +18,11 @@ type AdvertRepo struct {
 func NewAdvertRepo(db *gorm.DB) *AdvertRepo {
 	return &AdvertRepo{db: db}
 }
-func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error) {
-	var adverts []models.Advert
+func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]domain.Advert, int64, error) {
+	var adverts []domain.Advert
 	var total int64
 	tx := r.db.WithContext(ctx).
-		Model(&models.Advert{}).
+		Model(&domain.Advert{}).
 		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
 		Joins("JOIN users ON users.id = apartments.user_id").
 		Preload("Apartment")
@@ -112,19 +112,13 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 	if err := tx.Find(&adverts).Error; err != nil {
 		return nil, 0, err
 	}
-
-	var result []*dto.GetAdvertResponse
-	for _, adv := range adverts {
-		resp := dto.FromAdvert(adv)
-		result = append(result, resp)
-	}
-	return result, total, nil
+	return adverts, total, nil
 }
 func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
-	var advert models.Advert
+	var advert domain.Advert
 
 	err := r.db.WithContext(ctx).
-		Model(&models.Advert{}).
+		Model(&domain.Advert{}).
 		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
 		Joins("JOIN users ON users.id = apartments.user_id").
 		Preload("Apartment").
@@ -137,10 +131,10 @@ func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertR
 	return dto.FromAdvert(advert), nil
 }
 func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
-	var adverts []models.Advert
+	var adverts []domain.Advert
 
 	err := r.db.WithContext(ctx).
-		Model(&models.Advert{}).
+		Model(&domain.Advert{}).
 		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
 		Where("apartments.user_id = ?", userId).
 		Preload("Apartment").
@@ -159,7 +153,7 @@ func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.
 	return result, nil
 }
 func (r *AdvertRepo) GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error) {
-	var advert models.Advert
+	var advert domain.Advert
 
 	err := r.db.WithContext(ctx).
 		Where("id = ? AND user_id = ?", id, userId).
@@ -197,7 +191,7 @@ func (r *AdvertRepo) CreateAdvert(ctx context.Context, userId int, input dto.Cre
 			tx.Rollback()
 		}
 	}()
-	advertGorm := models.Advert{
+	advertGorm := domain.Advert{
 		UserID:         uint(userId),
 		ApartmentID:    input.ApartmentID,
 		Status:         "active",
@@ -232,7 +226,7 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 		}
 	}()
 
-	var advert models.Advert
+	var advert domain.Advert
 	result := tx.First(&advert, "id = ? AND user_id = ?", id, userId)
 	if result.Error != nil {
 		tx.Rollback()
@@ -243,12 +237,10 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 		return errors.New("advert not found or not owned by user")
 	}
 
-	
-	if err := tx.Where("advert_id = ?", id).Delete(&models.Favorites{}).Error; err != nil {
+	if err := tx.Where("advert_id = ?", id).Delete(&domain.Favorites{}).Error; err != nil {
 		tx.Rollback()
 		return fmt.Errorf("ошибка при удалении из избранного: %w", err)
 	}
-
 
 	if err := tx.Delete(&advert).Error; err != nil {
 		tx.Rollback()
@@ -265,7 +257,7 @@ func (r *AdvertRepo) UpdateAdvert(ctx context.Context, userId int, id int, input
 		}
 	}()
 
-	var advert models.Advert
+	var advert domain.Advert
 	// Проверка существования и принадлежности
 	err := tx.First(&advert, "id = ? AND user_id = ?", id, userId).Error
 	if err != nil {
@@ -332,7 +324,7 @@ func (r *AdvertRepo) UpdateAdvert(ctx context.Context, userId int, id int, input
 	return nil
 }
 func (r *AdvertRepo) GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertResponse, error) {
-	var adverts []models.Advert
+	var adverts []domain.Advert
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -374,7 +366,7 @@ func (r *AdvertRepo) GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertRe
 }
 
 func (r *AdvertRepo) GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
-	var advert models.Advert
+	var advert domain.Advert
 	err := r.db.WithContext(ctx).First(&advert, "id = ?", id).Error
 	if err != nil {
 		return nil, err
@@ -411,7 +403,7 @@ func (r *AdvertRepo) UpdateAdvertAdmin(ctx context.Context, id int, input *dto.U
 		}
 	}()
 
-	var advert models.Advert
+	var advert domain.Advert
 	err := tx.First(&advert, "id = ?", id).Error
 	if err != nil {
 		tx.Rollback()
@@ -478,7 +470,7 @@ func (r *AdvertRepo) DeleteAdvertAdmin(ctx context.Context, id int) error {
 		}
 	}()
 
-	var advert models.Advert
+	var advert domain.Advert
 	result := tx.First(&advert, "id = ?", id)
 	if result.Error != nil {
 		tx.Rollback()

@@ -38,11 +38,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 	router := gin.New()
 
 	router.Use(corsMiddleware, gin.Recovery(), gin.Logger())
-
+	mediaDir := "../media/apartments_photo"
+	router.Static("/media/apartments_photo", mediaDir)
 	api := router.Group("/api")
 	{
 
-		publicAdverts := api.Group("/adverts")
+		publicAdverts := api.Group("/adverts", h.optionalUserIdentity)
 		{
 			publicAdverts.GET("", h.getAllAdverts)
 			publicAdverts.GET("/:id", h.getAdvertById)

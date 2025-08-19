@@ -1,6 +1,6 @@
 package dto
 
-import "github.com/scmbr/renting-app/internal/models"
+import "github.com/scmbr/renting-app/internal/domain"
 
 type CreateRoomRequest struct {
 	ApartmentID uint    `json:"apartment_id" binding:"required"`
@@ -14,7 +14,7 @@ type GetRoomResponse struct {
 	Status      string   `json:"status"`
 }
 
-func FromRoom(r *models.Room) *GetRoomResponse {
+func FromRoom(r *domain.Room) *GetRoomResponse {
 	return &GetRoomResponse{
 		ID:          r.ID,
 		ApartmentID: r.ApartmentID,

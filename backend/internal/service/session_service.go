@@ -6,7 +6,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/scmbr/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/pkg/auth"
 )
@@ -46,7 +46,7 @@ func (s *SessionService) CreateSession(ctx context.Context, role string, userID 
 		err = s.repo.UpdateTokens(ctx, existingSession.ID, res.RefreshToken, time.Now().Add(s.refreshTokenTTL))
 		return res, err
 	}
-	session := models.Session{
+	session := domain.Session{
 		UserID:       userID,
 		RefreshToken: res.RefreshToken,
 		ExpiresAt:    time.Now().Add(s.refreshTokenTTL),

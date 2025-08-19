@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func NewApartmentRepo(db *gorm.DB) *ApartmentRepo {
 	return &ApartmentRepo{db: db}
 }
 func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error) {
-	var apartments []models.Apartment
+	var apartments []domain.Apartment
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -69,7 +69,7 @@ func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userId int) ([]*dt
 
 }
 func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error) {
-	var apartment models.Apartment
+	var apartment domain.Apartment
 
 	err := r.db.WithContext(ctx).
 		Where("id = ? AND user_id = ?", id, userId).
@@ -114,7 +114,7 @@ func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input d
 		}
 	}()
 
-	apartmentGorm := models.Apartment{
+	apartmentGorm := domain.Apartment{
 		UserID:           uint(userId),
 		City:             input.City,
 		Street:           input.Street,
@@ -154,7 +154,7 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		}
 	}()
 
-	var apartment models.Apartment
+	var apartment domain.Apartment
 	result := tx.First(&apartment, "id = ? AND user_id = ?", id, userId)
 	if result.Error != nil {
 		tx.Rollback()
@@ -165,13 +165,13 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 		return errors.New("apartment not found or not owned by user")
 	}
 
-	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.ApartmentPhoto{}).Error; err != nil {
+	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&domain.ApartmentPhoto{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
 	var advertIDs []int
-	if err := tx.Model(&models.Advert{}).
+	if err := tx.Model(&domain.Advert{}).
 		Where("apartment_id = ?", apartment.ID).
 		Pluck("id", &advertIDs).Error; err != nil {
 		tx.Rollback()
@@ -179,13 +179,13 @@ func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int)
 	}
 
 	if len(advertIDs) > 0 {
-		if err := tx.Where("advert_id IN ?", advertIDs).Delete(&models.Favorites{}).Error; err != nil {
+		if err := tx.Where("advert_id IN ?", advertIDs).Delete(&domain.Favorites{}).Error; err != nil {
 			tx.Rollback()
 			return err
 		}
 	}
 
-	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&models.Advert{}).Error; err != nil {
+	if err := tx.Where("apartment_id = ?", apartment.ID).Delete(&domain.Advert{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
@@ -206,7 +206,7 @@ func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int,
 		}
 	}()
 
-	var apartment models.Apartment
+	var apartment domain.Apartment
 	// Проверка существования и принадлежности
 	err := tx.First(&apartment, "id = ? AND user_id = ?", id, userId).Error
 	if err != nil {
@@ -279,7 +279,7 @@ func (r *ApartmentRepo) UpdateApartment(ctx context.Context, userId int, id int,
 	return nil
 }
 func (r *ApartmentRepo) GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error) {
-	var apartments []models.Apartment
+	var apartments []domain.Apartment
 
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -328,7 +328,7 @@ func (r *ApartmentRepo) GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetAp
 }
 
 func (r *ApartmentRepo) GetApartmentByIdAdmin(ctx context.Context, id int) (*dto.GetApartmentResponse, error) {
-	var apartment models.Apartment
+	var apartment domain.Apartment
 
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -383,7 +383,7 @@ func (r *ApartmentRepo) UpdateApartmentAdmin(ctx context.Context, id int, input 
 		}
 	}()
 
-	var apartment models.Apartment
+	var apartment domain.Apartment
 	err := tx.First(&apartment, id).Error
 	if err != nil {
 		tx.Rollback()
@@ -460,7 +460,7 @@ func (r *ApartmentRepo) DeleteApartmentAdmin(ctx context.Context, id int) error 
 		}
 	}()
 
-	var apartment models.Apartment
+	var apartment domain.Apartment
 	result := tx.First(&apartment, id)
 	if result.Error != nil {
 		tx.Rollback()

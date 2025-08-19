@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/scmbr/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/domain"
 )
 
 type GetUser struct {
@@ -48,7 +48,7 @@ type UpdateUserAdmin struct {
 	IsActive  *bool      `json:"is_active"`
 }
 
-func FromUser(u *models.User) *GetUser {
+func FromUser(u *domain.User) *GetUser {
 	return &GetUser{
 		Id:             int(u.ID),
 		Name:           u.Name,

@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/scmbr/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/domain"
 )
 
 type CreateAdvertInput struct {
@@ -43,6 +43,7 @@ type GetAdvertResponse struct {
 	Status         string                `json:"status"`
 	CreatedAt      time.Time             `json:"created_at"`
 	UpdatedAt      time.Time             `json:"updated_at"`
+	IsFavorite     bool                  `json:"is_favorite"`
 }
 
 type UpdateAdvertInput struct {
@@ -102,7 +103,7 @@ type AdvertFilter struct {
 	Lng    float32
 }
 
-func FromAdvert(advert models.Advert) *GetAdvertResponse {
+func FromAdvert(advert domain.Advert) *GetAdvertResponse {
 	return &GetAdvertResponse{
 		ID:             advert.ID,
 		UserID:         advert.UserID,

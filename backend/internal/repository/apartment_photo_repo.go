@@ -3,8 +3,8 @@ package repository
 import (
 	"context"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func NewApartmentPhotoRepo(db *gorm.DB) *ApartmentPhotoRepo {
 
 // Получить все фото по ID квартиры
 func (r *ApartmentPhotoRepo) GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error) {
-	var photos []*models.ApartmentPhoto
+	var photos []*domain.ApartmentPhoto
 	err := r.db.WithContext(ctx).Where("apartment_id = ?", apartmentId).Find(&photos).Error
 	if err != nil {
 		return nil, err
@@ -38,7 +38,7 @@ func (r *ApartmentPhotoRepo) GetAllPhotos(ctx context.Context, apartmentId int) 
 
 // Получить конкретное фото
 func (r *ApartmentPhotoRepo) GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error) {
-	var photo models.ApartmentPhoto
+	var photo domain.ApartmentPhoto
 	err := r.db.WithContext(ctx).First(&photo, "id = ? AND apartment_id = ?", photoId, apartmentId).Error
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (r *ApartmentPhotoRepo) AddPhotoBatch(ctx context.Context, userId, apartmen
 	}()
 
 	for _, input := range inputs {
-		photo := models.ApartmentPhoto{
+		photo := domain.ApartmentPhoto{
 			ApartmentID: uint(apartmentId),
 			URL:         input.URL,
 			IsCover:     input.IsCover,
@@ -85,7 +85,7 @@ func (r *ApartmentPhotoRepo) DeletePhoto(ctx context.Context, userId, apartmentI
 		}
 	}()
 
-	var photo models.ApartmentPhoto
+	var photo domain.ApartmentPhoto
 	err := tx.First(&photo, "id = ? AND apartment_id = ?", photoId, apartmentId).Error
 	if err != nil {
 		tx.Rollback()
@@ -110,7 +110,7 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 	}()
 
 	// Сброс старой обложки
-	if err := tx.Model(&models.ApartmentPhoto{}).
+	if err := tx.Model(&domain.ApartmentPhoto{}).
 		Where("apartment_id = ? AND is_cover = true", apartmentId).
 		Update("is_cover", false).Error; err != nil {
 		tx.Rollback()
@@ -118,7 +118,7 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 	}
 
 	// Установка новой
-	if err := tx.Model(&models.ApartmentPhoto{}).
+	if err := tx.Model(&domain.ApartmentPhoto{}).
 		Where("id = ? AND apartment_id = ?", photoId, apartmentId).
 		Update("is_cover", true).Error; err != nil {
 		tx.Rollback()
@@ -129,7 +129,7 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 }
 func (r *ApartmentPhotoRepo) HasCoverPhoto(apartmentId int) (bool, error) {
 	var count int64
-	err := r.db.Model(&models.ApartmentPhoto{}).
+	err := r.db.Model(&domain.ApartmentPhoto{}).
 		Where("apartment_id = ? AND is_cover = true", apartmentId).
 		Count(&count).Error
 	if err != nil {
@@ -146,15 +146,13 @@ func (r *ApartmentPhotoRepo) ReplaceAllPhotos(ctx context.Context, userId, apart
 		}
 	}()
 
-
-	if err := tx.Where("apartment_id = ?", apartmentId).Delete(&models.ApartmentPhoto{}).Error; err != nil {
+	if err := tx.Where("apartment_id = ?", apartmentId).Delete(&domain.ApartmentPhoto{}).Error; err != nil {
 		tx.Rollback()
 		return err
 	}
 
-
 	for _, input := range inputs {
-		photo := models.ApartmentPhoto{
+		photo := domain.ApartmentPhoto{
 			ApartmentID: uint(apartmentId),
 			URL:         input.URL,
 			IsCover:     input.IsCover,

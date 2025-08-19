@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
+	"github.com/scmbr/renting-app/internal/domain"
 	"github.com/scmbr/renting-app/internal/dto"
-	"github.com/scmbr/renting-app/internal/models"
 	"gorm.io/gorm"
 )
 
@@ -18,7 +18,7 @@ func NewFavoritesRepo(db *gorm.DB) *FavoritesRepo {
 }
 
 func (r *FavoritesRepo) GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error) {
-	var favorites []models.Favorites
+	var favorites []domain.Favorites
 
 	err := r.db.WithContext(ctx).
 		Where("user_id = ?", userId).
@@ -42,7 +42,7 @@ func (r *FavoritesRepo) AddToFavorites(ctx context.Context, userId int, advertId
 
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&models.Favorites{}).
+		Model(&domain.Favorites{}).
 		Where("user_id = ? AND advert_id = ?", userId, advertId).
 		Count(&count).Error
 	if err != nil {
@@ -53,7 +53,7 @@ func (r *FavoritesRepo) AddToFavorites(ctx context.Context, userId int, advertId
 		return errors.New("already in favorites")
 	}
 
-	fav := models.Favorites{
+	fav := domain.Favorites{
 		UserID:   uint(userId),
 		AdvertID: uint(advertId),
 	}
@@ -67,7 +67,7 @@ func (r *FavoritesRepo) AddToFavorites(ctx context.Context, userId int, advertId
 func (r *FavoritesRepo) RemoveFromFavorites(ctx context.Context, userId int, advertId int) error {
 	result := r.db.WithContext(ctx).
 		Where("user_id = ? AND advert_id = ?", userId, advertId).
-		Delete(&models.Favorites{})
+		Delete(&domain.Favorites{})
 	if result.Error != nil {
 		return result.Error
 	}
@@ -80,11 +80,24 @@ func (r *FavoritesRepo) RemoveFromFavorites(ctx context.Context, userId int, adv
 func (r *FavoritesRepo) IsFavorite(ctx context.Context, userId int, advertId int) (bool, error) {
 	var count int64
 	err := r.db.WithContext(ctx).
-		Model(&models.Favorites{}).
+		Model(&domain.Favorites{}).
 		Where("user_id = ? AND advert_id = ?", userId, advertId).
 		Count(&count).Error
 	if err != nil {
 		return false, err
 	}
 	return count > 0, nil
+}
+func (r *FavoritesRepo) GetUserFavorites(ctx context.Context, userID *int) (map[uint]bool, error) {
+	var favorites []domain.Favorites
+	err := r.db.WithContext(ctx).Where("user_id = ?", userID).Find(&favorites).Error
+	if err != nil {
+		return nil, err
+	}
+
+	likedMap := make(map[uint]bool, len(favorites))
+	for _, f := range favorites {
+		likedMap[f.AdvertID] = true
+	}
+	return likedMap, nil
 }

@@ -65,7 +65,7 @@ type Advert interface {
 	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
 	DeleteAdvertAdmin(ctx context.Context, id int) error
-	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
+	GetAllAdverts(ctx context.Context, userId *int, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
 	GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 }
 
@@ -91,11 +91,11 @@ type Notification interface {
 	MarkAsRead(notificationID uint) error
 }
 type Review interface {
-    Create(ctx context.Context, authorID uint, input dto.CreateReviewInput) (*dto.GetReviewResponse, error)
-    Update(ctx context.Context, userID uint, reviewID uint, input dto.UpdateReviewInput) (*dto.GetReviewResponse, error)
-    Delete(ctx context.Context, userID uint, reviewID uint) error
-    GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.GetReviewResponse, error)
-    GetByTargetID(ctx context.Context, targetID uint) ([]*dto.GetReviewResponse, error)
+	Create(ctx context.Context, authorID uint, input dto.CreateReviewInput) (*dto.GetReviewResponse, error)
+	Update(ctx context.Context, userID uint, reviewID uint, input dto.UpdateReviewInput) (*dto.GetReviewResponse, error)
+	Delete(ctx context.Context, userID uint, reviewID uint) error
+	GetByAuthorID(ctx context.Context, authorID uint) ([]*dto.GetReviewResponse, error)
+	GetByTargetID(ctx context.Context, targetID uint) ([]*dto.GetReviewResponse, error)
 }
 type Services struct {
 	User
@@ -147,11 +147,11 @@ func NewServices(deps Deps) *Services {
 	)
 	apartmentService := NewApartmentService(deps.Repos.Apartment)
 	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
-	advertService := NewAdvertService(deps.Repos.Advert)
+	advertService := NewAdvertService(deps.Repos.Advert, deps.Repos.Favorites, deps.Repos.ApartmentPhoto)
 
 	notificationService := NewNotificationService(deps.Repos.Notification, deps.NotificationSender)
 	favoritesService := NewFavoritesService(deps.Repos.Favorites, deps.Repos.Users, deps.Repos.Advert, notificationService)
-	reviewService:=NewReviewService(deps.Repos.Review, deps.Repos.Users)
+	reviewService := NewReviewService(deps.Repos.Review, deps.Repos.Users)
 	return &Services{
 		User:           userService,
 		Session:        sessionService,
@@ -160,6 +160,6 @@ func NewServices(deps Deps) *Services {
 		ApartmentPhoto: apartmentPhotoService,
 		Favorites:      favoritesService,
 		Notification:   notificationService,
-		Review: reviewService,
+		Review:         reviewService,
 	}
 }

@@ -3,7 +3,7 @@ package dto
 import (
 	"time"
 
-	"github.com/scmbr/renting-app/internal/models"
+	"github.com/scmbr/renting-app/internal/domain"
 )
 
 type CreateReviewInput struct {
@@ -24,19 +24,19 @@ type GetReviewResponse struct {
 }
 
 type UpdateReviewInput struct {
-	Rating  *int   `json:"rating" binding:"omitempty,min=1,max=5"`
+	Rating  *int    `json:"rating" binding:"omitempty,min=1,max=5"`
 	Comment *string `json:"comment"`
 }
 
 type GetUserPublic struct {
-	ID       uint   `json:"id"`
-	Name     string `json:"name"`
-	Surname  string `json:"surname"`
-	Avatar   string `json:"profile_picture"`
-	Rating   float32 `json:"rating"`
+	ID      uint    `json:"id"`
+	Name    string  `json:"name"`
+	Surname string  `json:"surname"`
+	Avatar  string  `json:"profile_picture"`
+	Rating  float32 `json:"rating"`
 }
 
-func FromReview(r models.Review) *GetReviewResponse {
+func FromReview(r domain.Review) *GetReviewResponse {
 	return &GetReviewResponse{
 		ID:        r.ID,
 		AuthorID:  r.AuthorID,
@@ -46,11 +46,11 @@ func FromReview(r models.Review) *GetReviewResponse {
 		CreatedAt: r.CreatedAt,
 		UpdatedAt: r.UpdatedAt,
 		Author: &GetUserPublic{
-			ID:       r.Author.ID,
-			Name:     r.Author.Name,
-			Surname:  r.Author.Surname,
-			Avatar:   r.Author.ProfilePicture,
-			Rating:   r.Author.Rating,
+			ID:      r.Author.ID,
+			Name:    r.Author.Name,
+			Surname: r.Author.Surname,
+			Avatar:  r.Author.ProfilePicture,
+			Rating:  r.Author.Rating,
 		},
 	}
 }

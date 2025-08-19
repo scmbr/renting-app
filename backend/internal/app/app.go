@@ -11,6 +11,7 @@ import (
 	_ "github.com/lib/pq"
 	app_cfg "github.com/scmbr/renting-app/internal/config"
 	"github.com/scmbr/renting-app/internal/handler"
+	"github.com/scmbr/renting-app/internal/infrastructure/db/postgres"
 	"github.com/scmbr/renting-app/internal/repository"
 	"github.com/scmbr/renting-app/internal/server"
 	"github.com/scmbr/renting-app/internal/service"
@@ -33,7 +34,7 @@ func Run(configPath string) {
 		return
 	}
 
-	db, err := repository.NewPostgresDB(repository.Config{
+	db, err := postgres.NewPostgresDB(postgres.Config{
 		Host:     cfg.Postgres.Host,
 		Port:     cfg.Postgres.Port,
 		Username: cfg.Postgres.Username,
