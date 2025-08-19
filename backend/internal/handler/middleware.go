@@ -43,6 +43,22 @@ func (h *Handler) userIdentity(c *gin.Context) {
 	c.Set("Role", claims.Role)
 	c.Next()
 }
+func (h *Handler) optionalUserIdentity(c *gin.Context) {
+	header := c.GetHeader(authorizationHeader)
+	if header != "" {
+		headerParts := strings.Split(header, " ")
+		if len(headerParts) == 2 {
+			claims, err := h.tokenManager.Parse(headerParts[1])
+			if err == nil {
+				if userId, err := strconv.Atoi(claims.UserID); err == nil {
+					c.Set("userId", userId)
+					c.Set("Role", claims.Role)
+				}
+			}
+		}
+	}
+	c.Next()
+}
 func (h *Handler) adminMiddleware(c *gin.Context) {
 	if c.Request.Method == "OPTIONS" {
 		c.Next()
