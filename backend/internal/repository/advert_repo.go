@@ -114,8 +114,8 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 	}
 	return adverts, total, nil
 }
-func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
-	var advert domain.Advert
+func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*domain.Advert, error) {
+	var advert *domain.Advert
 
 	err := r.db.WithContext(ctx).
 		Model(&domain.Advert{}).
@@ -128,7 +128,7 @@ func (r *AdvertRepo) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertR
 		return nil, err
 	}
 
-	return dto.FromAdvert(advert), nil
+	return advert, nil
 }
 func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error) {
 	var adverts []domain.Advert

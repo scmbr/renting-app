@@ -61,7 +61,7 @@ type Advert interface {
 	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
 	DeleteAdvertAdmin(ctx context.Context, id int) error
 	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]domain.Advert, int64, error)
-	GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
+	GetAdvertById(ctx context.Context, id int) (*domain.Advert, error)
 }
 type ApartmentPhoto interface {
 	GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error)

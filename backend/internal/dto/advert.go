@@ -63,44 +63,36 @@ type UpdateAdvertInput struct {
 	Status         *string  `json:"status"`
 }
 type AdvertFilter struct {
-	City     string
-	District string
-	Rooms    int
-
-	PriceMin int
-	PriceMax int
-
-	FloorMin int
-	FloorMax int
-
-	YearMin int
-	YearMax int
-
+	City               string
+	District           string
+	Rooms              int
+	PriceMin           int
+	PriceMax           int
+	FloorMin           int
+	FloorMax           int
+	YearMin            int
+	YearMax            int
 	ApartmentRatingMin float32
 	LandlordRatingMin  float32
 	BathroomType       string
 	Remont             string
-
-	Elevator  *bool
-	Concierge *bool
-
-	Pets           *bool
-	Babies         *bool
-	Smoking        *bool
-	Internet       *bool
-	WashingMachine *bool
-	TV             *bool
-	Conditioner    *bool
-	Dishwasher     *bool
-
-	RentalType string
-
-	Limit  int
-	Offset int
-	SortBy string
-	Order  string
-	Lat    float32
-	Lng    float32
+	Elevator           *bool
+	Concierge          *bool
+	Pets               *bool
+	Babies             *bool
+	Smoking            *bool
+	Internet           *bool
+	WashingMachine     *bool
+	TV                 *bool
+	Conditioner        *bool
+	Dishwasher         *bool
+	RentalType         string
+	Limit              int
+	Offset             int
+	SortBy             string
+	Order              string
+	Lat                float32
+	Lng                float32
 }
 
 func FromAdvert(advert domain.Advert) *GetAdvertResponse {

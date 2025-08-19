@@ -9,7 +9,6 @@ import (
 	"github.com/scmbr/renting-app/internal/dto"
 	"github.com/scmbr/renting-app/internal/infrastructure/redis/cache"
 	"github.com/scmbr/renting-app/internal/repository"
-	"github.com/sirupsen/logrus"
 )
 
 type AdvertService struct {
@@ -34,7 +33,6 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 	filterJSON, _ := json.Marshal(filter)
 	cacheKey := fmt.Sprintf("adverts:%v:%s", userID, string(filterJSON))
 	if cached, err := s.cache.Get(ctx, cacheKey); err == nil && cached != "" {
-		logrus.Info("GetAllAdverts: returned from cache")
 		var resp struct {
 			Adverts []*dto.GetAdvertResponse
 			Total   int64
@@ -78,7 +76,6 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 		resp.Apartment.ApartmentPhotos = photos
 		result[i] = resp
 	}
-	logrus.Info("GetAllAdverts: returned from database")
 
 	payload, _ := json.Marshal(struct {
 		Adverts []*dto.GetAdvertResponse
@@ -91,7 +88,12 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 }
 
 func (s *AdvertService) GetAdvertById(ctx context.Context, id int) (*dto.GetAdvertResponse, error) {
-	return s.advertRepo.GetAdvertById(ctx, id)
+	advert, err := s.advertRepo.GetAdvertById(ctx, id)
+	if err != nil {
+		return nil, err
+	}
+	resp := dto.FromAdvert(*advert)
+	return resp, nil
 }
 
 func (s *AdvertService) GetAllUserAdverts(ctx context.Context, userID int) ([]*dto.GetAdvertResponse, error) {
