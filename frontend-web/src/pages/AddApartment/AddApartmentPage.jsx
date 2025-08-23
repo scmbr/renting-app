@@ -43,23 +43,27 @@ const AddApartmentPage = () => {
 
     const fetchCoords = async () => {
       try {
-        const API_KEY = import.meta.env.VITE_2GIS_MAP_API_KEY;
+        const API_KEY = import.meta.env.VITE_YANDEX_GEOCODER_KEY;
         const res = await fetch(
-          `https://catalog.api.2gis.com/3.0/items/geocode?q=${encodeURIComponent(
+          `https://geocode-maps.yandex.ru/v1/?apikey=${API_KEY}&geocode=${encodeURIComponent(
             city
-          )}&fields=items.point&key=${API_KEY}`
+          )}&format=json`
         );
         const data = await res.json();
-        const point = data.result?.items?.[0]?.point;
-        if (point) {
-          setCityLocation(`${point.lon},${point.lat}`);
-          setMapCenter([point.lon, point.lat]);
-          setMapMarker([point.lon, point.lat]);
+        const pos =
+          data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject
+            ?.Point?.pos || "0 0";
+        const [lon, lat] = pos.split(" ").map(Number);
+
+        if (lon && lat) {
+          setCityLocation(`${lat},${lon}`); // для отображения в UI
+          setMapCenter([lat, lon]); // для карты
+          setMapMarker([lat, lon]);
           setForm((prev) => ({
             ...prev,
             city,
-            longitude: point.lon,
-            latitude: point.lat,
+            longitude: lon,
+            latitude: lat,
           }));
         }
       } catch (e) {
@@ -99,8 +103,8 @@ const AddApartmentPage = () => {
       longitude,
     }));
 
-    setMapCenter([longitude, latitude]);
-    setMapMarker([longitude, latitude]);
+    setMapCenter([latitude, longitude]);
+    setMapMarker([latitude, longitude]);
   };
 
   const handleSubmit = async (e) => {

@@ -1,24 +1,21 @@
 import { useState, useEffect, useRef } from "react";
 import styles from "./AddressSuggester.module.css";
 
-const API_KEY = import.meta.env.VITE_2GIS_MAP_API_KEY;
+const GEOSUGGEST_API_KEY = import.meta.env.VITE_YANDEX_GEOSUGGEST_API_KEY;
+const GEOCODER_API_KEY = import.meta.env.VITE_YANDEX_GEOCODER_KEY;
 
 const AddressSuggester = ({
   onSelect,
   placeholder = "Введите адрес",
-  location,
   value = "",
 }) => {
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState(value ?? "");
   const [suggestions, setSuggestions] = useState([]);
   const wrapperRef = useRef(null);
 
   useEffect(() => {
-    setQuery(value || "");
+    setQuery(value ?? "");
   }, [value]);
-  useEffect(() => {
-    if (!location) setSuggestions([]);
-  }, [location]);
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -26,21 +23,25 @@ const AddressSuggester = ({
         setSuggestions([]);
       }
     };
-
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const fetchSuggestions = async (text) => {
-    if (!text || !location) return setSuggestions([]);
+    const cityFromStorage = localStorage.getItem("city") || "Москва";
+    if (!text) return setSuggestions([]);
     try {
-      const url = `https://catalog.api.2gis.com/3.0/suggests?q=${encodeURIComponent(
-        text
-      )}&location=${location}&key=${API_KEY}`;
+      const query = `${cityFromStorage} ${text}`;
+      const url = `https://suggest-maps.yandex.ru/v1/suggest?apikey=${GEOSUGGEST_API_KEY}&text=${encodeURIComponent(
+        query
+      )}&lang=ru_RU&types=house`;
+      console.log("Suggest URL:", url);
 
       const res = await fetch(url);
       const data = await res.json();
-      setSuggestions(data.result?.items || []);
+
+      console.log("Ответ SUGGEST:", data);
+      setSuggestions(data.results || []);
     } catch (err) {
       console.error("Ошибка получения подсказок:", err);
     }
@@ -53,82 +54,37 @@ const AddressSuggester = ({
   };
 
   const handleSelect = async (item) => {
-    setQuery(item.name);
+    const address = `${item.title?.text || ""}`.trim();
+    setQuery(address);
     setSuggestions([]);
-    const cityFromStorage = localStorage.getItem("city") || "Москва";
+
     try {
-      const query = `${cityFromStorage} ${item.name}`;
-      const url = `https://catalog.api.2gis.com/3.0/items/geocode?q=${encodeURIComponent(
-        query
-      )}&fields=items.point&key=${API_KEY}`;
-      const res = await fetch(url);
+      const res = await fetch(
+        `https://geocode-maps.yandex.ru/1.x/?apikey=${GEOCODER_API_KEY}&format=json&geocode=${encodeURIComponent(
+          address
+        )}`
+      );
       const data = await res.json();
+      console.log("Ответ геокодера:", data);
 
-      const point = data.result?.items?.[0]?.point;
-      const longitude = point?.lon || 0;
-      const latitude = point?.lat || 0;
-
-      let fullAddress = item.name.trim();
-
-      const prefixes = [
-        "улица ",
-        "проспект ",
-        "бульвар ",
-        "переулок ",
-        "шоссе ",
-        "аллея ",
-        "площадь ",
-      ];
-
-      for (const prefix of prefixes) {
-        if (fullAddress.toLowerCase().startsWith(prefix)) {
-          fullAddress = fullAddress.substring(prefix.length).trim();
-          break;
-        }
-      }
-
-      const parts = fullAddress.split(",").map((part) => part.trim());
-
-      const street = parts[0] || "";
-      const building = parts[1] || "";
+      const pos =
+        data.response?.GeoObjectCollection?.featureMember?.[0]?.GeoObject?.Point
+          ?.pos || "0 0";
+      const [longitude, latitude] = pos.split(" ").map(Number);
 
       onSelect({
-        address: item.name,
-        street,
-        building,
+        address,
+        street: address,
+        building: "",
         longitude,
         latitude,
       });
-    } catch (error) {
-      console.error("Ошибка при получении координат:", error);
-
-      let fullAddress = item.name.trim();
-
-      const prefixes = [
-        "улица ",
-        "проспект ",
-        "бульвар ",
-        "переулок ",
-        "шоссе ",
-        "аллея ",
-        "площадь ",
-      ];
-
-      for (const prefix of prefixes) {
-        if (fullAddress.toLowerCase().startsWith(prefix)) {
-          fullAddress = fullAddress.substring(prefix.length).trim();
-          break;
-        }
-      }
-
-      const parts = fullAddress.split(",").map((part) => part.trim());
-      const street = parts[0] || "";
-      const building = parts[1] || "";
-
+    } catch (err) {
+      console.error("Ошибка получения координат:", err);
       onSelect({
-        address: item.name,
-        street,
-        building,
+        address,
+        street: address,
+        building: "",
         longitude: 0,
         latitude: 0,
       });
@@ -140,10 +96,9 @@ const AddressSuggester = ({
       <input
         type="text"
         placeholder={placeholder}
-        value={query}
+        value={query || ""}
         onChange={handleChange}
         className={styles.input}
-        disabled={!location}
       />
       {suggestions.length > 0 && (
         <ul className={styles.suggestions}>
@@ -153,7 +108,8 @@ const AddressSuggester = ({
               onClick={() => handleSelect(item)}
               className={styles.suggestionItem}
             >
-              {item.name}
+              {item.title?.text || "Без названия"}
+              {item.subtitle?.text ? `, ${item.subtitle.text}` : ""}
             </li>
           ))}
         </ul>
