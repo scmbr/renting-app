@@ -54,10 +54,7 @@ func Run(configPath string) {
 	if err != nil {
 		logrus.Fatalf("failed to initialize db:%s", err.Error())
 	}
-	storageProvider, err := newStorageProvider(cfg)
-	if err != nil {
-		logrus.Fatalf("error initializing storage: %s", err.Error())
-	}
+	storageProvider := storage.NewLocalStorage("../media", "/media")
 	tokenManager, err := auth.NewManager(cfg.Auth.JWT.SigningKey)
 	if err != nil {
 		logrus.Fatalf("error initializing token manager: %s", err.Error())
@@ -117,6 +114,6 @@ func newStorageProvider(cfg *app_cfg.Config) (storage.Provider, error) {
 		o.EndpointResolverV2 = s3.NewDefaultEndpointResolverV2()
 		o.UsePathStyle = true
 	})
-	provider := storage.NewFileStorage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint, cfg.FileStorage.Website)
+	provider := storage.NewS3Storage(client, cfg.FileStorage.Bucket, cfg.FileStorage.Endpoint, cfg.FileStorage.Website)
 	return provider, nil
 }
