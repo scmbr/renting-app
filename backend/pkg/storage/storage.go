@@ -13,5 +13,5 @@ type UploadInput struct {
 }
 
 type Provider interface {
-	Upload(ctx context.Context, input UploadInput) (string, error)
+	Upload(ctx context.Context, input UploadInput, subDir string) (string, error)
 }

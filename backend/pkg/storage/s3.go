@@ -17,7 +17,7 @@ type FileStorage struct {
 	website  string
 }
 
-func NewFileStorage(client *s3.Client, bucket, endpoint string, website string) *FileStorage {
+func NewS3Storage(client *s3.Client, bucket, endpoint string, website string) *FileStorage {
 	return &FileStorage{
 		client:   client,
 		bucket:   bucket,
@@ -44,20 +44,25 @@ func TestS3Connection(s3Client *s3.Client, bucketName string) error {
 	}
 	return nil
 }
-func (fs *FileStorage) Upload(ctx context.Context, input UploadInput) (string, error) {
+func (fs *FileStorage) Upload(ctx context.Context, input UploadInput, subDir string) (string, error) {
 	filename := generateFilename(input.Name)
-	_, err := fs.client.PutObject(context.Background(), &s3.PutObjectInput{
-		Bucket:        aws.String(fs.bucket),
-		Key:           aws.String(filename),
-		Body:          input.File,
-		ContentType:   aws.String(input.ContentType),
-		ContentLength: nil,
+
+	key := filename
+	if subDir != "" {
+		key = filepath.Join(subDir, filename)
+	}
+
+	_, err := fs.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket:      aws.String(fs.bucket),
+		Key:         aws.String(key),
+		Body:        input.File,
+		ContentType: aws.String(input.ContentType),
 	})
 	if err != nil {
 		return "", err
 	}
 
-	return fs.generateFileURL(filename), nil
+	return fs.generateFileURL(key), nil
 }
 
 func (fs *FileStorage) generateFileURL(filename string) string {
