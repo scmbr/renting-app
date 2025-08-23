@@ -23,8 +23,13 @@ func (s *ApartmentService) GetAllApartments(ctx context.Context, userId int) ([]
 func (s *ApartmentService) GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error) {
 	return s.repo.GetApartmentById(ctx, userId, id)
 }
-func (s *ApartmentService) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error) {
-	return s.repo.CreateApartment(ctx, userId, input)
+func (s *ApartmentService) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (*dto.GetApartmentResponse, error) {
+	apartment, err := s.repo.CreateApartment(ctx, userId, input)
+	if err != nil {
+		return nil, err
+	}
+	resp := dto.FromApartment(apartment)
+	return resp, nil
 }
 func (s *ApartmentService) DeleteApartment(ctx context.Context, userId int, id int) error {
 	return s.repo.DeleteApartment(ctx, userId, id)

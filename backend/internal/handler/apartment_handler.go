@@ -6,6 +6,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/scmbr/renting-app/internal/dto"
+	"github.com/scmbr/renting-app/pkg/error"
 )
 
 // @Summary Получить все квартиры
@@ -55,32 +56,33 @@ func (h *Handler) getUserApartmentById(c *gin.Context) {
 	c.JSON(http.StatusOK, apartment)
 }
 
-// @Summary Создать квартиру
-// @Description Создать новую квартиру
-// @Tags apartments
-// @Security ApiKeyAuth
-// @Accept json
-// @Produce json
-// @Param input body dto.CreateApartmentInput true "Apartment input"
-// @Success 201
-// @Failure 500 {object} ErrorResponse
-// @Router /apartment/ [post]
+// @Summary      Создать квартиру
+// @Description  Создает квартиру авторизованному пользователю
+// @Tags         apartments
+// @Security     ApiKeyAuth
+// @Accept       json
+// @Produce      json
+// @Param 		 input body dto.CreateApartmentInput true "Apartment input"
+// @Success 	 201 {object}  dto.GetApartmentResponse
+// @Failure      400  {object}  error.Response "Некорректные входные данные квартиры"
+// @Failure      401  {object}  error.Response "Пользователь не авторизован"
+// @Failure      500 {object} error.Response "Внутренняя ошибка сервера"
+// @Router       /apartment/ [post]
 func (h *Handler) createApartment(c *gin.Context) {
 	var input dto.CreateApartmentInput
 	if err := c.ShouldBindJSON(&input); err != nil {
-		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		error.Send(c, http.StatusBadRequest, error.ErrInvalidApartmentInput)
 		return
 	}
 	userId, _ := c.Get("userId")
-	apartmentID, err := h.services.Apartment.CreateApartment(c, userId.(int), input)
+	apartment, err := h.services.Apartment.CreateApartment(c, userId.(int), input)
 	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+		error.Internal(c, err)
 		return
 	}
-	
-	c.JSON(http.StatusCreated, gin.H{"id": apartmentID})
-}
 
+	c.JSON(http.StatusCreated, apartment)
+}
 
 // @Summary Удалить квартиру
 // @Description Удалить квартиру по ID

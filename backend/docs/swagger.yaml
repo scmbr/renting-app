@@ -39,8 +39,8 @@ definitions:
     type: object
   dto.CreateApartmentInput:
     properties:
-      apartment_number:
-        type: string
+      area:
+        type: integer
       bathroom_type:
         type: string
       building:
@@ -53,16 +53,12 @@ definitions:
         type: string
       construction_year:
         type: integer
-      district:
-        type: string
       elevator:
         type: boolean
       floor:
         type: integer
       garbage_chute:
         type: boolean
-      house:
-        type: string
       latitude:
         type: number
       longitude:
@@ -86,6 +82,8 @@ definitions:
     properties:
       birthdate:
         type: string
+      city:
+        type: string
       email:
         type: string
       name:
@@ -103,6 +101,8 @@ definitions:
     type: object
   dto.GetAdvertResponse:
     properties:
+      apartment:
+        $ref: '#/definitions/dto.GetApartmentResponse'
       apartment_id:
         type: integer
       babies:
@@ -120,6 +120,8 @@ definitions:
       id:
         type: integer
       internet:
+        type: boolean
+      is_favorite:
         type: boolean
       pets:
         type: boolean
@@ -142,10 +144,27 @@ definitions:
       washing_machine:
         type: boolean
     type: object
+  dto.GetApartmentPhotoResponse:
+    properties:
+      apartment_id:
+        type: integer
+      id:
+        type: integer
+      is_cover:
+        type: boolean
+      url:
+        type: string
+    type: object
   dto.GetApartmentResponse:
     properties:
       apartment_number:
         type: string
+      apartment_photos:
+        items:
+          $ref: '#/definitions/dto.GetApartmentPhotoResponse'
+        type: array
+      area:
+        type: integer
       bathroom_type:
         type: string
       building:
@@ -226,6 +245,8 @@ definitions:
     properties:
       apartment_number:
         type: string
+      area:
+        type: integer
       bathroom_type:
         type: string
       building:
@@ -261,6 +282,31 @@ definitions:
       street:
         type: string
     type: object
+  error.ErrorDetail:
+    properties:
+      field:
+        type: string
+      message:
+        type: string
+    type: object
+  error.Response:
+    properties:
+      details:
+        items:
+          $ref: '#/definitions/error.ErrorDetail'
+        type: array
+      error:
+        type: string
+    type: object
+  handler.AdvertListResponse:
+    properties:
+      adverts:
+        items:
+          $ref: '#/definitions/dto.GetAdvertResponse'
+        type: array
+      total:
+        type: integer
+    type: object
   handler.ErrorResponse:
     properties:
       message:
@@ -288,13 +334,6 @@ definitions:
         example: user@example.com
         type: string
     type: object
-  handler.refreshInput:
-    properties:
-      token:
-        type: string
-    required:
-    - token
-    type: object
   handler.response:
     properties:
       message:
@@ -314,8 +353,6 @@ definitions:
     properties:
       accessToken:
         type: string
-      refreshToken:
-        type: string
     type: object
 host: localhost:8000
 info:
@@ -325,28 +362,10 @@ info:
   version: "1.0"
 paths:
   /advert:
-    get:
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            items:
-              $ref: '#/definitions/dto.GetAdvertResponse'
-            type: array
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Получить все объявления пользователя
-      tags:
-      - adverts
     post:
       consumes:
       - application/json
+      description: Создает объявление авторизированному пользователю
       parameters:
       - description: Advert input
         in: body
@@ -360,13 +379,17 @@ paths:
         "201":
           description: Created
         "400":
-          description: Bad Request
+          description: Некорректный ID объявления
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/error.Response'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/error.Response'
         "500":
-          description: Internal Server Error
+          description: Внутренняя ошибка сервера
           schema:
-            $ref: '#/definitions/handler.ErrorResponse'
+            $ref: '#/definitions/error.Response'
       security:
       - ApiKeyAuth: []
       summary: Создать объявление
@@ -396,33 +419,6 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Удалить объявление
-      tags:
-      - adverts
-    get:
-      parameters:
-      - description: Advert ID
-        in: path
-        name: id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/dto.GetAdvertResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "500":
-          description: Internal Server Error
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      security:
-      - ApiKeyAuth: []
-      summary: Получить объявление по ID
       tags:
       - adverts
     patch:
@@ -456,6 +452,176 @@ paths:
       security:
       - ApiKeyAuth: []
       summary: Обновить объявление
+      tags:
+      - adverts
+  /adverts:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает список всех объявлений с фильтрацией. Если пользователь
+        авторизован — добавляет флаг избранного.
+      parameters:
+      - description: Город
+        in: query
+        name: city
+        type: string
+      - description: Район
+        in: query
+        name: district
+        type: string
+      - description: Тип санузла
+        in: query
+        name: bathroom_type
+        type: string
+      - description: Ремонт
+        in: query
+        name: remont
+        type: string
+      - description: Тип аренды
+        in: query
+        name: rental_type
+        type: string
+      - description: Количество комнат
+        in: query
+        name: rooms
+        type: integer
+      - description: Минимальная цена
+        in: query
+        name: price_from
+        type: integer
+      - description: Максимальная цена
+        in: query
+        name: price_to
+        type: integer
+      - description: Минимальный этаж
+        in: query
+        name: floor_min
+        type: integer
+      - description: Максимальный этаж
+        in: query
+        name: floor_max
+        type: integer
+      - description: Минимальный год постройки
+        in: query
+        name: year_min
+        type: integer
+      - description: Максимальный год постройки
+        in: query
+        name: year_max
+        type: integer
+      - description: Минимальный рейтинг квартиры
+        in: query
+        name: apartment_rating_min
+        type: number
+      - description: Минимальный рейтинг арендодателя
+        in: query
+        name: landlord_rating_min
+        type: number
+      - description: Наличие лифта
+        in: query
+        name: elevator
+        type: boolean
+      - description: Наличие консьержа
+        in: query
+        name: concierge
+        type: boolean
+      - description: Можно с животными
+        in: query
+        name: pets
+        type: boolean
+      - description: Можно с детьми
+        in: query
+        name: babies
+        type: boolean
+      - description: Можно курить
+        in: query
+        name: smoking
+        type: boolean
+      - description: Наличие интернета
+        in: query
+        name: internet
+        type: boolean
+      - description: Наличие стиральной машины
+        in: query
+        name: washing_machine
+        type: boolean
+      - description: Наличие телевизора
+        in: query
+        name: tv
+        type: boolean
+      - description: Наличие кондиционера
+        in: query
+        name: conditioner
+        type: boolean
+      - description: Наличие посудомойки
+        in: query
+        name: dishwasher
+        type: boolean
+      - description: Широта для геолокации
+        in: query
+        name: lat
+        type: number
+      - description: Долгота для геолокации
+        in: query
+        name: lng
+        type: number
+      - description: Лимит записей, по умолчанию 20
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение, по умолчанию 0
+        in: query
+        name: offset
+        type: integer
+      - description: Поле сортировки, по умолчанию created_at
+        in: query
+        name: sort_by
+        type: string
+      - description: 'Направление сортировки: asc или desc, по умолчанию desc'
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AdvertListResponse'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/error.Response'
+      summary: Получение списка объявлений
+      tags:
+      - adverts
+  /adverts/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Возвращает подробности одного объявления по его идентификатору
+      parameters:
+      - description: ID объявления
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetAdvertResponse'
+        "400":
+          description: Неверный ID объявления
+          schema:
+            $ref: '#/definitions/error.Response'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/error.Response'
+      summary: Получение объявления по ID
       tags:
       - adverts
   /apartment/:
@@ -596,36 +762,6 @@ paths:
       summary: Обновить квартиру
       tags:
       - apartments
-  /auth/refresh:
-    post:
-      consumes:
-      - application/json
-      description: Обновляет access и refresh токены по действующему refresh токену
-      parameters:
-      - description: Refresh токен
-        in: body
-        name: input
-        required: true
-        schema:
-          $ref: '#/definitions/handler.refreshInput'
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/handler.tokenResponse'
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-        "401":
-          description: Unauthorized
-          schema:
-            $ref: '#/definitions/handler.ErrorResponse'
-      summary: Обновление токенов
-      tags:
-      - auth
   /auth/reset-password:
     post:
       consumes:
@@ -780,4 +916,182 @@ paths:
       summary: Переотправка кода верификации
       tags:
       - auth
+  /my/advert:
+    get:
+      description: Возвращает список объявлений, созданных авторизованным пользователем,
+        с поддержкой фильтров, сортировки и пагинации
+      parameters:
+      - description: Город
+        in: query
+        name: city
+        type: string
+      - description: Район
+        in: query
+        name: district
+        type: string
+      - description: Тип санузла
+        in: query
+        name: bathroom_type
+        type: string
+      - description: Ремонт
+        in: query
+        name: remont
+        type: string
+      - description: Тип аренды
+        in: query
+        name: rental_type
+        type: string
+      - description: Количество комнат
+        in: query
+        name: rooms
+        type: integer
+      - description: Минимальная цена
+        in: query
+        name: price_from
+        type: integer
+      - description: Максимальная цена
+        in: query
+        name: price_to
+        type: integer
+      - description: Минимальный этаж
+        in: query
+        name: floor_min
+        type: integer
+      - description: Максимальный этаж
+        in: query
+        name: floor_max
+        type: integer
+      - description: Минимальный год постройки
+        in: query
+        name: year_min
+        type: integer
+      - description: Максимальный год постройки
+        in: query
+        name: year_max
+        type: integer
+      - description: Минимальный рейтинг квартиры
+        in: query
+        name: apartment_rating_min
+        type: number
+      - description: Минимальный рейтинг арендодателя
+        in: query
+        name: landlord_rating_min
+        type: number
+      - description: Наличие лифта
+        in: query
+        name: elevator
+        type: boolean
+      - description: Наличие консьержа
+        in: query
+        name: concierge
+        type: boolean
+      - description: Можно с животными
+        in: query
+        name: pets
+        type: boolean
+      - description: Можно с детьми
+        in: query
+        name: babies
+        type: boolean
+      - description: Можно курить
+        in: query
+        name: smoking
+        type: boolean
+      - description: Наличие интернета
+        in: query
+        name: internet
+        type: boolean
+      - description: Наличие стиральной машины
+        in: query
+        name: washing_machine
+        type: boolean
+      - description: Наличие телевизора
+        in: query
+        name: tv
+        type: boolean
+      - description: Наличие кондиционера
+        in: query
+        name: conditioner
+        type: boolean
+      - description: Наличие посудомойки
+        in: query
+        name: dishwasher
+        type: boolean
+      - description: Широта для геолокации
+        in: query
+        name: lat
+        type: number
+      - description: Долгота для геолокации
+        in: query
+        name: lng
+        type: number
+      - description: Лимит записей, по умолчанию 20
+        in: query
+        name: limit
+        type: integer
+      - description: Смещение, по умолчанию 0
+        in: query
+        name: offset
+        type: integer
+      - description: Поле сортировки, по умолчанию created_at
+        in: query
+        name: sort_by
+        type: string
+      - description: 'Направление сортировки: asc или desc, по умолчанию desc'
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.AdvertListResponse'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/error.Response'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/error.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить все объявления пользователя
+      tags:
+      - adverts
+  /my/advert/{id}:
+    get:
+      description: Возвращает объявление пользователя по ID
+      parameters:
+      - description: Advert ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.GetAdvertResponse'
+        "400":
+          description: Некорректный ID объявления
+          schema:
+            $ref: '#/definitions/error.Response'
+        "401":
+          description: Пользователь не авторизован
+          schema:
+            $ref: '#/definitions/error.Response'
+        "500":
+          description: Внутренняя ошибка сервера
+          schema:
+            $ref: '#/definitions/error.Response'
+      security:
+      - ApiKeyAuth: []
+      summary: Получить объявление пользователя по ID
+      tags:
+      - adverts
 swagger: "2.0"

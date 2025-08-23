@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"strings"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -39,6 +40,12 @@ func (h *Handler) InitRoutes() *gin.Engine {
 
 	router.Use(corsMiddleware, gin.Recovery(), gin.Logger())
 	mediaDir := "../media/apartments_photo"
+	router.Use(func(c *gin.Context) {
+		if strings.HasPrefix(c.Request.URL.Path, "/media/apartments_photo") {
+			c.Header("Cache-Control", "public, max-age=31536000, immutable")
+		}
+		c.Next()
+	})
 	router.Static("/media/apartments_photo", mediaDir)
 	api := router.Group("/api")
 	{
@@ -84,7 +91,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		{
 			authenticated.GET("/me", h.getCurrentUser)
 			authenticated.PUT("/me", h.updateCurrentUser)
-			authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
+			// authenticated.POST("/upload-avatar", h.UploadAvatarHandler)
 
 			reviews := authenticated.Group("/reviews")
 			{
@@ -138,7 +145,7 @@ func (h *Handler) InitRoutes() *gin.Engine {
 			{
 				users.GET("/", h.adminGetAllUsers)
 				users.GET("/:id", h.adminGetUserById)
-				users.PUT("/:id", h.adminUpdateUserById)
+				// users.PUT("/:id", h.adminUpdateUserById)
 				users.DELETE("/:id", h.adminDeleteUserById)
 			}
 
@@ -160,7 +167,16 @@ func (h *Handler) InitRoutes() *gin.Engine {
 		}
 	}
 
-	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	url := ginSwagger.URL("/openapi.yaml")
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler, url))
+	//router.StaticFile("/openapi.yaml", "./docs/openapi.yaml")
+	router.GET("/openapi.yaml", func(c *gin.Context) {
+		c.Header("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate")
+		c.Header("Pragma", "no-cache")
+		c.Header("Expires", "0")
+		c.Header("Surrogate-Control", "no-store")
+		c.File("./docs/openapi.yaml")
+	})
 
 	router.GET("/notifications/ws", h.wsHandler.HandleWebSocket)
 

@@ -3,6 +3,7 @@ package main
 import (
 	_ "github.com/lib/pq"
 	"github.com/scmbr/renting-app/internal/app"
+	_ "github.com/scmbr/renting-app/pkg/error"
 )
 
 const configsDir = "configs"

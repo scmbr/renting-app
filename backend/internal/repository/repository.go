@@ -14,21 +14,21 @@ type Tokens struct {
 	RefreshToken string
 }
 type Users interface {
-	GetAllUsers() ([]dto.GetUser, error)
-	GetUserById(id int) (*dto.GetUser, error)
-	DeleteUserById(id int) (*dto.GetUser, error)
-	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
+	GetAllUsers() ([]dto.GetUserResponse, error)
+	GetUserById(id int) (*domain.User, error)
+	DeleteUserById(id int) (*dto.GetUserResponse, error)
+	UpdateUserById(input *dto.GetUserResponse) (*dto.GetUserResponse, error)
 	UpdateAvatar(userId int, avatarURL string) error
 	CreateUser(ctx context.Context, user dto.CreateUser, code string) error
 	GetUser(email, password string) (domain.User, error)
-	GetByCredentials(ctx context.Context, email, password string) (*dto.GetUser, error)
-	Verify(ctx context.Context, code string) (dto.GetUser, error)
-	GetByEmail(ctx context.Context, email string) (*dto.GetUser, error)
+	GetByCredentials(ctx context.Context, email, password string) (*dto.GetUserResponse, error)
+	Verify(ctx context.Context, code string) (dto.GetUserResponse, error)
+	GetByEmail(ctx context.Context, email string) (*dto.GetUserResponse, error)
 	UpdateVerificationCode(ctx context.Context, id int, verificationCode string) error
 	SavePasswordResetToken(ctx context.Context, id int, resetToken string) error
-	GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error)
+	GetUserByResetToken(ctx context.Context, token string) (dto.GetUserResponse, error)
 	UpdatePasswordAndClearResetToken(ctx context.Context, userID int, newPassword string) error
-	UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error)
+	UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUserResponse, error)
 	UpdateRating(ctx context.Context, userID uint, rating float32) error
 }
 type Session interface {
@@ -42,7 +42,7 @@ type Session interface {
 type Apartment interface {
 	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
-	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (*domain.Apartment, error)
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)
@@ -51,26 +51,29 @@ type Apartment interface {
 	DeleteApartmentAdmin(ctx context.Context, id int) error
 }
 type Advert interface {
-	GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
-	GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
-	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
-	DeleteAdvert(ctx context.Context, userId int, id int) error
-	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
-	GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertResponse, error)
-	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
-	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
-	DeleteAdvertAdmin(ctx context.Context, id int) error
-	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]domain.Advert, int64, error)
-	GetAdvertById(ctx context.Context, id int) (*domain.Advert, error)
+	// GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
+	// GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
+	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) (*domain.Advert, error)
+	DeleteAdvert(ctx context.Context, id int) error
+	UpdateAdvert(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
+	// GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertResponse, error)
+	// GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
+	// UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
+	// DeleteAdvertAdmin(ctx context.Context, id int) error
+	GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*domain.Advert, int64, error) //привёл в нужный вид
+	GetAdvertById(ctx context.Context, id int) (*domain.Advert, error)                            //привёл в нужный вид
+}
+type AdvertAdmin interface {
 }
 type ApartmentPhoto interface {
-	GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error)
-	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error)
-	AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
+	GetAllPhotos(ctx context.Context, apartmentId int) ([]dto.GetApartmentPhotoResponse, error)
+	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhotoResponse, error)
+	AddPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) ([]*domain.ApartmentPhoto, error)
 	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
-	HasCoverPhoto(apartmentId int) (bool, error)
+	HasCoverPhoto(ctx context.Context, apartmentId int) (bool, error)
 	ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
+	GetAllPhotosForApartments(ctx context.Context, apartmentIDs []uint) (map[uint][]dto.GetApartmentPhotoResponse, error)
 }
 type Favorites interface {
 	GetAllFavorites(ctx context.Context, userId int) ([]dto.FavoriteResponseDTO, error)

@@ -7,11 +7,11 @@ type CreateRoomRequest struct {
 	Area        float64 `json:"area" binding:"required"`
 }
 type GetRoomResponse struct {
-	ID          uint     `json:"id"`
-	ApartmentID uint     `json:"apartment_id"`
-	User        *GetUser `json:"user,omitempty"`
-	Area        float64  `json:"area"`
-	Status      string   `json:"status"`
+	ID          uint             `json:"id"`
+	ApartmentID uint             `json:"apartment_id"`
+	User        *GetUserResponse `json:"user,omitempty"`
+	Area        float64          `json:"area"`
+	Status      string           `json:"status"`
 }
 
 func FromRoom(r *domain.Room) *GetRoomResponse {

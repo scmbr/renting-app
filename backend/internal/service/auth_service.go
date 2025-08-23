@@ -52,7 +52,7 @@ func (s *UserService) GenerateTokens(ctx context.Context, email string, ip strin
 
 	return s.sessionService.CreateSession(ctx, user.Role, user.Id, ip, os, browser)
 }
-func (s *UserService) VerifyEmail(ctx context.Context, code string) (*dto.GetUser, error) {
+func (s *UserService) VerifyEmail(ctx context.Context, code string) (*dto.GetUserResponse, error) {
 	user, err := s.repo.Verify(ctx, code)
 	if err != nil {
 

@@ -66,39 +66,42 @@ func (h *Handler) addPhotos(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "no photos provided")
 		return
 	}
-
-	var inputs []dto.CreatePhotoInput
-	hasCover, err := h.services.ApartmentPhoto.HasCoverPhoto(apartmentId)
-	if err != nil {
-		newErrorResponse(c, http.StatusInternalServerError, "failed to check for cover photo")
-		return
-	}
-	for i, fileHeader := range files {
-
-		url, err := h.services.ApartmentPhoto.UploadPhotoToS3(c.Request.Context(), fileHeader)
-		if err != nil {
-			newErrorResponse(c, http.StatusInternalServerError, err.Error())
-			return
-		}
-
-		input := dto.CreatePhotoInput{
-			ApartmentID: uint(apartmentId),
-			URL:         url,
-			FileName:    fileHeader.Filename,
-			IsCover:     i == 0 && !hasCover,
-		}
-		inputs = append(inputs, input)
-	}
-
-	err = h.services.ApartmentPhoto.AddPhotoBatch(c, userId, apartmentId, inputs)
+	photos, err := h.services.ApartmentPhoto.AddPhotos(c.Request.Context(), apartmentId, userId, files)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
 	}
 
-	c.JSON(http.StatusCreated, gin.H{
-		"uploaded_photos": inputs,
-	})
+	// var inputs []dto.CreatePhotoInput
+	// hasCover, err := h.services.ApartmentPhoto.HasCoverPhoto(apartmentId)
+	// if err != nil {
+	// 	newErrorResponse(c, http.StatusInternalServerError, "failed to check for cover photo")
+	// 	return
+	// }
+	// for i, fileHeader := range files {
+
+	// 	url, err := h.services.ApartmentPhoto.UploadPhotoToS3(c.Request.Context(), fileHeader)
+	// 	if err != nil {
+	// 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	// 		return
+	// 	}
+
+	// 	input := dto.CreatePhotoInput{
+	// 		ApartmentID: uint(apartmentId),
+	// 		URL:         url,
+	// 		FileName:    fileHeader.Filename,
+	// 		IsCover:     i == 0 && !hasCover,
+	// 	}
+	// 	inputs = append(inputs, input)
+	// }
+
+	// err = h.services.ApartmentPhoto.AddPhotoBatch(c, userId, apartmentId, inputs)
+	// if err != nil {
+	// 	newErrorResponse(c, http.StatusInternalServerError, err.Error())
+	// 	return
+	// }
+
+	c.JSON(http.StatusCreated, photos)
 }
 
 func (h *Handler) deletePhoto(c *gin.Context) {
@@ -181,7 +184,7 @@ func (h *Handler) replacePhotos(c *gin.Context) {
 			ApartmentID: uint(apartmentId),
 			URL:         url,
 			FileName:    fileHeader.Filename,
-			IsCover:     i == 0, 
+			IsCover:     i == 0,
 		}
 		inputs = append(inputs, input)
 	}

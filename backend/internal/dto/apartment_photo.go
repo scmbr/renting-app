@@ -13,23 +13,22 @@ type CreatePhotoInput struct {
 	URL         string
 	FileName    string
 }
-type GetApartmentPhoto struct {
+type GetApartmentPhotoResponse struct {
 	ID          uint   `json:"id"`
 	ApartmentID uint   `json:"apartment_id"`
 	URL         string `json:"url"`
 	IsCover     bool   `json:"is_cover"`
 }
 
-func FromApartmentPhoto(apartmentPhoto *domain.ApartmentPhoto) *GetApartmentPhoto {
+func FromApartmentPhoto(apartmentPhoto *domain.ApartmentPhoto) GetApartmentPhotoResponse {
 	if apartmentPhoto == nil {
-		return nil
+		return GetApartmentPhotoResponse{}
 	}
 
-	return &GetApartmentPhoto{
+	return GetApartmentPhotoResponse{
 		ID:          apartmentPhoto.ID,
 		ApartmentID: apartmentPhoto.ApartmentID,
 		URL:         apartmentPhoto.URL,
 		IsCover:     apartmentPhoto.IsCover,
 	}
-
 }

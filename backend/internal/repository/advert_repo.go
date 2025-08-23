@@ -18,8 +18,8 @@ type AdvertRepo struct {
 func NewAdvertRepo(db *gorm.DB) *AdvertRepo {
 	return &AdvertRepo{db: db}
 }
-func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]domain.Advert, int64, error) {
-	var adverts []domain.Advert
+func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter) ([]*domain.Advert, int64, error) {
+	var adverts []*domain.Advert
 	var total int64
 	tx := r.db.WithContext(ctx).
 		Model(&domain.Advert{}).
@@ -146,7 +146,7 @@ func (r *AdvertRepo) GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.
 
 	var result []*dto.GetAdvertResponse
 	for _, advert := range adverts {
-		resp := dto.FromAdvert(advert)
+		resp := dto.FromAdvert(&advert)
 		result = append(result, resp)
 	}
 
@@ -184,13 +184,7 @@ func (r *AdvertRepo) GetUserAdvertById(ctx context.Context, userId int, id int) 
 	}
 	return &getAdvertDTO, nil
 }
-func (r *AdvertRepo) CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error {
-	tx := r.db.WithContext(ctx).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
+func (r *AdvertRepo) CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) (*domain.Advert, error) {
 	advertGorm := domain.Advert{
 		UserID:         uint(userId),
 		ApartmentID:    input.ApartmentID,
@@ -208,17 +202,14 @@ func (r *AdvertRepo) CreateAdvert(ctx context.Context, userId int, input dto.Cre
 		Deposit:        input.Deposit,
 		RentalType:     input.RentalType,
 	}
-	result := tx.Create(&advertGorm)
-	if result.Error != nil {
 
-		tx.Rollback()
-		return result.Error
+	if err := r.db.WithContext(ctx).Create(&advertGorm).Error; err != nil {
+		return nil, err
 	}
-	tx.Commit()
 
-	return nil
+	return &advertGorm, nil
 }
-func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error {
+func (r *AdvertRepo) DeleteAdvert(ctx context.Context, id int) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -227,7 +218,7 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 	}()
 
 	var advert domain.Advert
-	result := tx.First(&advert, "id = ? AND user_id = ?", id, userId)
+	result := tx.First(&advert, "id = ?", id)
 	if result.Error != nil {
 		tx.Rollback()
 		return result.Error
@@ -249,7 +240,7 @@ func (r *AdvertRepo) DeleteAdvert(ctx context.Context, userId int, id int) error
 
 	return tx.Commit().Error
 }
-func (r *AdvertRepo) UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error {
+func (r *AdvertRepo) UpdateAdvert(ctx context.Context, id int, input *dto.UpdateAdvertInput) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -259,7 +250,7 @@ func (r *AdvertRepo) UpdateAdvert(ctx context.Context, userId int, id int, input
 
 	var advert domain.Advert
 	// Проверка существования и принадлежности
-	err := tx.First(&advert, "id = ? AND user_id = ?", id, userId).Error
+	err := tx.First(&advert, "id = ?", id).Error
 	if err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {

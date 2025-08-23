@@ -6,7 +6,7 @@ import (
 	"github.com/scmbr/renting-app/internal/domain"
 )
 
-type GetUser struct {
+type GetUserResponse struct {
 	Id             int       `json:"id"`
 	Name           string    `json:"name"`
 	Surname        string    `json:"surname"`
@@ -48,8 +48,8 @@ type UpdateUserAdmin struct {
 	IsActive  *bool      `json:"is_active"`
 }
 
-func FromUser(u *domain.User) *GetUser {
-	return &GetUser{
+func FromUser(u *domain.User) *GetUserResponse {
+	return &GetUserResponse{
 		Id:             int(u.ID),
 		Name:           u.Name,
 		Surname:        u.Surname,

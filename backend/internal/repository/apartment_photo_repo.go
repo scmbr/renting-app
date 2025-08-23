@@ -16,17 +16,16 @@ func NewApartmentPhotoRepo(db *gorm.DB) *ApartmentPhotoRepo {
 	return &ApartmentPhotoRepo{db: db}
 }
 
-// Получить все фото по ID квартиры
-func (r *ApartmentPhotoRepo) GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error) {
+func (r *ApartmentPhotoRepo) GetAllPhotos(ctx context.Context, apartmentId int) ([]dto.GetApartmentPhotoResponse, error) {
 	var photos []*domain.ApartmentPhoto
 	err := r.db.WithContext(ctx).Where("apartment_id = ?", apartmentId).Find(&photos).Error
 	if err != nil {
 		return nil, err
 	}
 
-	var result []*dto.GetApartmentPhoto
+	var result []dto.GetApartmentPhotoResponse
 	for _, p := range photos {
-		result = append(result, &dto.GetApartmentPhoto{
+		result = append(result, dto.GetApartmentPhotoResponse{
 			ID:          p.ID,
 			ApartmentID: p.ApartmentID,
 			URL:         p.URL,
@@ -36,15 +35,14 @@ func (r *ApartmentPhotoRepo) GetAllPhotos(ctx context.Context, apartmentId int) 
 	return result, nil
 }
 
-// Получить конкретное фото
-func (r *ApartmentPhotoRepo) GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error) {
+func (r *ApartmentPhotoRepo) GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhotoResponse, error) {
 	var photo domain.ApartmentPhoto
 	err := r.db.WithContext(ctx).First(&photo, "id = ? AND apartment_id = ?", photoId, apartmentId).Error
 	if err != nil {
 		return nil, err
 	}
 
-	return &dto.GetApartmentPhoto{
+	return &dto.GetApartmentPhotoResponse{
 		ID:          photo.ID,
 		ApartmentID: photo.ApartmentID,
 		URL:         photo.URL,
@@ -52,8 +50,7 @@ func (r *ApartmentPhotoRepo) GetPhotoById(ctx context.Context, apartmentId, phot
 	}, nil
 }
 
-// Добавить пачку фотографий
-func (r *ApartmentPhotoRepo) AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error {
+func (r *ApartmentPhotoRepo) AddPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) ([]*domain.ApartmentPhoto, error) {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -61,22 +58,30 @@ func (r *ApartmentPhotoRepo) AddPhotoBatch(ctx context.Context, userId, apartmen
 		}
 	}()
 
+	var photos []*domain.ApartmentPhoto
+
 	for _, input := range inputs {
-		photo := domain.ApartmentPhoto{
+		photo := &domain.ApartmentPhoto{
 			ApartmentID: uint(apartmentId),
 			URL:         input.URL,
 			IsCover:     input.IsCover,
 		}
-		if err := tx.Create(&photo).Error; err != nil {
+
+		if err := tx.Create(photo).Error; err != nil {
 			tx.Rollback()
-			return err
+			return nil, err
 		}
+
+		photos = append(photos, photo)
 	}
 
-	return tx.Commit().Error
+	if err := tx.Commit().Error; err != nil {
+		return nil, err
+	}
+
+	return photos, nil
 }
 
-// Удалить фотографию
 func (r *ApartmentPhotoRepo) DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -100,7 +105,6 @@ func (r *ApartmentPhotoRepo) DeletePhoto(ctx context.Context, userId, apartmentI
 	return tx.Commit().Error
 }
 
-// Назначить фото обложкой
 func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, photoId int) error {
 	tx := r.db.WithContext(ctx).Begin()
 	defer func() {
@@ -109,7 +113,6 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 		}
 	}()
 
-	// Сброс старой обложки
 	if err := tx.Model(&domain.ApartmentPhoto{}).
 		Where("apartment_id = ? AND is_cover = true", apartmentId).
 		Update("is_cover", false).Error; err != nil {
@@ -117,7 +120,6 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 		return err
 	}
 
-	// Установка новой
 	if err := tx.Model(&domain.ApartmentPhoto{}).
 		Where("id = ? AND apartment_id = ?", photoId, apartmentId).
 		Update("is_cover", true).Error; err != nil {
@@ -127,7 +129,7 @@ func (r *ApartmentPhotoRepo) SetCover(ctx context.Context, userId, apartmentId, 
 
 	return tx.Commit().Error
 }
-func (r *ApartmentPhotoRepo) HasCoverPhoto(apartmentId int) (bool, error) {
+func (r *ApartmentPhotoRepo) HasCoverPhoto(ctx context.Context, apartmentId int) (bool, error) {
 	var count int64
 	err := r.db.Model(&domain.ApartmentPhoto{}).
 		Where("apartment_id = ? AND is_cover = true", apartmentId).
@@ -164,4 +166,35 @@ func (r *ApartmentPhotoRepo) ReplaceAllPhotos(ctx context.Context, userId, apart
 	}
 
 	return tx.Commit().Error
+}
+func (r *ApartmentPhotoRepo) GetAllPhotosForApartments(ctx context.Context, apartmentIDs []uint) (map[uint][]dto.GetApartmentPhotoResponse, error) {
+	if len(apartmentIDs) == 0 {
+		return map[uint][]dto.GetApartmentPhotoResponse{}, nil
+	}
+
+	var photos []*domain.ApartmentPhoto
+	err := r.db.WithContext(ctx).
+		Where("apartment_id IN ?", apartmentIDs).
+		Find(&photos).Error
+	if err != nil {
+		return nil, err
+	}
+
+	photosMap := make(map[uint][]dto.GetApartmentPhotoResponse)
+	for _, p := range photos {
+		photosMap[p.ApartmentID] = append(photosMap[p.ApartmentID], dto.GetApartmentPhotoResponse{
+			ID:          p.ID,
+			ApartmentID: p.ApartmentID,
+			URL:         p.URL,
+			IsCover:     p.IsCover,
+		})
+	}
+
+	for _, id := range apartmentIDs {
+		if _, exists := photosMap[id]; !exists {
+			photosMap[id] = []dto.GetApartmentPhotoResponse{}
+		}
+	}
+
+	return photosMap, nil
 }

@@ -106,14 +106,7 @@ func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int
 
 	return &getApartmentDTO, nil
 }
-func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error) {
-	tx := r.db.WithContext(ctx).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-
+func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (*domain.Apartment, error) {
 	apartmentGorm := domain.Apartment{
 		UserID:           uint(userId),
 		City:             input.City,
@@ -135,14 +128,11 @@ func (r *ApartmentRepo) CreateApartment(ctx context.Context, userId int, input d
 		Status:           "active",
 	}
 
-	result := tx.Create(&apartmentGorm)
-	if result.Error != nil {
-		tx.Rollback()
-		return 0, result.Error
+	if err := r.db.WithContext(ctx).Create(&apartmentGorm).Error; err != nil {
+		return nil, err
 	}
-	tx.Commit()
 
-	return apartmentGorm.ID, nil
+	return &apartmentGorm, nil
 }
 
 func (r *ApartmentRepo) DeleteApartment(ctx context.Context, userId int, id int) error {

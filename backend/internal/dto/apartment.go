@@ -24,31 +24,31 @@ type CreateApartmentInput struct {
 	Remont           string  `json:"remont"`
 }
 type GetApartmentResponse struct {
-	ID               uint                `json:"id"`
-	UserID           uint                `json:"user_id"`
-	City             string              `json:"city"`
-	Street           string              `json:"street"`
-	District         string              `json:"district"`
-	House            string              `json:"house"`
-	Building         string              `json:"building"`
-	Floor            int                 `json:"floor"`
-	ApartmentNumber  string              `json:"apartment_number"`
-	Longitude        float64             `json:"longitude"`
-	Latitude         float64             `json:"latitude"`
-	Rooms            int                 `json:"rooms"`
-	Area             int                 `json:"area"`
-	Elevator         bool                `json:"elevator"`
-	GarbageChute     bool                `json:"garbage_chute"`
-	BathroomType     string              `json:"bathroom_type"`
-	Concierge        bool                `json:"concierge"`
-	ConstructionYear int                 `json:"construction_year"`
-	ConstructionType string              `json:"construction_type"`
-	Remont           string              `json:"remont"`
-	CreatedAt        time.Time           `json:"created_at"`
-	UpdatedAt        time.Time           `json:"updated_at"`
-	Rating           float32             `json:"rating"`
-	Status           string              `json:"status"`
-	ApartmentPhotos  []GetApartmentPhoto `json:"apartment_photos"`
+	ID               uint                        `json:"id"`
+	UserID           uint                        `json:"user_id"`
+	City             string                      `json:"city"`
+	Street           string                      `json:"street"`
+	District         string                      `json:"district"`
+	House            string                      `json:"house"`
+	Building         string                      `json:"building"`
+	Floor            int                         `json:"floor"`
+	ApartmentNumber  string                      `json:"apartment_number"`
+	Longitude        float64                     `json:"longitude"`
+	Latitude         float64                     `json:"latitude"`
+	Rooms            int                         `json:"rooms"`
+	Area             int                         `json:"area"`
+	Elevator         bool                        `json:"elevator"`
+	GarbageChute     bool                        `json:"garbage_chute"`
+	BathroomType     string                      `json:"bathroom_type"`
+	Concierge        bool                        `json:"concierge"`
+	ConstructionYear int                         `json:"construction_year"`
+	ConstructionType string                      `json:"construction_type"`
+	Remont           string                      `json:"remont"`
+	CreatedAt        time.Time                   `json:"created_at"`
+	UpdatedAt        time.Time                   `json:"updated_at"`
+	Rating           float32                     `json:"rating"`
+	Status           string                      `json:"status"`
+	ApartmentPhotos  []GetApartmentPhotoResponse `json:"apartment_photos"`
 }
 
 type UpdateApartmentInput struct {

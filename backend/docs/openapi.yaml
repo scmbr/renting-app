@@ -1,0 +1,1203 @@
+openapi: 3.0.0
+info:
+  description: API для аренды квартир
+  title: Renting App API
+  contact: {}
+  version: "1.0"
+paths:
+  /advert:
+    post:
+      security:
+        - ApiKeyAuth: []
+      description: Создает объявление авторизированному пользователю
+      tags:
+        - adverts
+      summary: Создать объявление
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dto.CreateAdvertInput"
+        description: Advert input
+        required: true
+      responses:
+        "201":
+          description: Created
+        "400":
+          description: Некорректный ID объявления
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+  "/advert/{id}":
+    delete:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - adverts
+      summary: Удалить объявление
+      parameters:
+        - description: Advert ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+    patch:
+      security:
+        - ApiKeyAuth: []
+      tags:
+        - adverts
+      summary: Обновить объявление
+      parameters:
+        - description: Advert ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dto.UpdateAdvertInput"
+        description: Update input
+        required: true
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /adverts:
+    get:
+      description: Возвращает список всех объявлений с фильтрацией. Если пользователь
+        авторизован — добавляет флаг избранного.
+      tags:
+        - adverts
+      summary: Получение списка объявлений
+      parameters:
+        - description: Город
+          name: city
+          in: query
+          schema:
+            type: string
+        - description: Район
+          name: district
+          in: query
+          schema:
+            type: string
+        - description: Тип санузла
+          name: bathroom_type
+          in: query
+          schema:
+            type: string
+        - description: Ремонт
+          name: remont
+          in: query
+          schema:
+            type: string
+        - description: Тип аренды
+          name: rental_type
+          in: query
+          schema:
+            type: string
+        - description: Количество комнат
+          name: rooms
+          in: query
+          schema:
+            type: integer
+        - description: Минимальная цена
+          name: price_from
+          in: query
+          schema:
+            type: integer
+        - description: Максимальная цена
+          name: price_to
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный этаж
+          name: floor_min
+          in: query
+          schema:
+            type: integer
+        - description: Максимальный этаж
+          name: floor_max
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный год постройки
+          name: year_min
+          in: query
+          schema:
+            type: integer
+        - description: Максимальный год постройки
+          name: year_max
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный рейтинг квартиры
+          name: apartment_rating_min
+          in: query
+          schema:
+            type: number
+        - description: Минимальный рейтинг арендодателя
+          name: landlord_rating_min
+          in: query
+          schema:
+            type: number
+        - description: Наличие лифта
+          name: elevator
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие консьержа
+          name: concierge
+          in: query
+          schema:
+            type: boolean
+        - description: Можно с животными
+          name: pets
+          in: query
+          schema:
+            type: boolean
+        - description: Можно с детьми
+          name: babies
+          in: query
+          schema:
+            type: boolean
+        - description: Можно курить
+          name: smoking
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие интернета
+          name: internet
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие стиральной машины
+          name: washing_machine
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие телевизора
+          name: tv
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие кондиционера
+          name: conditioner
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие посудомойки
+          name: dishwasher
+          in: query
+          schema:
+            type: boolean
+        - description: Широта для геолокации
+          name: lat
+          in: query
+          schema:
+            type: number
+        - description: Долгота для геолокации
+          name: lng
+          in: query
+          schema:
+            type: number
+        - description: Лимит записей, по умолчанию 20
+          name: limit
+          in: query
+          schema:
+            type: integer
+        - description: Смещение, по умолчанию 0
+          name: offset
+          in: query
+          schema:
+            type: integer
+        - description: Поле сортировки, по умолчанию created_at
+          name: sort_by
+          in: query
+          schema:
+            type: string
+        - description: "Направление сортировки: asc или desc, по умолчанию desc"
+          name: order
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.AdvertListResponse"
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+  "/adverts/{id}":
+    get:
+      description: Возвращает подробности одного объявления по его идентификатору
+      tags:
+        - adverts
+      summary: Получение объявления по ID
+      parameters:
+        - description: ID объявления
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/dto.GetAdvertResponse"
+        "400":
+          description: Неверный ID объявления
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+  /apartment/:
+    get:
+      security:
+        - ApiKeyAuth: []
+      description: Получить список всех квартир пользователя
+      tags:
+        - apartments
+      summary: Получить все квартиры
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: true
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+    post:
+      security:
+        - ApiKeyAuth: []
+      description: Создать новую квартиру
+      tags:
+        - apartments
+      summary: Создать квартиру
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dto.CreateApartmentInput"
+        description: Apartment input
+        required: true
+      responses:
+        "201":
+          description: Created
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  "/apartment/{id}":
+    get:
+      security:
+        - ApiKeyAuth: []
+      description: Получить квартиру по ID
+      tags:
+        - apartments
+      summary: Получить квартиру по ID
+      parameters:
+        - description: Apartment ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/dto.GetApartmentResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+    delete:
+      security:
+        - ApiKeyAuth: []
+      description: Удалить квартиру по ID
+      tags:
+        - apartments
+      summary: Удалить квартиру
+      parameters:
+        - description: Apartment ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+    patch:
+      security:
+        - ApiKeyAuth: []
+      description: Обновить данные по квартире
+      tags:
+        - apartments
+      summary: Обновить квартиру
+      parameters:
+        - description: Apartment ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dto.UpdateApartmentInput"
+        description: Apartment update input
+        required: true
+      responses:
+        "200":
+          description: OK
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /auth/reset-password:
+    post:
+      description: Сброс пароля пользователя через токен
+      tags:
+        - auth
+      summary: Reset Password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/handler.ResetPasswordInput"
+        description: Данные для сброса пароля
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+  /auth/sign-in:
+    post:
+      description: Вход пользователя в систему с возвратом access и refresh токенов
+      tags:
+        - auth
+      summary: Авторизация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/handler.signInInput"
+        description: Данные для входа
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.tokenResponse"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /auth/sign-up:
+    post:
+      description: Создаёт нового пользователя
+      tags:
+        - auth
+      summary: Регистрация пользователя
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/dto.CreateUser"
+        description: Данные пользователя
+        required: true
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                type: string
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /auth/verify:
+    post:
+      description: Проверяет код для верификации электронной почты пользователя
+      tags:
+        - auth
+      summary: Подтверждение электронной почты
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/handler.VerifyRequest"
+        description: Код для подтверждения
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /auth/verify/resend:
+    post:
+      description: Переотправялет код верификации
+      tags:
+        - auth
+      summary: Переотправка кода верификации
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/handler.VerifyResendRequest"
+        description: Email для переотправки кода
+        required: true
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.response"
+        "400":
+          description: Bad Request
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.ErrorResponse"
+  /my/advert:
+    get:
+      security:
+        - ApiKeyAuth: []
+      description: Возвращает список объявлений, созданных авторизованным
+        пользователем, с поддержкой фильтров, сортировки и пагинации
+      tags:
+        - adverts
+      summary: Получить все объявления пользователя
+      parameters:
+        - description: Город
+          name: city
+          in: query
+          schema:
+            type: string
+        - description: Район
+          name: district
+          in: query
+          schema:
+            type: string
+        - description: Тип санузла
+          name: bathroom_type
+          in: query
+          schema:
+            type: string
+        - description: Ремонт
+          name: remont
+          in: query
+          schema:
+            type: string
+        - description: Тип аренды
+          name: rental_type
+          in: query
+          schema:
+            type: string
+        - description: Количество комнат
+          name: rooms
+          in: query
+          schema:
+            type: integer
+        - description: Минимальная цена
+          name: price_from
+          in: query
+          schema:
+            type: integer
+        - description: Максимальная цена
+          name: price_to
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный этаж
+          name: floor_min
+          in: query
+          schema:
+            type: integer
+        - description: Максимальный этаж
+          name: floor_max
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный год постройки
+          name: year_min
+          in: query
+          schema:
+            type: integer
+        - description: Максимальный год постройки
+          name: year_max
+          in: query
+          schema:
+            type: integer
+        - description: Минимальный рейтинг квартиры
+          name: apartment_rating_min
+          in: query
+          schema:
+            type: number
+        - description: Минимальный рейтинг арендодателя
+          name: landlord_rating_min
+          in: query
+          schema:
+            type: number
+        - description: Наличие лифта
+          name: elevator
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие консьержа
+          name: concierge
+          in: query
+          schema:
+            type: boolean
+        - description: Можно с животными
+          name: pets
+          in: query
+          schema:
+            type: boolean
+        - description: Можно с детьми
+          name: babies
+          in: query
+          schema:
+            type: boolean
+        - description: Можно курить
+          name: smoking
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие интернета
+          name: internet
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие стиральной машины
+          name: washing_machine
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие телевизора
+          name: tv
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие кондиционера
+          name: conditioner
+          in: query
+          schema:
+            type: boolean
+        - description: Наличие посудомойки
+          name: dishwasher
+          in: query
+          schema:
+            type: boolean
+        - description: Широта для геолокации
+          name: lat
+          in: query
+          schema:
+            type: number
+        - description: Долгота для геолокации
+          name: lng
+          in: query
+          schema:
+            type: number
+        - description: Лимит записей, по умолчанию 20
+          name: limit
+          in: query
+          schema:
+            type: integer
+        - description: Смещение, по умолчанию 0
+          name: offset
+          in: query
+          schema:
+            type: integer
+        - description: Поле сортировки, по умолчанию created_at
+          name: sort_by
+          in: query
+          schema:
+            type: string
+        - description: "Направление сортировки: asc или desc, по умолчанию desc"
+          name: order
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/handler.AdvertListResponse"
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+  "/my/advert/{id}":
+    get:
+      security:
+        - ApiKeyAuth: []
+      description: Возвращает объявление пользователя по ID
+      tags:
+        - adverts
+      summary: Получить объявление пользователя по ID
+      parameters:
+        - description: Advert ID
+          name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/dto.GetAdvertResponse"
+        "400":
+          description: Некорректный ID объявления
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "401":
+          description: Пользователь не авторизован
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+        "500":
+          description: Внутренняя ошибка сервера
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/error.Response"
+servers:
+  - url: http://localhost:8000/api
+components:
+  schemas:
+    dto.CreateAdvertInput:
+      type: object
+      required:
+        - apartment_id
+        - deposit
+        - rent
+        - rental_type
+        - title
+      properties:
+        apartment_id:
+          type: integer
+        babies:
+          type: boolean
+        concierge:
+          type: boolean
+        conditioner:
+          type: boolean
+        deposit:
+          type: number
+        dishwasher:
+          type: boolean
+        internet:
+          type: boolean
+        pets:
+          type: boolean
+        rent:
+          type: number
+        rental_type:
+          type: string
+        smoking:
+          type: boolean
+        title:
+          type: string
+        tv:
+          type: boolean
+        washing_machine:
+          type: boolean
+    dto.CreateApartmentInput:
+      type: object
+      required:
+        - city
+        - construction_year
+        - floor
+        - latitude
+        - longitude
+        - rooms
+        - street
+      properties:
+        area:
+          type: integer
+        bathroom_type:
+          type: string
+        building:
+          type: string
+        city:
+          type: string
+        concierge:
+          type: boolean
+        construction_type:
+          type: string
+        construction_year:
+          type: integer
+        elevator:
+          type: boolean
+        floor:
+          type: integer
+        garbage_chute:
+          type: boolean
+        latitude:
+          type: number
+        longitude:
+          type: number
+        remont:
+          type: string
+        rooms:
+          type: integer
+        street:
+          type: string
+    dto.CreateUser:
+      type: object
+      required:
+        - email
+        - name
+        - password
+        - surname
+      properties:
+        birthdate:
+          type: string
+        city:
+          type: string
+        email:
+          type: string
+        name:
+          type: string
+        password:
+          type: string
+          minLength: 8
+        surname:
+          type: string
+    dto.GetAdvertResponse:
+      type: object
+      properties:
+        apartment:
+          $ref: "#/components/schemas/dto.GetApartmentResponse"
+        apartment_id:
+          type: integer
+        babies:
+          type: boolean
+        concierge:
+          type: boolean
+        conditioner:
+          type: boolean
+        created_at:
+          type: string
+        deposit:
+          type: number
+        dishwasher:
+          type: boolean
+        id:
+          type: integer
+        internet:
+          type: boolean
+        is_favorite:
+          type: boolean
+        pets:
+          type: boolean
+        rent:
+          type: number
+        rental_type:
+          type: string
+        smoking:
+          type: boolean
+        status:
+          type: string
+        title:
+          type: string
+        tv:
+          type: boolean
+        updated_at:
+          type: string
+        user_id:
+          type: integer
+        washing_machine:
+          type: boolean
+    dto.GetApartmentPhotoResponse:
+      type: object
+      properties:
+        apartment_id:
+          type: integer
+        id:
+          type: integer
+        is_cover:
+          type: boolean
+        url:
+          type: string
+    dto.GetApartmentResponse:
+      type: object
+      properties:
+        apartment_number:
+          type: string
+        apartment_photos:
+          type: array
+          items:
+            $ref: "#/components/schemas/dto.GetApartmentPhotoResponse"
+        area:
+          type: integer
+        bathroom_type:
+          type: string
+        building:
+          type: string
+        city:
+          type: string
+        concierge:
+          type: boolean
+        construction_type:
+          type: string
+        construction_year:
+          type: integer
+        created_at:
+          type: string
+        district:
+          type: string
+        elevator:
+          type: boolean
+        floor:
+          type: integer
+        garbage_chute:
+          type: boolean
+        house:
+          type: string
+        id:
+          type: integer
+        latitude:
+          type: number
+        longitude:
+          type: number
+        rating:
+          type: number
+        remont:
+          type: string
+        rooms:
+          type: integer
+        status:
+          type: string
+        street:
+          type: string
+        updated_at:
+          type: string
+        user_id:
+          type: integer
+    dto.UpdateAdvertInput:
+      type: object
+      properties:
+        babies:
+          type: boolean
+        concierge:
+          type: boolean
+        conditioner:
+          type: boolean
+        deposit:
+          type: number
+        dishwasher:
+          type: boolean
+        internet:
+          type: boolean
+        pets:
+          type: boolean
+        rent:
+          type: number
+        rental_type:
+          type: string
+        smoking:
+          type: boolean
+        status:
+          type: string
+        title:
+          type: string
+        tv:
+          type: boolean
+        washing_machine:
+          type: boolean
+    dto.UpdateApartmentInput:
+      type: object
+      properties:
+        apartment_number:
+          type: string
+        area:
+          type: integer
+        bathroom_type:
+          type: string
+        building:
+          type: string
+        city:
+          type: string
+        concierge:
+          type: boolean
+        construction_type:
+          type: string
+        construction_year:
+          type: integer
+        district:
+          type: string
+        elevator:
+          type: boolean
+        floor:
+          type: integer
+        garbage_chute:
+          type: boolean
+        house:
+          type: string
+        latitude:
+          type: number
+        longitude:
+          type: number
+        remont:
+          type: string
+        rooms:
+          type: integer
+        status:
+          type: string
+        street:
+          type: string
+    error.ErrorDetail:
+      type: object
+      properties:
+        field:
+          type: string
+        message:
+          type: string
+    error.Response:
+      type: object
+      properties:
+        details:
+          type: array
+          items:
+            $ref: "#/components/schemas/error.ErrorDetail"
+        error:
+          type: string
+    handler.AdvertListResponse:
+      type: object
+      properties:
+        adverts:
+          type: array
+          items:
+            $ref: "#/components/schemas/dto.GetAdvertResponse"
+        total:
+          type: integer
+    handler.ErrorResponse:
+      type: object
+      properties:
+        message:
+          type: string
+          example: Invalid input data
+    handler.ResetPasswordInput:
+      type: object
+      required:
+        - new_password
+        - token
+      properties:
+        new_password:
+          type: string
+        token:
+          type: string
+    handler.VerifyRequest:
+      type: object
+      properties:
+        code:
+          type: string
+    handler.VerifyResendRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          example: user@example.com
+    handler.response:
+      type: object
+      properties:
+        message:
+          type: string
+    handler.signInInput:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+    handler.tokenResponse:
+      type: object
+      properties:
+        accessToken:
+          type: string

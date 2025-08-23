@@ -11,13 +11,53 @@ import (
 )
 
 func (h *Handler) adminGetAllAdverts(c *gin.Context) {
-	adverts, err := h.services.Advert.GetAllAdvertsAdmin(c.Request.Context())
+	filter := dto.AdvertFilter{
+		City:               c.Query("city"),
+		District:           c.Query("district"),
+		BathroomType:       c.Query("bathroom_type"),
+		Remont:             c.Query("remont"),
+		RentalType:         c.Query("rental_type"),
+		Rooms:              parseIntOrZero(c.Query("rooms")),
+		PriceMin:           parseIntOrZero(c.Query("price_from")),
+		PriceMax:           parseIntOrZero(c.Query("price_to")),
+		FloorMin:           parseIntOrZero(c.Query("floor_min")),
+		FloorMax:           parseIntOrZero(c.Query("floor_max")),
+		YearMin:            parseIntOrZero(c.Query("year_min")),
+		YearMax:            parseIntOrZero(c.Query("year_max")),
+		ApartmentRatingMin: parseFloat32OrZero(c.Query("rating_min")),
+		LandlordRatingMin:  parseFloat32OrZero(c.Query("rating_min")),
+		Limit:              parseIntOrDefault(c.Query("limit"), 20),
+		Offset:             parseIntOrDefault(c.Query("offset"), 0),
+		SortBy:             c.DefaultQuery("sort_by", "created_at"),
+		Order:              c.DefaultQuery("order", "desc"),
+		Lat:                parseFloat32OrZero(c.Query("lat")),
+		Lng:                parseFloat32OrZero(c.Query("lng")),
+	}
+
+	filter.Elevator = parseBoolPointer(c.Query("elevator"))
+	filter.Concierge = parseBoolPointer(c.Query("concierge"))
+	filter.Pets = parseBoolPointer(c.Query("pets"))
+	filter.Babies = parseBoolPointer(c.Query("babies"))
+	filter.Smoking = parseBoolPointer(c.Query("smoking"))
+	filter.Internet = parseBoolPointer(c.Query("internet"))
+	filter.WashingMachine = parseBoolPointer(c.Query("washing_machine"))
+	filter.TV = parseBoolPointer(c.Query("tv"))
+	filter.Conditioner = parseBoolPointer(c.Query("conditioner"))
+	filter.Dishwasher = parseBoolPointer(c.Query("dishwasher"))
+	if filter.Limit <= 0 || filter.Limit > 100 {
+		filter.Limit = 20
+	}
+	if filter.Offset < 0 {
+		filter.Offset = 0
+	}
+	adverts, total, err := h.services.Advert.GetAllAdvertsAdmin(c.Request.Context(), &filter)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "failed to get adverts"})
 		return
 	}
-	c.JSON(http.StatusOK, map[string]interface{}{
-		"adverts": adverts,
+	c.JSON(http.StatusOK, AdvertListResponse{
+		Total:   total,
+		Adverts: adverts,
 	})
 }
 

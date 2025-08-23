@@ -63,6 +63,7 @@ type UpdateAdvertInput struct {
 	Status         *string  `json:"status"`
 }
 type AdvertFilter struct {
+	UserID             uint
 	City               string
 	District           string
 	Rooms              int
@@ -95,7 +96,7 @@ type AdvertFilter struct {
 	Lng                float32
 }
 
-func FromAdvert(advert domain.Advert) *GetAdvertResponse {
+func FromAdvert(advert *domain.Advert) *GetAdvertResponse {
 	return &GetAdvertResponse{
 		ID:             advert.ID,
 		UserID:         advert.UserID,

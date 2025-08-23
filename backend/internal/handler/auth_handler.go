@@ -69,16 +69,6 @@ func (h *Handler) signIn(c *gin.Context) {
 	})
 }
 
-// @Summary      Обновление токенов
-// @Description  Обновляет access и refresh токены по действующему refresh токену
-// @Tags         auth
-// @Accept       json
-// @Produce      json
-// @Param        input  body      refreshInput   true  "Refresh токен"
-// @Success      200    {object}  tokenResponse
-// @Failure      400    {object}  ErrorResponse
-// @Failure      401    {object}  ErrorResponse
-// @Router       /auth/refresh [post]
 func (h *Handler) refreshTokens(c *gin.Context) {
 	refreshToken, err := c.Cookie("refreshToken")
 	if err != nil {
@@ -123,49 +113,45 @@ func (h *Handler) refreshTokens(c *gin.Context) {
 // @Failure      500    {object}  ErrorResponse
 // @Router       /auth/verify [post]
 func (h *Handler) userVerify(c *gin.Context) {
-    var input VerifyRequest
-    if err := c.BindJSON(&input); err != nil {
-        newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
-        return
-    }
-    if input.Code == "" {
-        logrus.Error("code is empty")
-        c.AbortWithStatusJSON(http.StatusBadRequest, response{"code is empty"})
-        return
-    }
+	var input VerifyRequest
+	if err := c.BindJSON(&input); err != nil {
+		newErrorResponse(c, http.StatusBadRequest, "invalid input: "+err.Error())
+		return
+	}
+	if input.Code == "" {
+		logrus.Error("code is empty")
+		c.AbortWithStatusJSON(http.StatusBadRequest, response{"code is empty"})
+		return
+	}
 
-    
-    user, err := h.services.User.VerifyEmail(c.Request.Context(), input.Code)
-    if err != nil {
-        logrus.Error(err.Error())
-        c.AbortWithStatusJSON(http.StatusInternalServerError, response{err.Error()})
-        return
-    }
+	user, err := h.services.User.VerifyEmail(c.Request.Context(), input.Code)
+	if err != nil {
+		logrus.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response{err.Error()})
+		return
+	}
 
-   
-    userAgent := c.Request.Header.Get("User-Agent")
-    ip := c.GetHeader("X-Forwarded-For")
-    if ip == "" {
-        ip = c.Request.RemoteAddr
-    }
-    ua := user_agent.New(userAgent)
-    os := ua.OS()
-    browser, _ := ua.Browser()
+	userAgent := c.Request.Header.Get("User-Agent")
+	ip := c.GetHeader("X-Forwarded-For")
+	if ip == "" {
+		ip = c.Request.RemoteAddr
+	}
+	ua := user_agent.New(userAgent)
+	os := ua.OS()
+	browser, _ := ua.Browser()
 
-    res, err := h.services.User.GenerateTokens(c, user.Email, ip, os, browser)
-    if err != nil {
-        logrus.Error(err.Error())
-        c.AbortWithStatusJSON(http.StatusInternalServerError, response{err.Error()})
-        return
-    }
+	res, err := h.services.User.GenerateTokens(c, user.Email, ip, os, browser)
+	if err != nil {
+		logrus.Error(err.Error())
+		c.AbortWithStatusJSON(http.StatusInternalServerError, response{err.Error()})
+		return
+	}
 
-    
-    c.SetCookie("refreshToken", res.RefreshToken, int(h.refreshTokenTTL.Seconds()), "/", "", false, true)
-    c.JSON(http.StatusOK, tokenResponse{
-        AccessToken: res.AccessToken,
-    })
+	c.SetCookie("refreshToken", res.RefreshToken, int(h.refreshTokenTTL.Seconds()), "/", "", false, true)
+	c.JSON(http.StatusOK, tokenResponse{
+		AccessToken: res.AccessToken,
+	})
 }
-
 
 // @Summary      Переотправка кода верификации
 // @Description  Переотправялет код верификации

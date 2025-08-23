@@ -20,15 +20,15 @@ type Tokens struct {
 	RefreshToken string
 }
 type User interface {
-	GetAllUsers() ([]dto.GetUser, error)
-	GetUserById(id int) (*dto.GetUser, error)
-	DeleteUserById(id int) (*dto.GetUser, error)
-	UpdateUserById(input *dto.GetUser) (*dto.GetUser, error)
-	UploadAvatarToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
+	GetAllUsers() ([]dto.GetUserResponse, error)
+	GetUserById(id int) (*dto.GetProfileResponse, error)
+	DeleteUserById(id int) (*dto.GetUserResponse, error)
+	UpdateUserById(input *dto.GetUserResponse) (*dto.GetUserResponse, error)
+	// UploadAvatarToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
 	UpdateAvatar(userId int, avatarURL string) error
 	SignIn(ctx context.Context, email string, password string, ip string, os string, browser string) (Tokens, error)
 	SignUp(ctx context.Context, user dto.CreateUser) error
-	VerifyEmail(ctx context.Context, code string) (*dto.GetUser, error)
+	VerifyEmail(ctx context.Context, code string) (*dto.GetUserResponse, error)
 	ResendVerificationCode(ctx context.Context, email string) error
 	ForgotPassword(ctx context.Context, email string) error
 	ResetPassword(ctx context.Context, resetToken string, newPassword string) error
@@ -48,7 +48,7 @@ type Emails interface {
 type Apartment interface {
 	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
-	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (uint, error)
+	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (*dto.GetApartmentResponse, error)
 	DeleteApartment(ctx context.Context, userId int, id int) error
 	UpdateApartment(ctx context.Context, userId int, id int, input *dto.UpdateApartmentInput) error
 	GetAllApartmentsAdmin(ctx context.Context) ([]*dto.GetApartmentResponse, error)
@@ -57,12 +57,12 @@ type Apartment interface {
 	DeleteApartmentAdmin(ctx context.Context, id int) error
 }
 type Advert interface {
-	GetAllUserAdverts(ctx context.Context, userId int) ([]*dto.GetAdvertResponse, error)
+	GetAllUserAdverts(ctx context.Context, userId int, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
 	GetUserAdvertById(ctx context.Context, userId int, id int) (*dto.GetAdvertResponse, error)
-	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) error
+	CreateAdvert(ctx context.Context, userId int, input dto.CreateAdvertInput) (*dto.GetAdvertResponse, error)
 	DeleteAdvert(ctx context.Context, userId int, id int) error
 	UpdateAdvert(ctx context.Context, userId int, id int, input *dto.UpdateAdvertInput) error
-	GetAllAdvertsAdmin(ctx context.Context) ([]*dto.GetAdvertResponse, error)
+	GetAllAdvertsAdmin(ctx context.Context, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error)
 	GetAdvertByIdAdmin(ctx context.Context, id int) (*dto.GetAdvertResponse, error)
 	UpdateAdvertAdmin(ctx context.Context, id int, input *dto.UpdateAdvertInput) error
 	DeleteAdvertAdmin(ctx context.Context, id int) error
@@ -71,13 +71,13 @@ type Advert interface {
 }
 
 type ApartmentPhoto interface {
-	GetAllPhotos(ctx context.Context, apartmentId int) ([]*dto.GetApartmentPhoto, error)
-	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhoto, error)
-	AddPhotoBatch(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
+	GetAllPhotos(ctx context.Context, apartmentId int) ([]dto.GetApartmentPhotoResponse, error)
+	GetPhotoById(ctx context.Context, apartmentId, photoId int) (*dto.GetApartmentPhotoResponse, error)
+	AddPhotos(ctx context.Context, userId, apartmentId int, files []*multipart.FileHeader) ([]*dto.GetApartmentPhotoResponse, error)
 	DeletePhoto(ctx context.Context, userId, apartmentId, photoId int) error
 	SetCover(ctx context.Context, userId, apartmentId, photoId int) error
 	UploadPhotoToS3(ctx context.Context, fileHeader *multipart.FileHeader) (string, error)
-	HasCoverPhoto(apartmentId int) (bool, error)
+	HasCoverPhoto(ctx context.Context, apartmentId int) (bool, error)
 	ReplaceAllPhotos(ctx context.Context, userId, apartmentId int, inputs []dto.CreatePhotoInput) error
 }
 type Favorites interface {

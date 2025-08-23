@@ -16,43 +16,13 @@ const docTemplate = `{
     "basePath": "{{.BasePath}}",
     "paths": {
         "/advert": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "adverts"
-                ],
-                "summary": "Получить все объявления пользователя",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/dto.GetAdvertResponse"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "post": {
                 "security": [
                     {
                         "ApiKeyAuth": []
                     }
                 ],
+                "description": "Создает объявление авторизированному пользователю",
                 "consumes": [
                     "application/json"
                 ],
@@ -79,64 +49,27 @@ const docTemplate = `{
                         "description": "Created"
                     },
                     "400": {
-                        "description": "Bad Request",
+                        "description": "Некорректный ID объявления",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
                         }
                     },
                     "500": {
-                        "description": "Internal Server Error",
+                        "description": "Внутренняя ошибка сервера",
                         "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
+                            "$ref": "#/definitions/error.Response"
                         }
                     }
                 }
             }
         },
         "/advert/{id}": {
-            "get": {
-                "security": [
-                    {
-                        "ApiKeyAuth": []
-                    }
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "adverts"
-                ],
-                "summary": "Получить объявление по ID",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "Advert ID",
-                        "name": "id",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/dto.GetAdvertResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "500": {
-                        "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            },
             "delete": {
                 "security": [
                     {
@@ -225,6 +158,261 @@ const docTemplate = `{
                         "description": "Internal Server Error",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
+        "/adverts": {
+            "get": {
+                "description": "Возвращает список всех объявлений с фильтрацией. Если пользователь авторизован — добавляет флаг избранного.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получение списка объявлений",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Город",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Район",
+                        "name": "district",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип санузла",
+                        "name": "bathroom_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ремонт",
+                        "name": "remont",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип аренды",
+                        "name": "rental_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество комнат",
+                        "name": "rooms",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальная цена",
+                        "name": "price_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальная цена",
+                        "name": "price_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальный этаж",
+                        "name": "floor_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный этаж",
+                        "name": "floor_max",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальный год постройки",
+                        "name": "year_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный год постройки",
+                        "name": "year_max",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Минимальный рейтинг квартиры",
+                        "name": "apartment_rating_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Минимальный рейтинг арендодателя",
+                        "name": "landlord_rating_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие лифта",
+                        "name": "elevator",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие консьержа",
+                        "name": "concierge",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно с животными",
+                        "name": "pets",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно с детьми",
+                        "name": "babies",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно курить",
+                        "name": "smoking",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие интернета",
+                        "name": "internet",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие стиральной машины",
+                        "name": "washing_machine",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие телевизора",
+                        "name": "tv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие кондиционера",
+                        "name": "conditioner",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие посудомойки",
+                        "name": "dishwasher",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Широта для геолокации",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Долгота для геолокации",
+                        "name": "lng",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Лимит записей, по умолчанию 20",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение, по умолчанию 0",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Поле сортировки, по умолчанию created_at",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Направление сортировки: asc или desc, по умолчанию desc",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.AdvertListResponse"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/adverts/{id}": {
+            "get": {
+                "description": "Возвращает подробности одного объявления по его идентификатору",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получение объявления по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID объявления",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAdvertResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Неверный ID объявления",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
                         }
                     }
                 }
@@ -441,52 +629,6 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Internal Server Error",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    }
-                }
-            }
-        },
-        "/auth/refresh": {
-            "post": {
-                "description": "Обновляет access и refresh токены по действующему refresh токену",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "auth"
-                ],
-                "summary": "Обновление токенов",
-                "parameters": [
-                    {
-                        "description": "Refresh токен",
-                        "name": "input",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.refreshInput"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/handler.tokenResponse"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/handler.ErrorResponse"
-                        }
-                    },
-                    "401": {
-                        "description": "Unauthorized",
                         "schema": {
                             "$ref": "#/definitions/handler.ErrorResponse"
                         }
@@ -729,6 +871,277 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/my/advert": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает список объявлений, созданных авторизованным пользователем, с поддержкой фильтров, сортировки и пагинации",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получить все объявления пользователя",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Город",
+                        "name": "city",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Район",
+                        "name": "district",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип санузла",
+                        "name": "bathroom_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Ремонт",
+                        "name": "remont",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Тип аренды",
+                        "name": "rental_type",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Количество комнат",
+                        "name": "rooms",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальная цена",
+                        "name": "price_from",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальная цена",
+                        "name": "price_to",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальный этаж",
+                        "name": "floor_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный этаж",
+                        "name": "floor_max",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Минимальный год постройки",
+                        "name": "year_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Максимальный год постройки",
+                        "name": "year_max",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Минимальный рейтинг квартиры",
+                        "name": "apartment_rating_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Минимальный рейтинг арендодателя",
+                        "name": "landlord_rating_min",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие лифта",
+                        "name": "elevator",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие консьержа",
+                        "name": "concierge",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно с животными",
+                        "name": "pets",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно с детьми",
+                        "name": "babies",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Можно курить",
+                        "name": "smoking",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие интернета",
+                        "name": "internet",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие стиральной машины",
+                        "name": "washing_machine",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие телевизора",
+                        "name": "tv",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие кондиционера",
+                        "name": "conditioner",
+                        "in": "query"
+                    },
+                    {
+                        "type": "boolean",
+                        "description": "Наличие посудомойки",
+                        "name": "dishwasher",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Широта для геолокации",
+                        "name": "lat",
+                        "in": "query"
+                    },
+                    {
+                        "type": "number",
+                        "description": "Долгота для геолокации",
+                        "name": "lng",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Лимит записей, по умолчанию 20",
+                        "name": "limit",
+                        "in": "query"
+                    },
+                    {
+                        "type": "integer",
+                        "description": "Смещение, по умолчанию 0",
+                        "name": "offset",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Поле сортировки, по умолчанию created_at",
+                        "name": "sort_by",
+                        "in": "query"
+                    },
+                    {
+                        "type": "string",
+                        "description": "Направление сортировки: asc или desc, по умолчанию desc",
+                        "name": "order",
+                        "in": "query"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.AdvertListResponse"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    }
+                }
+            }
+        },
+        "/my/advert/{id}": {
+            "get": {
+                "security": [
+                    {
+                        "ApiKeyAuth": []
+                    }
+                ],
+                "description": "Возвращает объявление пользователя по ID",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "adverts"
+                ],
+                "summary": "Получить объявление пользователя по ID",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Advert ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/dto.GetAdvertResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Некорректный ID объявления",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    },
+                    "401": {
+                        "description": "Пользователь не авторизован",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    },
+                    "500": {
+                        "description": "Внутренняя ошибка сервера",
+                        "schema": {
+                            "$ref": "#/definitions/error.Response"
+                        }
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -798,8 +1211,8 @@ const docTemplate = `{
                 "street"
             ],
             "properties": {
-                "apartment_number": {
-                    "type": "string"
+                "area": {
+                    "type": "integer"
                 },
                 "bathroom_type": {
                     "type": "string"
@@ -819,9 +1232,6 @@ const docTemplate = `{
                 "construction_year": {
                     "type": "integer"
                 },
-                "district": {
-                    "type": "string"
-                },
                 "elevator": {
                     "type": "boolean"
                 },
@@ -830,9 +1240,6 @@ const docTemplate = `{
                 },
                 "garbage_chute": {
                     "type": "boolean"
-                },
-                "house": {
-                    "type": "string"
                 },
                 "latitude": {
                     "type": "number"
@@ -863,6 +1270,9 @@ const docTemplate = `{
                 "birthdate": {
                     "type": "string"
                 },
+                "city": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
@@ -881,6 +1291,9 @@ const docTemplate = `{
         "dto.GetAdvertResponse": {
             "type": "object",
             "properties": {
+                "apartment": {
+                    "$ref": "#/definitions/dto.GetApartmentResponse"
+                },
                 "apartment_id": {
                     "type": "integer"
                 },
@@ -906,6 +1319,9 @@ const docTemplate = `{
                     "type": "integer"
                 },
                 "internet": {
+                    "type": "boolean"
+                },
+                "is_favorite": {
                     "type": "boolean"
                 },
                 "pets": {
@@ -940,11 +1356,37 @@ const docTemplate = `{
                 }
             }
         },
+        "dto.GetApartmentPhotoResponse": {
+            "type": "object",
+            "properties": {
+                "apartment_id": {
+                    "type": "integer"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "is_cover": {
+                    "type": "boolean"
+                },
+                "url": {
+                    "type": "string"
+                }
+            }
+        },
         "dto.GetApartmentResponse": {
             "type": "object",
             "properties": {
                 "apartment_number": {
                     "type": "string"
+                },
+                "apartment_photos": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.GetApartmentPhotoResponse"
+                    }
+                },
+                "area": {
+                    "type": "integer"
                 },
                 "bathroom_type": {
                     "type": "string"
@@ -1067,6 +1509,9 @@ const docTemplate = `{
                 "apartment_number": {
                     "type": "string"
                 },
+                "area": {
+                    "type": "integer"
+                },
                 "bathroom_type": {
                     "type": "string"
                 },
@@ -1120,6 +1565,45 @@ const docTemplate = `{
                 }
             }
         },
+        "error.ErrorDetail": {
+            "type": "object",
+            "properties": {
+                "field": {
+                    "type": "string"
+                },
+                "message": {
+                    "type": "string"
+                }
+            }
+        },
+        "error.Response": {
+            "type": "object",
+            "properties": {
+                "details": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/error.ErrorDetail"
+                    }
+                },
+                "error": {
+                    "type": "string"
+                }
+            }
+        },
+        "handler.AdvertListResponse": {
+            "type": "object",
+            "properties": {
+                "adverts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/dto.GetAdvertResponse"
+                    }
+                },
+                "total": {
+                    "type": "integer"
+                }
+            }
+        },
         "handler.ErrorResponse": {
             "type": "object",
             "properties": {
@@ -1161,17 +1645,6 @@ const docTemplate = `{
                 }
             }
         },
-        "handler.refreshInput": {
-            "type": "object",
-            "required": [
-                "token"
-            ],
-            "properties": {
-                "token": {
-                    "type": "string"
-                }
-            }
-        },
         "handler.response": {
             "type": "object",
             "properties": {
@@ -1199,9 +1672,6 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "accessToken": {
-                    "type": "string"
-                },
-                "refreshToken": {
                     "type": "string"
                 }
             }

@@ -18,16 +18,16 @@ func NewUsersRepo(db *gorm.DB) *UsersRepo {
 	return &UsersRepo{db: db}
 }
 
-func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
+func (r *UsersRepo) GetAllUsers() ([]dto.GetUserResponse, error) {
 	var users []domain.User
 	result := r.db.Find(&users)
 	if result.Error != nil {
 		return nil, result.Error
 	}
 
-	var getUserDTOs []dto.GetUser
+	var getUserDTOs []dto.GetUserResponse
 	for _, user := range users {
-		getUserDTO := dto.GetUser{
+		getUserDTO := dto.GetUserResponse{
 			Id:             int(user.ID),
 			Name:           user.Name,
 			Surname:        user.Surname,
@@ -43,7 +43,7 @@ func (r *UsersRepo) GetAllUsers() ([]dto.GetUser, error) {
 	return getUserDTOs, nil
 }
 
-func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
+func (r *UsersRepo) GetUserById(id int) (*domain.User, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -61,24 +61,10 @@ func (r *UsersRepo) GetUserById(id int) (*dto.GetUser, error) {
 		return nil, errors.New("user not found")
 	}
 	tx.Commit()
-	getUserDTO := dto.GetUser{
-		Id:             int(user.ID),
-		Name:           user.Name,
-		Surname:        user.Surname,
-		Email:          user.Email,
-		Phone:          user.Phone,
-		Rating:         float64(user.Rating),
-		City:           user.City,
-		CreatedAt:      user.CreatedAt,
-		ProfilePicture: user.ProfilePicture,
-		Birthdate:      user.Birthdate,
-		Role:           user.Role,
-		Verified:       user.Verified,
-		IsActive:       user.IsActive,
-	}
-	return &getUserDTO, nil
+
+	return &user, nil
 }
-func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUser, error) {
+func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUserResponse, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -99,7 +85,7 @@ func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUser, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	getUserDTO := dto.GetUser{
+	getUserDTO := dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
@@ -112,7 +98,7 @@ func (r *UsersRepo) DeleteUserById(id int) (*dto.GetUser, error) {
 	tx.Commit()
 	return &getUserDTO, nil
 }
-func (r *UsersRepo) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
+func (r *UsersRepo) UpdateUserById(input *dto.GetUserResponse) (*dto.GetUserResponse, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -140,7 +126,7 @@ func (r *UsersRepo) UpdateUserById(input *dto.GetUser) (*dto.GetUser, error) {
 		tx.Rollback()
 		return nil, err
 	}
-	getUserDTO := dto.GetUser{
+	getUserDTO := dto.GetUserResponse{
 		Id:        int(user.ID),
 		Name:      user.Name,
 		Surname:   user.Surname,
@@ -216,7 +202,7 @@ func (r *UsersRepo) CreateUser(ctx context.Context, user dto.CreateUser, code st
 	return nil
 }
 
-func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUser, error) {
+func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash string) (*dto.GetUserResponse, error) {
 
 	var user domain.User
 	result := r.db.WithContext(ctx).Where("email = ? AND password_hash = ? AND verified=true", email, passwordHash).First(&user)
@@ -227,7 +213,7 @@ func (r *UsersRepo) GetByCredentials(ctx context.Context, email, passwordHash st
 		return nil, result.Error
 	}
 
-	getUserDTO := dto.GetUser{
+	getUserDTO := dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
@@ -250,11 +236,11 @@ func (r *UsersRepo) GetUser(email, password string) (domain.User, error) {
 
 	return user, nil
 }
-func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser, error) {
+func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUserResponse, error) {
 	var user domain.User
 	result := r.db.Where("email = ?", email).First(&user)
 	if result.Error != nil {
-		return &dto.GetUser{
+		return &dto.GetUserResponse{
 			Id:             int(user.ID),
 			Name:           user.Name,
 			Surname:        user.Surname,
@@ -267,7 +253,7 @@ func (r *UsersRepo) GetByEmail(ctx context.Context, email string) (*dto.GetUser,
 		}, result.Error
 	}
 
-	return &dto.GetUser{
+	return &dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
@@ -301,7 +287,7 @@ func (r *UsersRepo) UpdateVerificationCode(ctx context.Context, id int, verifica
 
 	return nil
 }
-func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error) {
+func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUserResponse, error) {
 	var user domain.User
 
 	err := r.db.WithContext(ctx).
@@ -309,9 +295,9 @@ func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error
 		First(&user).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return dto.GetUser{}, errors.New("user with the given verification code not found")
+			return dto.GetUserResponse{}, errors.New("user with the given verification code not found")
 		}
-		return dto.GetUser{}, err
+		return dto.GetUserResponse{}, err
 	}
 
 	user.Verified = true
@@ -319,10 +305,10 @@ func (r *UsersRepo) Verify(ctx context.Context, code string) (dto.GetUser, error
 
 	err = r.db.WithContext(ctx).Save(&user).Error
 	if err != nil {
-		return dto.GetUser{}, err
+		return dto.GetUserResponse{}, err
 	}
 
-	return dto.GetUser{
+	return dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
@@ -356,11 +342,11 @@ func (r *UsersRepo) SavePasswordResetToken(ctx context.Context, id int, resetTok
 
 	return nil
 }
-func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.GetUser, error) {
+func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.GetUserResponse, error) {
 	var user domain.User
 	result := r.db.Where("reset_token = ?", token).First(&user)
 	if result.Error != nil {
-		return dto.GetUser{
+		return dto.GetUserResponse{
 			Id:             int(user.ID),
 			Name:           user.Name,
 			Surname:        user.Surname,
@@ -373,7 +359,7 @@ func (r *UsersRepo) GetUserByResetToken(ctx context.Context, token string) (dto.
 		}, result.Error
 	}
 
-	return dto.GetUser{
+	return dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
@@ -407,7 +393,7 @@ func (r *UsersRepo) UpdatePasswordAndClearResetToken(ctx context.Context, id int
 
 	return nil
 }
-func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, error) {
+func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUserResponse, error) {
 	tx := r.db.Begin()
 	defer func() {
 		if r := recover(); r != nil {
@@ -452,7 +438,7 @@ func (r *UsersRepo) UpdateMe(input *dto.UpdateUser, userId int) (*dto.GetUser, e
 
 	tx.Commit()
 
-	getUserDTO := dto.GetUser{
+	getUserDTO := dto.GetUserResponse{
 		Id:             int(user.ID),
 		Name:           user.Name,
 		Surname:        user.Surname,
