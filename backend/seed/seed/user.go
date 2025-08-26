@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	defaultPassword = "botikebanyi"
+	defaultPassword = "password"
 	seedCount       = 100
 )
 
