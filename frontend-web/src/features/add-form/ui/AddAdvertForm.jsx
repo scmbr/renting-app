@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "@/shared/api/axios";
-import ApartmentCard from "@/entities/apartment/ui/ApartmentCard";
-import FeatureCard from "@/entities/feature-card/FeatureCard";
 import { motion, AnimatePresence } from "framer-motion";
 import { Carousel } from "react-responsive-carousel";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
-import styles from "./AddAdvertForm.module.css";
+import ApartmentCard from "@/entities/apartment/ui/ApartmentCard";
+import FeatureCard from "@/entities/feature-card/FeatureCard";
 import { useAdvertStore } from "@/stores/useAdvertStore";
+import styles from "./AddAdvertForm.module.css";
+import api from "@/shared/api/axios";
+
 const AddAdvertForm = ({ apartments = [] }) => {
   const { filledFormData, setFilledFormData, clearFilledFormData } =
     useAdvertStore();
-  console.log(filledFormData);
+  const navigate = useNavigate();
+
   const [form, setForm] = useState(
     filledFormData || {
       apartment_id: "",
@@ -30,10 +32,10 @@ const AddAdvertForm = ({ apartments = [] }) => {
       concierge: false,
     }
   );
-  const navigate = useNavigate();
-  const [selectedApartment, setSelectedApartment] = useState(null);
-  const [photos, setPhotos] = useState([]);
-  const [loadingPhotos, setLoadingPhotos] = useState(false);
+
+  const [selectedApartment, setSelectedApartment] = useState(
+    apartments.find((a) => a.id === form.apartment_id) || apartments[0] || null
+  );
 
   useEffect(() => {
     if (filledFormData && Object.keys(filledFormData).length > 0) {
@@ -41,49 +43,12 @@ const AddAdvertForm = ({ apartments = [] }) => {
       const selected = apartments.find(
         (a) => a.id === filledFormData.apartment_id
       );
-      if (selected) {
-        setSelectedApartment(selected);
-        fetchPhotos(selected.id);
-      }
+      if (selected) setSelectedApartment(selected);
+    } else if (apartments.length > 0 && !selectedApartment) {
+      setSelectedApartment(apartments[0]);
+      setForm((prev) => ({ ...prev, apartment_id: apartments[0].id }));
     }
   }, [filledFormData, apartments]);
-
-  const featureIcons = {
-    pets: { label: "Можно с животными", src: "/icons/pets.svg" },
-    babies: { label: "Можно с детьми", src: "/icons/baby.svg" },
-    smoking: { label: "Можно курить", src: "/icons/smoking.svg" },
-    internet: { label: "Интернет", src: "/icons/internet.svg" },
-    washing_machine: { label: "Стиралка", src: "/icons/washing_machine.svg" },
-    tv: { label: "Телевизор", src: "/icons/tv.svg" },
-    conditioner: { label: "Кондиционер", src: "/icons/conditioner.svg" },
-    dishwasher: { label: "Посудомойка", src: "/icons/dishwasher.svg" },
-    concierge: { label: "Консьерж", src: "/icons/concierge.svg" },
-  };
-
-  useEffect(() => {
-    if (Array.isArray(apartments) && apartments.length > 0) {
-      const firstApartment = apartments[0];
-      setForm((prev) => ({ ...prev, apartment_id: firstApartment.id }));
-      setSelectedApartment(firstApartment);
-      fetchPhotos(firstApartment.id);
-    }
-  }, [apartments]);
-
-  const fetchPhotos = async (apartmentId) => {
-    setLoadingPhotos(true);
-    try {
-      const res = await api.get(`/apartment/${apartmentId}/photos`);
-      const sortedPhotos = [...res.data].sort(
-        (a, b) => b.is_cover - a.is_cover
-      );
-      setPhotos(sortedPhotos);
-    } catch (e) {
-      console.error("Ошибка загрузки фото", e);
-      setPhotos([]);
-    } finally {
-      setLoadingPhotos(false);
-    }
-  };
 
   const handleChange = (e) => {
     const { name, value, type, checked } = e.target;
@@ -91,6 +56,11 @@ const AddAdvertForm = ({ apartments = [] }) => {
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+  };
+
+  const handleSelectApartment = (apartment) => {
+    setForm((prev) => ({ ...prev, apartment_id: apartment.id }));
+    setSelectedApartment(apartment);
   };
 
   const handleSubmit = (e) => {
@@ -110,16 +80,23 @@ const AddAdvertForm = ({ apartments = [] }) => {
       .catch((err) => console.error("Ошибка при создании объявления", err));
   };
 
-  const handleSelectApartment = (apartment) => {
-    setForm((prev) => ({ ...prev, apartment_id: apartment.id }));
-    setSelectedApartment(apartment);
-    fetchPhotos(apartment.id);
-  };
   const navigateToApartment = () => {
     setFilledFormData(form);
-    console.log("Заполненные поля: ", filledFormData);
     navigate("/my/apartment/add", { state: { from: "advert" } });
   };
+
+  const featureIcons = {
+    pets: { label: "Можно с животными", src: "/icons/pets.svg" },
+    babies: { label: "Можно с детьми", src: "/icons/baby.svg" },
+    smoking: { label: "Можно курить", src: "/icons/smoking.svg" },
+    internet: { label: "Интернет", src: "/icons/internet.svg" },
+    washing_machine: { label: "Стиралка", src: "/icons/washing_machine.svg" },
+    tv: { label: "Телевизор", src: "/icons/tv.svg" },
+    conditioner: { label: "Кондиционер", src: "/icons/conditioner.svg" },
+    dishwasher: { label: "Посудомойка", src: "/icons/dishwasher.svg" },
+    concierge: { label: "Консьерж", src: "/icons/concierge.svg" },
+  };
+
   return (
     <motion.form
       onSubmit={handleSubmit}
@@ -182,9 +159,8 @@ const AddAdvertForm = ({ apartments = [] }) => {
       </div>
 
       <h2 className={styles.formTitle}>Выберите квартиру</h2>
-
       <div className={styles.apartmentsContainer}>
-        {(apartments || []).map((a) => (
+        {apartments.map((a) => (
           <ApartmentCard
             key={a.id}
             apartment={a}
@@ -204,39 +180,41 @@ const AddAdvertForm = ({ apartments = [] }) => {
           <motion.div
             key="apartment-details"
             className={styles.apartmentDetails}
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             exit={{ opacity: 0, height: 0 }}
             transition={{ duration: 0.4 }}
           >
-            {loadingPhotos ? (
-              <p>Загрузка фото...</p>
-            ) : photos.length > 0 ? (
-              <Carousel
-                showThumbs={false}
-                showStatus={false}
-                infiniteLoop
-                className={styles.carousel}
-              >
-                {photos.map((photo) => (
-                  <div key={photo.id}>
-                    <img
-                      src={photo.url}
-                      alt="Фото квартиры"
-                      className={styles.photo}
-                    />
-                  </div>
-                ))}
-              </Carousel>
+            {(selectedApartment.apartment_photos || []).length > 0 ? (
+              <div className={styles.carousel}>
+                <Carousel
+                  showThumbs={false}
+                  showStatus={false}
+                  infiniteLoop
+                  dynamicHeight={false}
+                >
+                  {selectedApartment.apartment_photos.map((photo) => (
+                    <div
+                      key={photo.id}
+                      className={styles.slideWrapper}
+                      style={{
+                        "--bg-image": `url(http://localhost:8000${photo.url})`,
+                      }}
+                    >
+                      <img
+                        src={"http://localhost:8000" + photo.url}
+                        alt="Фото квартиры"
+                      />
+                    </div>
+                  ))}
+                </Carousel>
+              </div>
             ) : (
               <div className={styles.noPhotoWrapper}>
-                <img
-                  src="/images/no-photo.png"
-                  alt="Нет фото"
-                  className={styles.noPhoto}
-                />
+                <img src="/images/no-photo.png" alt="Нет фото" />
               </div>
             )}
+
             <div className={styles.apartmentInfo}>
               <p>
                 Адрес: {selectedApartment.city} {selectedApartment.street},{" "}
@@ -254,6 +232,7 @@ const AddAdvertForm = ({ apartments = [] }) => {
           </motion.div>
         )}
       </AnimatePresence>
+
       <h2 className={styles.formTitle}>Удобства и разрешения</h2>
       <div className={styles.featuresGrid}>
         {Object.entries(featureIcons).map(([key, { label, src }]) => (

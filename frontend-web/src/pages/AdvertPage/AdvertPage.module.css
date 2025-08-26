@@ -1,0 +1,277 @@
+.container {
+  margin-top: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  flex-wrap: wrap;
+}
+@font-face {
+  font-family: "Zhuan";
+  src: url("/fonts/zhuan_FuturaNowScript-XBd.ttf") format("ttf");
+
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: "TikTok";
+  src: url("/fonts/TikTokSans-VF-v3.3.ttf") format("ttf");
+
+  font-weight: 400;
+  font-style: normal;
+}
+.top {
+  display: flex;
+  width: 1500px;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 50px;
+  flex-wrap: wrap;
+}
+.left {
+  flex: 2;
+  max-width: 850px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  /* font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif; */
+  color: #000000;
+  /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); */
+}
+.advertInfo {
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+.right {
+  flex: 1;
+  min-height: 150px;
+  max-width: 450px;
+}
+.ownerCard {
+  background-color: #ffffff;
+
+  font-size: 1rem;
+
+  height: 170px;
+  color: #000000;
+  /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); */
+}
+.ownerInfo {
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  padding-top: 1rem;
+  padding-left: 1rem;
+}
+.chatButton {
+  background-color: #8b51ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  margin-top: 30px;
+  width: 100%;
+  height: 54px;
+}
+.chatButton:hover {
+  background-color: #000000;
+}
+.ownerCard h2 {
+  margin-top: 0;
+  color: #000000;
+  font-size: 1.4rem;
+}
+.avatar {
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+.profileInfo {
+  margin-right: 100px;
+}
+
+.rating {
+  display: flex;
+
+  margin-top: 0.5rem;
+}
+.star {
+  width: 15px;
+  height: 15px;
+  margin-right: 4px;
+}
+.mapContainer {
+  margin-top: 50px;
+  width: 100%;
+
+  /* box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2); */
+}
+.info {
+  padding: 1rem 2rem;
+}
+.bottom {
+  width: 1350px;
+  margin-bottom: 100px;
+}
+.similarList {
+  display: flex;
+  gap: 16px;
+  overflow-x: auto;
+  padding: 10px 0;
+}
+.similarTitle {
+  font-weight: 1;
+  padding-right: 2rem;
+  padding-left: 2rem;
+}
+.similarCardWrapper {
+  flex: 0 0 auto;
+  width: 340px;
+}
+
+.noSimilar {
+  font-size: 14px;
+  color: #777;
+  padding: 10px;
+}
+
+.title {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #000000;
+  font-weight: 1;
+}
+
+.address p,
+.details p {
+  margin: 0.3rem 0;
+  font-size: 1rem;
+}
+
+.price {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+  color: #000000;
+  font-weight: 1;
+}
+
+.features {
+  margin-top: 1.5rem;
+}
+
+.features h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+}
+
+.features ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.features li {
+  padding: 0.3rem 0;
+  border-bottom: 1px solid #ddd;
+  font-size: 1rem;
+}
+
+.features li:last-child {
+  border-bottom: none;
+}
+
+.error {
+  color: red;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 2rem;
+}
+
+.carousel {
+  padding: 0;
+}
+
+.slideWrapper {
+  border-radius: 8px;
+  position: relative;
+  width: 100%;
+  height: 520px;
+  display: flex;
+  justify-content: center;
+
+  overflow: hidden;
+
+  --glass-opacity: 0.15;
+  --noise-opacity: 0.3;
+  --blur-amount: 12px;
+}
+
+.slideWrapper::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: var(--bg-image);
+  background-size: cover;
+  background-position: center;
+  filter: blur(10px) brightness(0.9);
+  transform: scale(1.2);
+  z-index: 1;
+}
+
+.slideWrapper::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  background: rgba(255, 255, 255, var(--glass-opacity));
+  backdrop-filter: blur(var(--blur-amount)) saturate(150%);
+  -webkit-backdrop-filter: blur(var(--blur-amount)) saturate(150%);
+  background-image: url("/textures/frostedglass_old.png");
+  background-repeat: repeat;
+  background-size: cover;
+  opacity: var(--noise-opacity);
+}
+
+.carouselImg {
+  position: relative;
+  z-index: 3;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+
+.amenitiesSection {
+  margin-bottom: 1.5rem;
+}
+
+.subtitle {
+  font-weight: 400;
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #000000;
+}
+.featuresGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, max-content));
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  margin-bottom: 2.5rem;
+  justify-content: center;
+}
+.featureCard {
+  border: 2px solid #ccc;
+  border-radius: 1rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background-color: white;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-height: 120px;
+  box-sizing: border-box;
+}

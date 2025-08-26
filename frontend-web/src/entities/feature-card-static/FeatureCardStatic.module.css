@@ -1,0 +1,37 @@
+.featureCard {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  width: 190px;
+  height: 80px;
+  border-radius: 1rem;
+  border: 2px solid #ccc;
+  padding: 0.5rem 1rem;
+  transition: all 0.2s ease-in-out;
+  user-select: none;
+  background-color: white;
+}
+
+.selected {
+  border-color: #8b51ff;
+  background-color: #f4eefd;
+}
+
+.featureIcon {
+  width: 24px;
+  height: 24px;
+  margin-right: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.featureLabel {
+  font-size: 0.85rem;
+  white-space: normal;
+  word-wrap: break-word;
+  text-align: center;
+  line-height: 1.2;
+  max-width: 100%;
+}

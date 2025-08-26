@@ -3,23 +3,11 @@ import styles from "./MyApartmentCard.module.css";
 import api from "@/shared/api/axios";
 
 const MyApartmentCard = ({ apartment, onEdit, onDelete }) => {
-  const [coverUrl, setCoverUrl] = useState("/images/no-photo.png");
-
-  useEffect(() => {
-    const fetchPhotos = async () => {
-      try {
-        const response = await api.get(`/apartment/${apartment.id}/photos`);
-        const cover = response.data[0];
-        if (cover) {
-          setCoverUrl(cover.url);
-        }
-      } catch (err) {
-        console.error("Ошибка при загрузке фото:", err);
-      }
-    };
-
-    fetchPhotos();
-  }, [apartment.id]);
+  const coverUrl =
+    apartment.apartment_photos && apartment.apartment_photos.length > 0
+      ? apartment.apartment_photos.find((photo) => photo.is_cover)?.url ||
+        "/images/no-photo.png"
+      : "/images/no-photo.png";
 
   return (
     <div className={styles.card}>
@@ -45,7 +33,9 @@ const MyApartmentCard = ({ apartment, onEdit, onDelete }) => {
       </div>
 
       <img
-        src={coverUrl}
+        src={
+          coverUrl ? `http://localhost:8000${coverUrl}` : "/images/no-photo.png"
+        }
         alt="Обложка квартиры"
         className={styles.cover}
         onError={(e) => {

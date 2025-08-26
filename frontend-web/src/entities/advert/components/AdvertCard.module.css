@@ -14,6 +14,7 @@
 }
 .advertCard {
   position: relative;
+  height: 380px;
   border: 1px solid #ddd;
   border-radius: 12px;
   padding: 1rem;
@@ -34,8 +35,7 @@
   top: 20px;
   right: 20px;
   background: rgba(255, 255, 255, 0);
-  border-radius: 50%;
-  border-color: white;
+  border: none;
   padding: 0.5rem;
   cursor: pointer;
   display: flex;
@@ -45,7 +45,7 @@
 }
 
 .favButton img {
-  width: 24px;
-  height: 24px;
+  width: 30px;
+  height: 30px;
   pointer-events: none;
 }

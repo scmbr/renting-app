@@ -38,6 +38,10 @@
   overflow-y: auto;
   border-radius: 0 0 8px 8px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .suggestionItem {
@@ -48,4 +52,7 @@
 
 .suggestionItem:hover {
   background-color: #f0f0f0;
+}
+.highlighted {
+  background: #eee;
 }

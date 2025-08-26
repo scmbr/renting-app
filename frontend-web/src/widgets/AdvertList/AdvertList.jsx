@@ -2,7 +2,7 @@ import React from "react";
 import AdvertCard from "@/entities/advert/components/AdvertCard";
 import styles from "./AdvertList.module.css";
 import { useFiltersStore } from "@/stores/useFiltersStore";
-
+import Spinner from "@/widgets/Spinner/Spinner.jsx";
 const sortOptions = [
   { label: "По дате (новые)", sort_by: "created_at", order: "desc" },
   { label: "По дате (старые)", sort_by: "created_at", order: "asc" },
@@ -21,7 +21,7 @@ const AdvertList = ({ adverts, loading, error, total, onRemoveFavorite }) => {
     updateFilter("order", order);
   };
 
-  if (loading) return <p className={styles.loading}>Загрузка...</p>;
+  if (loading) return <Spinner />;
   if (error) return <p className={styles.error}>{error}</p>;
   if (!adverts || adverts.length === 0)
     return <p className={styles.empty}>Объявлений не найдено</p>;

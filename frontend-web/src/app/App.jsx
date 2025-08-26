@@ -5,7 +5,7 @@ import { setLogoutCallback } from "@/shared/api/axios";
 import HomePage from "@/pages/Home/HomePage.jsx";
 import RegisterPage from "@/pages/Auth/Register/RegisterPage.jsx";
 import LoginPage from "@/pages/Auth/Login/LoginPage.jsx";
-import AdvertPage from "@/pages/Advert/AdvertPage";
+import AdvertPage from "@/pages/AdvertPage/AdvertPage";
 import AddAdvertPage from "@/pages/AddAdvert/AddAdvertPage";
 import AddApartmentPage from "@/pages/AddApartment/AddApartmentPage";
 import MyAdvertsPage from "@/pages/MyAdvertsPage/MyAdvertsPage";

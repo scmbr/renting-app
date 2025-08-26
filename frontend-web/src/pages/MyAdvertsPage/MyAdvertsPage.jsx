@@ -19,7 +19,7 @@ const MyAdvertsPage = () => {
     const fetchAdverts = async () => {
       try {
         const res = await api.get("/my/advert");
-        setAdverts(res.data || []);
+        setAdverts(res.data.adverts || []);
       } catch (err) {
         if (err?.response?.status === 401) {
           navigate("/login");

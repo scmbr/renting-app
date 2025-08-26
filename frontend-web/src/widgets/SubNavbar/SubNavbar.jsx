@@ -5,6 +5,7 @@ import { useUser } from "@/shared/contexts/UserContext";
 import api from "@/shared/api/axios";
 import { nameToSlug } from "@/shared/constants/cities";
 import { useCityStore } from "@/stores/useCityStore";
+import CitySelector from "@/widgets/Navbar/CitySelector";
 const Navbar = () => {
   const { user, logout } = useUser();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -33,7 +34,7 @@ const Navbar = () => {
         <NavLink to={`/${citySlug}`} className={styles.logoLink}>
           <img src="/images/logo.png" alt="Дом" className={styles.logo} />
         </NavLink>
-
+        <CitySelector />
         <div className={styles.spacer}></div>
         <div className={styles.navbarItems}>
           <NavLink

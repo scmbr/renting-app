@@ -60,8 +60,8 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
             <img
               src={
                 isFavorite
-                  ? "/icons/favourites-filled.svg"
-                  : "/icons/favourites.svg"
+                  ? "/icons/favourites-filled.png"
+                  : "/icons/favourites.png"
               }
               alt={isFavorite ? "В избранном" : "Добавить в избранное"}
             />
