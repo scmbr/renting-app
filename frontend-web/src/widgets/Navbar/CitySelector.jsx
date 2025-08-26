@@ -20,7 +20,7 @@ const CitySelector = () => {
     try {
       const res = await fetch(
         `https://suggest-maps.yandex.ru/v1/suggest?apikey=${
-          import.meta.env.VITE_YANDEX_API_KEY
+          import.meta.env.VITE_YANDEX_GEOSUGGEST_API_KEY
         }&text=${encodeURIComponent(text)}&lang=ru_RU&types=locality`
       );
       const data = await res.json();
