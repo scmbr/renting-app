@@ -9,16 +9,40 @@ import (
 
 type ApartmentService struct {
 	repo repository.Apartment
+	apartmentPhotoRepo repository.ApartmentPhoto
 }
 
-func NewApartmentService(repo repository.Apartment) *ApartmentService {
+func NewApartmentService(repo repository.Apartment, apartmentPhotoRepo repository.ApartmentPhoto) *ApartmentService {
 	return &ApartmentService{
 		repo: repo,
+		apartmentPhotoRepo: apartmentPhotoRepo,
 	}
 }
 
 func (s *ApartmentService) GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error) {
-	return s.repo.GetAllApartments(ctx, userId)
+	apartments, err:= s.repo.GetAllApartments(ctx, userId)
+	if err!=nil{
+		return nil,err
+	}
+	apartmentIDs := make([]uint, len(apartments))
+	for i, aps := range apartments {
+		apartmentIDs[i] = aps.ID
+	}
+	result := make([]*dto.GetApartmentResponse, len(apartments))
+	photosMap, err := s.apartmentPhotoRepo.GetAllPhotosForApartments(ctx, apartmentIDs)
+	if err != nil {
+		return nil,  err
+	}
+	for i, aps := range apartments {
+		resp := dto.FromApartment(aps)
+
+		resp.ApartmentPhotos = photosMap[aps.ID]
+		if resp.ApartmentPhotos == nil {
+			resp.ApartmentPhotos = []dto.GetApartmentPhotoResponse{}
+		}
+		result[i] = resp
+	}
+	return result,nil
 }
 func (s *ApartmentService) GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error) {
 	return s.repo.GetApartmentById(ctx, userId, id)

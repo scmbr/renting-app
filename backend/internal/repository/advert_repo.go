@@ -26,7 +26,9 @@ func (r *AdvertRepo) GetAllAdverts(ctx context.Context, filter *dto.AdvertFilter
 		Joins("JOIN apartments ON apartments.id = adverts.apartment_id").
 		Joins("JOIN users ON users.id = apartments.user_id").
 		Preload("Apartment")
-
+	if filter.UserID != 0 {
+		tx = tx.Where("adverts.user_id = ?", filter.UserID)
+	}
 	if filter.City != "" {
 		tx = tx.Where("apartments.city = ?", filter.City)
 	}

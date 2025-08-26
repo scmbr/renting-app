@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/json"
 	"fmt"
+	"log"
 	"time"
 
 	"github.com/scmbr/renting-app/internal/dto"
@@ -30,15 +32,30 @@ func NewAdvertService(advertRepo repository.Advert, favoritesRepo repository.Fav
 }
 
 func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *dto.AdvertFilter) ([]*dto.GetAdvertResponse, int64, error) {
-	filterJSON, _ := json.Marshal(filter)
-	cacheKey := fmt.Sprintf("adverts:%v:%s", userID, string(filterJSON))
+	filterJSON, err := json.Marshal(filter)
+	if err != nil {
+		return nil, 0, fmt.Errorf("failed to marshal filter: %w", err)
+	}
+	hash := sha256.Sum256(filterJSON)
+	cacheKey := fmt.Sprintf("adverts:%x", hash)
 	if cached, err := s.cache.Get(ctx, cacheKey); err == nil && cached != "" {
 		var resp struct {
 			Adverts []*dto.GetAdvertResponse
 			Total   int64
 		}
 		if jsonErr := json.Unmarshal([]byte(cached), &resp); jsonErr == nil {
+			if userID != nil {
+				favoriteMap, err := s.favoritesRepo.GetUserFavorites(ctx, userID)
+				if err != nil {
+					return nil, 0, err
+				}
+				for _, adv := range resp.Adverts {
+					_, adv.IsFavorite = favoriteMap[adv.ID]
+				}
+			}
 			return resp.Adverts, resp.Total, nil
+		} else {
+			log.Printf("failed to unmarshal cached data for key %s: %v", cacheKey, jsonErr)
 		}
 	}
 
@@ -79,12 +96,15 @@ func (s *AdvertService) GetAllAdverts(ctx context.Context, userID *int, filter *
 		result[i] = resp
 	}
 
-	payload, _ := json.Marshal(struct {
+	payload, err := json.Marshal(struct {
 		Adverts []*dto.GetAdvertResponse
 		Total   int64
 	}{result, total})
-
-	_ = s.cache.Set(ctx, cacheKey, string(payload), s.cacheTTL)
+	if err != nil {
+		log.Printf("failed to marshal payload: %v", err)
+	} else if err := s.cache.Set(ctx, cacheKey, string(payload), s.cacheTTL); err != nil {
+		log.Printf("failed to set cache: %v", err)
+	}
 
 	return result, total, nil
 }

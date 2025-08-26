@@ -22,8 +22,8 @@ func (ls *LocalStorage) Upload(ctx context.Context, input UploadInput, subDir st
 	if err := os.MkdirAll(dirPath, os.ModePerm); err != nil {
 		return "", fmt.Errorf("failed to create directory: %w", err)
 	}
-
-	fullPath := filepath.Join(dirPath, input.Name)
+	filename := generateFilename(input.Name)
+	fullPath := filepath.Join(dirPath, filename)
 
 	file, err := os.Create(fullPath)
 	if err != nil {
@@ -35,5 +35,5 @@ func (ls *LocalStorage) Upload(ctx context.Context, input UploadInput, subDir st
 		return "", fmt.Errorf("failed to write file: %w", err)
 	}
 
-	return fmt.Sprintf("%s/%s/%s", ls.baseURL, subDir, input.Name), nil
+	return fmt.Sprintf("%s/%s/%s", ls.baseURL, subDir, filename), nil
 }

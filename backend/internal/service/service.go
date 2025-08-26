@@ -148,7 +148,7 @@ func NewServices(deps Deps) *Services {
 		deps.EmailSender,
 		emailService,
 	)
-	apartmentService := NewApartmentService(deps.Repos.Apartment)
+	apartmentService := NewApartmentService(deps.Repos.Apartment,deps.Repos.ApartmentPhoto)
 	apartmentPhotoService := NewApartmentPhotoService(deps.Repos.ApartmentPhoto, deps.StorageProvider)
 	advertService := NewAdvertService(deps.Repos.Advert, deps.Repos.Favorites, deps.Repos.ApartmentPhoto, deps.Cache, deps.CacheTTL)
 

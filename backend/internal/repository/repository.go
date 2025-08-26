@@ -40,7 +40,7 @@ type Session interface {
 	DeleteByDevice(ctx context.Context, id int, ip, os, browser string) error
 }
 type Apartment interface {
-	GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error)
+	GetAllApartments(ctx context.Context, userId int) ([]*domain.Apartment, error)
 	GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error)
 	CreateApartment(ctx context.Context, userId int, input dto.CreateApartmentInput) (*domain.Apartment, error)
 	DeleteApartment(ctx context.Context, userId int, id int) error

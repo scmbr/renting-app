@@ -17,57 +17,16 @@ type ApartmentRepo struct {
 func NewApartmentRepo(db *gorm.DB) *ApartmentRepo {
 	return &ApartmentRepo{db: db}
 }
-func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userId int) ([]*dto.GetApartmentResponse, error) {
-	var apartments []domain.Apartment
-	tx := r.db.WithContext(ctx).Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			tx.Rollback()
-		}
-	}()
-	result := tx.
-		Where("user_id = ?", userId).
-		Find(&apartments)
-	if result.Error != nil {
-		tx.Rollback()
-		return nil, result.Error
+func (r *ApartmentRepo) GetAllApartments(ctx context.Context, userID int) ([]*domain.Apartment, error) {
+	var apartments []*domain.Apartment
+	if err := r.db.WithContext(ctx).
+		Where("user_id = ?", userID).
+		Find(&apartments).Error; err != nil {
+		return nil, err
 	}
-
-	var getApartmentDTOs []*dto.GetApartmentResponse
-
-	for _, apartment := range apartments {
-		getApartmentDTO := dto.GetApartmentResponse{
-			ID:               apartment.ID,
-			UserID:           apartment.UserID,
-			City:             apartment.City,
-			Street:           apartment.Street,
-			Building:         apartment.Building,
-			Floor:            apartment.Floor,
-			ApartmentNumber:  apartment.ApartmentNumber,
-			Longitude:        apartment.Longitude,
-			Latitude:         apartment.Latitude,
-			Rooms:            apartment.Rooms,
-			Area:             apartment.Area,
-			Elevator:         apartment.Elevator,
-			GarbageChute:     apartment.GarbageChute,
-			BathroomType:     apartment.BathroomType,
-			Concierge:        apartment.Concierge,
-			ConstructionYear: apartment.ConstructionYear,
-			ConstructionType: apartment.ConstructionType,
-			Remont:           apartment.Remont,
-			CreatedAt:        apartment.CreatedAt,
-			UpdatedAt:        apartment.UpdatedAt,
-			Rating:           apartment.Rating,
-			Status:           apartment.Status,
-		}
-		getApartmentDTOs = append(getApartmentDTOs, &getApartmentDTO)
-	}
-
-	tx.Commit()
-
-	return getApartmentDTOs, nil
-
+	return apartments, nil
 }
+
 func (r *ApartmentRepo) GetApartmentById(ctx context.Context, userId int, id int) (*dto.GetApartmentResponse, error) {
 	var apartment domain.Apartment
 

@@ -66,7 +66,7 @@ func (h *Handler) addPhotos(c *gin.Context) {
 		newErrorResponse(c, http.StatusBadRequest, "no photos provided")
 		return
 	}
-	photos, err := h.services.ApartmentPhoto.AddPhotos(c.Request.Context(), apartmentId, userId, files)
+	photos, err := h.services.ApartmentPhoto.AddPhotos(c.Request.Context(), userId,apartmentId,  files)
 	if err != nil {
 		newErrorResponse(c, http.StatusInternalServerError, err.Error())
 		return
