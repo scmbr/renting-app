@@ -48,10 +48,10 @@ const AdvertCard = ({ advert, onRemoveFavorite }) => {
             alt="Фото квартиры"
             className={styles.coverPhoto}
           />
-          <h3 className="text-lg font-bold">{title}</h3>
-          <p>
-            {apartment.city}, {apartment.street}, {apartment.building}
-          </p>
+          <h3 className={styles.title}>
+            {" "}
+            {apartment.street}, {apartment.building}
+          </h3>
           <p>
             Этаж: {apartment.floor} | Комнат: {apartment.rooms}
           </p>
