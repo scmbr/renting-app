@@ -28,10 +28,8 @@ const fetchSimilarAdverts = async (advert) => {
   };
   const response = await api.get("/adverts", { params });
 
-  // Получаем массив из ответа
   const adverts = response.data.adverts || [];
 
-  // Убираем текущее объявление из похожих
   return adverts.filter((a) => a.id !== advert.id);
 };
 const Stars = ({ rating }) => {
@@ -71,7 +69,7 @@ const Stars = ({ rating }) => {
 
   return <div className={styles.rating}>{stars}</div>;
 };
-import.meta.env.VITE_YANDEX_API_KEY;
+import.meta.env.VITE_YANDEX_GEOSUGGEST_API_KEY;
 const ApartmentCarousel = ({ photos, title }) =>
   photos.length > 0 && (
     <Carousel
@@ -240,7 +238,13 @@ const AdvertPage = () => {
         <Spinner />
       </div>
     );
-  if (error) return <p className={styles.error}>{error}</p>;
+  if (error)
+    return (
+      <div>
+        <SubNavbar />
+        <Spinner />
+      </div>
+    );
   if (!advert) return null;
 
   const {

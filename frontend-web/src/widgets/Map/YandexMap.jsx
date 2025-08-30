@@ -1,6 +1,7 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { YMaps, Map, Placemark, Clusterer } from "@pbe/react-yandex-maps";
 import { useCityStore } from "@/stores/useCityStore";
+import { useMapStore } from "@/stores/useMapStore";
 import { getCoordsByCity } from "@/shared/constants/cities";
 import { useFiltersStore } from "@/stores/useFiltersStore";
 import { useNavigate } from "react-router-dom";
@@ -12,24 +13,34 @@ export const YandexMap = ({ markerPosition, onSelect, adverts = [] }) => {
   const updateFilter = useFiltersStore((state) => state.updateFilter);
   const navigate = useNavigate();
 
-  const [mapCenter, setMapCenter] = useState(null);
-  const [zoom, setZoom] = useState(12);
+  const mapState = useMapStore((state) => state.mapState);
+  const setMapState = useMapStore((state) => state.setMapState);
 
   useEffect(() => {
     const loadCoords = async () => {
+      if (mapState?.city === city) return;
+
       const coords = await getCoordsByCity(city);
-      if (coords) {
-        setMapCenter(coords);
-      }
+      if (coords) setMapState(city, coords, 12); // default zoom
     };
     loadCoords();
-  }, [city]);
+  }, [city, mapState, setMapState]);
 
   const handleMapClick = (e) => {
     const coords = e.get("coords");
     onSelect?.(coords);
-    updateFilter("lat", coords[0]);
-    updateFilter("lng", coords[1]);
+    updateFilter("lat", undefined);
+    updateFilter("lng", undefined);
+
+    // Обновляем центр карты в сторе
+    setMapState(city, coords, mapState.zoom);
+  };
+
+  const handleBoundsChange = (event) => {
+    const newCenter = event.get("newCenter");
+    const newZoom = event.get("newZoom");
+
+    setMapState(city, newCenter, newZoom);
   };
 
   const handleMarkerClick = (advert) => {
@@ -38,17 +49,21 @@ export const YandexMap = ({ markerPosition, onSelect, adverts = [] }) => {
     }
   };
 
-  if (!mapCenter) {
+  if (!mapState?.coords) {
     return <Spinner />;
   }
+
+  const mapCenter = mapState.coords;
+  const mapZoom = mapState.zoom ?? 12;
 
   return (
     <YMaps>
       <Map
-        state={{ center: mapCenter, zoom }}
+        state={{ center: mapCenter, zoom: mapZoom }}
         width="100%"
         height="100%"
         onClick={handleMapClick}
+        onBoundsChange={handleBoundsChange}
         instanceRef={mapRef}
       >
         <Clusterer
@@ -57,6 +72,28 @@ export const YandexMap = ({ markerPosition, onSelect, adverts = [] }) => {
             groupByCoordinates: false,
             clusterDisableClickZoom: false,
             clusterOpenBalloonOnClick: false,
+          }}
+          onClick={(e) => {
+            const cluster = e.get("target");
+            const geoObjects = cluster.getGeoObjects();
+
+            if (geoObjects.length === 0) return;
+
+            const firstCoords = geoObjects[0].geometry.getCoordinates();
+            const allSame = geoObjects.every((obj) => {
+              const coords = obj.geometry.getCoordinates();
+              return (
+                coords[0] === firstCoords[0] && coords[1] === firstCoords[1]
+              );
+            });
+
+            if (allSame) {
+              updateFilter("lat", firstCoords[0]);
+              updateFilter("lng", firstCoords[1]);
+            } else {
+              updateFilter("lat", undefined);
+              updateFilter("lng", undefined);
+            }
           }}
         >
           {adverts.map((advert) => {
@@ -72,13 +109,8 @@ export const YandexMap = ({ markerPosition, onSelect, adverts = [] }) => {
               <Placemark
                 key={advert.id}
                 geometry={[apt.latitude, apt.longitude]}
-                properties={{
-                  iconCaption: `${advert.rent} ₽`,
-                }}
-                options={{
-                  preset: "islands#dotIcon",
-                  iconColor: "#8b51ff",
-                }}
+                properties={{ iconCaption: `${advert.rent} ₽` }}
+                options={{ preset: "islands#dotIcon", iconColor: "#8b51ff" }}
                 onClick={() => handleMarkerClick(advert)}
               />
             );

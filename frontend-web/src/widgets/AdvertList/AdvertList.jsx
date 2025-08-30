@@ -3,6 +3,7 @@ import AdvertCard from "@/entities/advert/components/AdvertCard";
 import styles from "./AdvertList.module.css";
 import { useFiltersStore } from "@/stores/useFiltersStore";
 import Spinner from "@/widgets/Spinner/Spinner.jsx";
+
 const sortOptions = [
   { label: "По дате (новые)", sort_by: "created_at", order: "desc" },
   { label: "По дате (старые)", sort_by: "created_at", order: "asc" },
@@ -10,7 +11,14 @@ const sortOptions = [
   { label: "По цене (убыв.)", sort_by: "rent", order: "desc" },
 ];
 
-const AdvertList = ({ adverts, loading, error, total, onRemoveFavorite }) => {
+const AdvertList = ({
+  adverts,
+  loading,
+  error,
+  total,
+  onRemoveFavorite,
+  onRetry,
+}) => {
   const filters = useFiltersStore((state) => state.filters);
   const updateFilter = useFiltersStore((state) => state.updateFilter);
 
@@ -22,7 +30,16 @@ const AdvertList = ({ adverts, loading, error, total, onRemoveFavorite }) => {
   };
 
   if (loading) return <Spinner />;
-  if (error) return <p className={styles.error}>{error}</p>;
+  if (error) {
+    return (
+      <div className={styles.errorContainer}>
+        <p className={styles.error}>Кажется что-то пошло не так...</p>
+        <button onClick={onRetry} className={styles.retryButton}>
+          Попробовать снова
+        </button>
+      </div>
+    );
+  }
   if (!adverts || adverts.length === 0)
     return <p className={styles.empty}>Объявлений не найдено</p>;
 
